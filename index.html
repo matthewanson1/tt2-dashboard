@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TT 2.0 Tenants</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #222; min-height: 100vh; }
+
+    header { background: #1a1a2e; color: white; padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; }
+    header h1 { font-size: 18px; font-weight: 600; }
+    header p { font-size: 12px; color: #aaa; margin-top: 3px; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .refreshed-at { font-size: 12px; color: #888; }
+
+    .btn { padding: 7px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; }
+    .btn-primary { background: #4f8ef7; color: white; }
+    .btn-primary:hover { background: #3a7de0; }
+    .btn-ghost { background: rgba(255,255,255,0.1); color: white; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.2); }
+
+    .main { padding: 28px 32px; max-width: 980px; margin: 0 auto; }
+
+    .stats { display: flex; gap: 14px; margin-bottom: 22px; }
+    .stat-card { background: white; border-radius: 10px; padding: 16px 20px; border: 1px solid #e8e8e8; flex: 1; }
+    .stat-card .label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card .value { font-size: 30px; font-weight: 700; margin-top: 4px; color: #1a1a2e; }
+    .stat-card .sub { font-size: 11px; color: #bbb; margin-top: 2px; }
+
+    .card { background: white; border-radius: 10px; border: 1px solid #e8e8e8; overflow: hidden; }
+    .card-header { padding: 14px 18px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+    .card-header h2 { font-size: 13px; font-weight: 600; color: #555; }
+    .search { padding: 6px 11px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; width: 200px; outline: none; }
+    .search:focus { border-color: #4f8ef7; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #fafafa; }
+    th { padding: 9px 16px; text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: #999; border-bottom: 1px solid #f0f0f0; }
+    td { padding: 11px 16px; font-size: 13px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafcff; }
+
+    .tenant-name { font-weight: 500; color: #1a1a2e; }
+    .tenant-id { font-family: monospace; font-size: 10px; color: #bbb; margin-top: 2px; }
+
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+    .badge-training  { background: #e8f3ff; color: #2d6cc0; }
+    .badge-sandbox   { background: #fff3e0; color: #c07a00; }
+    .badge-demo      { background: #f3e8ff; color: #7a2dc0; }
+    .badge-staging   { background: #e8fff0; color: #1a8c45; }
+    .badge-validation{ background: #fff0e8; color: #c04a00; }
+    .badge-unknown   { background: #f0f0f0; color: #888; }
+
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #27ae60; display: inline-block; margin-right: 6px; }
+
+    .date-cell { font-size: 12px; color: #555; white-space: nowrap; }
+    .date-unknown { color: #ccc; }
+
+    .usage-cell { font-size: 13px; font-weight: 600; color: #1a1a2e; }
+    .usage-zero { color: #ccc; font-weight: 400; }
+    .usage-sub { font-size: 10px; color: #aaa; font-weight: 400; margin-top: 1px; }
+
+    .th-tip { position: relative; cursor: default; }
+    .th-tip .tip-icon { display: inline-block; width: 13px; height: 13px; border-radius: 50%; background: #ddd; color: #888; font-size: 9px; font-weight: 700; line-height: 13px; text-align: center; margin-left: 4px; vertical-align: middle; }
+    .th-tip .tip-box { display: none; position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #1a1a2e; color: #fff; font-size: 11px; font-weight: 400; text-transform: none; letter-spacing: 0; line-height: 1.5; padding: 8px 11px; border-radius: 6px; white-space: nowrap; z-index: 100; pointer-events: none; }
+    .th-tip .tip-box::before { content: ''; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-bottom-color: #1a1a2e; }
+    .th-tip:hover .tip-box { display: block; }
+
+    .error-bar { background: #ffebee; border: 1px solid #ef9a9a; border-radius: 7px; padding: 10px 14px; margin-bottom: 16px; color: #c62828; font-size: 13px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Time Tracking 2.0 — Active Tenants</h1>
+    <p>Tenants with <code>time-tracking-redesign</code> flag on in Production · LaunchDarkly</p>
+  </div>
+  <div class="header-right">
+    <span class="refreshed-at" id="refreshed-at">Snapshot: May 6, 2026</span>
+    <button class="btn btn-ghost" id="refresh-btn" onclick="doRefresh()">↻ Refresh</button>
+  </div>
+</header>
+
+<div class="main">
+  <div id="error-bar" class="error-bar hidden"></div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="label">Tenants with TT 2.0 On</div>
+      <div class="value" id="stat-total">19</div>
+      <div class="sub">Production LD environment</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Training / Sandbox</div>
+      <div class="value" id="stat-training">—</div>
+      <div class="sub">Customer test environments</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Demo / Internal</div>
+      <div class="value" id="stat-demo">—</div>
+      <div class="sub">SE & internal demos</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 id="table-title">Tenant List</h2>
+      <input class="search" type="text" placeholder="Search…" oninput="filterTable(this.value)" />
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:40px">#</th>
+          <th>Tenant</th>
+          <th style="width:120px">Type</th>
+          <th style="width:120px">Enabled On</th>
+          <th style="width:80px" class="th-tip">Web<span class="tip-icon">?</span><span class="tip-box">Times the TT 2.0 web page was opened<br>since this tenant's enable date.<br>Source: Heap (snapshot May 6, 2026)</span></th>
+          <th style="width:80px" class="th-tip">Mobile<span class="tip-icon">?</span><span class="tip-box">Mobile timesheet events fired<br>since this tenant's enable date.<br>Source: Heap (snapshot May 6, 2026)</span></th>
+          <th style="width:100px">Status</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+
+<script>
+// ── Embedded snapshot data ────────────────────────────────────────────────────
+// Last fetched from LaunchDarkly production on May 6, 2026
+// enabledDate sourced from LD audit log (null = no audit record found)
+// webViews = TT web page views since enable date (Heap/Snowflake, snapshot May 6 2026)
+// mobileEvents = mobile timesheet events since enable date
+const SNAPSHOT_TENANTS = [
+  { id: '8ea18cd0-a81d-4c15-aac5-c3bd61114cd8', name: 'UrbanForge Building Systems',                    enabledDate: '2026-05-06', webViews:   0, mobileEvents:   0 },
+  { id: '02cde03f-4032-479d-bae6-8de4cd9a54f4', name: 'Vanco Commercial Service Training',             enabledDate: '2026-05-05', webViews:   0, mobileEvents:   0 },
+  { id: '8b6157dd-d727-4702-9011-af952144bba5', name: 'Dual Fuel Training',                            enabledDate: '2026-05-01', webViews:   0, mobileEvents:   0 },
+  { id: 'a771e416-bd0b-4b9a-8496-6caa136ee8da', name: 'Kaemmerlen Solutions Training',                 enabledDate: '2026-05-01', webViews:   0, mobileEvents:   0 },
+  { id: '01f331b8-1749-4ee9-a447-237f989206b4', name: 'Design Solutions & Integration Training',       enabledDate: '2026-04-30', webViews:  37, mobileEvents:   0 },
+  { id: '7a213da2-023c-4770-b609-921ae6a4b53b', name: 'Billy Wonka Mechanical Demo',                   enabledDate: '2026-04-28', webViews:  24, mobileEvents:   0 },
+  { id: '3a43a3d3-91dc-4246-8c3f-b2a557395a78', name: 'Jorge Demo',                                   enabledDate: '2026-04-28', webViews:   7, mobileEvents:   0 },
+  { id: '55b2a823-3eb6-4c79-920f-e7559758edbc', name: "Maddie B's Demo Account",                      enabledDate: '2026-04-28', webViews:  26, mobileEvents:   0 },
+  { id: 'b489c225-cd3a-4f2f-adb1-1a70a31ac2ca', name: 'Genset Holdings Training',                     enabledDate: '2026-04-28', webViews:  13, mobileEvents:   0 },
+  { id: '8cd427b5-2036-4c1b-ae16-6e5acd5a179f', name: 'Sauer Building Solutions Training',            enabledDate: '2026-04-27', webViews:  14, mobileEvents:   0 },
+  { id: 'da81cd2a-0b91-497b-b44a-476488a5b489', name: 'Upchurch SANDBOX',                             enabledDate: '2026-04-27', webViews:  66, mobileEvents:   0 },
+  { id: '6b535d0a-4519-4e77-b7d2-b24877f499b1', name: 'SE Demo',                                      enabledDate: '2026-03-30', webViews:  15, mobileEvents:   0 },
+  { id: '4cecaade-1364-4171-8341-aa75666263e9', name: 'Remco Inc. Training',                           enabledDate: '2026-04-27', webViews:   4, mobileEvents:   0 },
+  { id: 'c168626b-0f18-4d10-8b32-a521a7a6f56d', name: 'Bierlein-Trombley Electric Training',          enabledDate: '2026-04-28', webViews:   3, mobileEvents:   0 },
+  { id: '44b62934-70de-47cb-8034-da40ca3a37e4', name: 'PMC Energy Staging',                           enabledDate: '2026-04-28', webViews:   0, mobileEvents:   0 },
+  { id: '0f5b242a-1d93-4a3f-8be3-295372631d43', name: 'Stetner Construction Group Training',          enabledDate: '2026-04-28', webViews:   0, mobileEvents:   0 },
+  { id: '9c178fd0-d86c-4a1b-bc69-55989d7e08ce', name: 'Jolma Electric Training',                      enabledDate: null,         webViews:   0, mobileEvents:   2 },
+  { id: 'eba3743a-5128-4659-8668-e19e712d633e', name: 'TJW Industrial Validation',                    enabledDate: '2025-12-21', webViews: 211, mobileEvents: 153 },
+  { id: 'f63f7159-7079-4f8e-b526-95f5e4b3e6be', name: 'Westcoast Mechanical Contractors Training',    enabledDate: null,         webViews:   9, mobileEvents:   0 },
+];
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function classify(name) {
+  if (!name) return 'unknown';
+  const n = name.toLowerCase();
+  if (n.includes('sandbox')) return 'sandbox';
+  if (n.includes('staging')) return 'staging';
+  if (n.includes('validation')) return 'validation';
+  if (n.includes('demo')) return 'demo';
+  if (n.includes('training')) return 'training';
+  return 'unknown';
+}
+
+function formatDate(iso) {
+  if (!iso) return null;
+  const d = new Date(iso + 'T00:00:00Z');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+}
+
+const BADGE_LABELS = { training: 'Training', sandbox: 'Sandbox', demo: 'Demo', staging: 'Staging', validation: 'Validation', unknown: 'Unknown' };
+
+function renderTable(tenants) {
+  // Sort: known dates first (newest to oldest), then unknowns
+  const sorted = [...tenants].sort((a, b) => {
+    if (a.enabledDate && b.enabledDate) return b.enabledDate.localeCompare(a.enabledDate);
+    if (a.enabledDate) return -1;
+    if (b.enabledDate) return 1;
+    return 0;
+  });
+
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = sorted.map((t, i) => {
+    const name = t.name || `Unknown (${t.id.slice(0, 8)}…)`;
+    const type = classify(t.name);
+    const dateLabel = t.enabledDate
+      ? `<span class="date-cell">${formatDate(t.enabledDate)}</span>`
+      : `<span class="date-cell date-unknown">—</span>`;
+    const web = t.webViews || 0;
+    const mobile = t.mobileEvents || 0;
+    const webLabel = web > 0 ? `<span class="usage-cell">${web}</span>` : `<span class="usage-zero">—</span>`;
+    const mobileLabel = mobile > 0 ? `<span class="usage-cell">${mobile}</span>` : `<span class="usage-zero">—</span>`;
+    return `<tr data-search="${name.toLowerCase()}">
+      <td style="color:#bbb">${i + 1}</td>
+      <td><div class="tenant-name">${name}</div><div class="tenant-id">${t.id}</div></td>
+      <td><span class="badge badge-${type}">${BADGE_LABELS[type]}</span></td>
+      <td>${dateLabel}</td>
+      <td>${webLabel}</td>
+      <td>${mobileLabel}</td>
+      <td><span class="dot"></span>Enabled</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('stat-total').textContent = tenants.length;
+  document.getElementById('stat-training').textContent =
+    tenants.filter(t => ['training','sandbox','staging','validation'].includes(classify(t.name))).length;
+  document.getElementById('stat-demo').textContent =
+    tenants.filter(t => classify(t.name) === 'demo').length;
+  document.getElementById('table-title').textContent = `Tenant List (${tenants.length})`;
+}
+
+function filterTable(q) {
+  document.querySelectorAll('#table-body tr').forEach(row => {
+    row.style.display = row.dataset.search.includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+const LD_TOKEN = 'api-a6c609f8-7516-46bb-a945-511726b955b5';
+
+async function doRefresh() {
+  const btn = document.getElementById('refresh-btn');
+  btn.textContent = '↻ Loading…';
+  btn.disabled = true;
+  document.getElementById('error-bar').classList.add('hidden');
+
+  try {
+    const resp = await fetch(
+      'https://app.launchdarkly.com/api/v2/flags/default/time-tracking-redesign',
+      { headers: { Authorization: LD_TOKEN } }
+    );
+    if (!resp.ok) throw new Error(`LaunchDarkly returned ${resp.status}`);
+
+    const data = await resp.json();
+    const targets = data?.environments?.production?.targets || [];
+    const ids = targets.find(t => t.variation === 0)?.values || [];
+
+    const tenants = ids.map(id => {
+      const known = SNAPSHOT_TENANTS.find(s => s.id === id);
+      return { id, name: known?.name || null, enabledDate: known?.enabledDate || null };
+    });
+
+    renderTable(tenants);
+    document.getElementById('refreshed-at').textContent =
+      'Updated ' + new Date().toLocaleTimeString();
+  } catch (err) {
+    document.getElementById('error-bar').textContent = 'Refresh failed: ' + err.message;
+    document.getElementById('error-bar').classList.remove('hidden');
+  } finally {
+    btn.textContent = '↻ Refresh';
+    btn.disabled = false;
+  }
+}
+
+// ── Init: render snapshot immediately ────────────────────────────────────────
+renderTable(SNAPSHOT_TENANTS);
+</script>
+</body>
+</html>
