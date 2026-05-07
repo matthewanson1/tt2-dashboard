@@ -79,7 +79,7 @@
     <p>Tenants with <code>time-tracking-redesign</code> flag on in Production · LaunchDarkly</p>
   </div>
   <div class="header-right">
-    <span class="refreshed-at" id="refreshed-at">Snapshot: May 6, 2026</span>
+    <span class="refreshed-at" id="refreshed-at">Snapshot: May 7, 2026</span>
     <button class="btn btn-ghost" id="refresh-btn" onclick="doRefresh()">↻ Refresh</button>
   </div>
 </header>
@@ -117,8 +117,8 @@
           <th>Tenant</th>
           <th style="width:120px">Type</th>
           <th style="width:120px">Enabled On</th>
-          <th style="width:80px" class="th-tip">Web<span class="tip-icon">?</span><span class="tip-box">Times the TT 2.0 web page was opened<br>since this tenant's enable date.<br>Source: Heap (snapshot May 6, 2026)</span></th>
-          <th style="width:80px" class="th-tip">Mobile<span class="tip-icon">?</span><span class="tip-box">Mobile timesheet events fired<br>since this tenant's enable date.<br>Source: Heap (snapshot May 6, 2026)</span></th>
+          <th style="width:80px" class="th-tip">Web<span class="tip-icon">?</span><span class="tip-box">Times the TT 2.0 web page was opened<br>since this tenant's enable date.<br>Source: Heap (snapshot May 7, 2026)</span></th>
+          <th style="width:80px" class="th-tip">Mobile<span class="tip-icon">?</span><span class="tip-box">Mobile timesheet events fired<br>since this tenant's enable date.<br>Source: Heap (snapshot May 7, 2026)</span></th>
           <th style="width:100px">Status</th>
         </tr>
       </thead>
@@ -130,24 +130,24 @@
 
 <script>
 // ── Embedded snapshot data ────────────────────────────────────────────────────
-// Last fetched from LaunchDarkly production on May 6, 2026
+// Last fetched from LaunchDarkly production on May 7, 2026
 // enabledDate sourced from LD audit log (null = no audit record found)
-// webViews = TT web page views since enable date (Heap/Snowflake, snapshot May 6 2026)
+// webViews = TT web page views since enable date (Heap/Snowflake, snapshot May 7 2026)
 // mobileEvents = mobile timesheet events since enable date
 const SNAPSHOT_TENANTS = [
-  { id: '8ea18cd0-a81d-4c15-aac5-c3bd61114cd8', name: 'UrbanForge Building Systems',                    enabledDate: '2026-05-06', webViews:   0, mobileEvents:   0 },
+  { id: '8ea18cd0-a81d-4c15-aac5-c3bd61114cd8', name: 'UrbanForge Building Systems',                    enabledDate: '2026-05-06', webViews:   3, mobileEvents:   0 },
   { id: '02cde03f-4032-479d-bae6-8de4cd9a54f4', name: 'Vanco Commercial Service Training',             enabledDate: '2026-05-05', webViews:   0, mobileEvents:   0 },
   { id: '8b6157dd-d727-4702-9011-af952144bba5', name: 'Dual Fuel Training',                            enabledDate: '2026-05-01', webViews:   0, mobileEvents:   0 },
   { id: 'a771e416-bd0b-4b9a-8496-6caa136ee8da', name: 'Kaemmerlen Solutions Training',                 enabledDate: '2026-05-01', webViews:   0, mobileEvents:   0 },
-  { id: '01f331b8-1749-4ee9-a447-237f989206b4', name: 'Design Solutions & Integration Training',       enabledDate: '2026-04-30', webViews:  37, mobileEvents:   0 },
+  { id: '01f331b8-1749-4ee9-a447-237f989206b4', name: 'Design Solutions & Integration Training',       enabledDate: '2026-04-30', webViews:  41, mobileEvents:   0 },
   { id: '7a213da2-023c-4770-b609-921ae6a4b53b', name: 'Billy Wonka Mechanical Demo',                   enabledDate: '2026-04-28', webViews:  24, mobileEvents:   0 },
   { id: '3a43a3d3-91dc-4246-8c3f-b2a557395a78', name: 'Jorge Demo',                                   enabledDate: '2026-04-28', webViews:   7, mobileEvents:   0 },
-  { id: '55b2a823-3eb6-4c79-920f-e7559758edbc', name: "Maddie B's Demo Account",                      enabledDate: '2026-04-28', webViews:  26, mobileEvents:   0 },
+  { id: '55b2a823-3eb6-4c79-920f-e7559758edbc', name: "Maddie B's Demo Account",                      enabledDate: '2026-04-28', webViews:  27, mobileEvents:   0 },
   { id: 'b489c225-cd3a-4f2f-adb1-1a70a31ac2ca', name: 'Genset Holdings Training',                     enabledDate: '2026-04-28', webViews:  13, mobileEvents:   0 },
-  { id: '8cd427b5-2036-4c1b-ae16-6e5acd5a179f', name: 'Sauer Building Solutions Training',            enabledDate: '2026-04-27', webViews:  14, mobileEvents:   0 },
-  { id: 'da81cd2a-0b91-497b-b44a-476488a5b489', name: 'Upchurch SANDBOX',                             enabledDate: '2026-04-27', webViews:  66, mobileEvents:   0 },
+  { id: '8cd427b5-2036-4c1b-ae16-6e5acd5a179f', name: 'Sauer Building Solutions Training',            enabledDate: '2026-04-27', webViews:  18, mobileEvents:   0 },
+  { id: 'da81cd2a-0b91-497b-b44a-476488a5b489', name: 'Upchurch SANDBOX',                             enabledDate: '2026-04-27', webViews:  79, mobileEvents:   0 },
   { id: '6b535d0a-4519-4e77-b7d2-b24877f499b1', name: 'SE Demo',                                      enabledDate: '2026-03-30', webViews:  15, mobileEvents:   0 },
-  { id: '4cecaade-1364-4171-8341-aa75666263e9', name: 'Remco Inc. Training',                           enabledDate: '2026-04-27', webViews:   4, mobileEvents:   0 },
+  { id: '4cecaade-1364-4171-8341-aa75666263e9', name: 'Remco Inc. Training',                           enabledDate: '2026-04-27', webViews:   5, mobileEvents:   0 },
   { id: 'c168626b-0f18-4d10-8b32-a521a7a6f56d', name: 'Bierlein-Trombley Electric Training',          enabledDate: '2026-04-28', webViews:   3, mobileEvents:   0 },
   { id: '44b62934-70de-47cb-8034-da40ca3a37e4', name: 'PMC Energy Staging',                           enabledDate: '2026-04-28', webViews:   0, mobileEvents:   0 },
   { id: '0f5b242a-1d93-4a3f-8be3-295372631d43', name: 'Stetner Construction Group Training',          enabledDate: '2026-04-28', webViews:   0, mobileEvents:   0 },
