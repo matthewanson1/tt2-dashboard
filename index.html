@@ -75,8 +75,8 @@
 
 <header>
   <div>
-    <h1>Time Tracking 2.0 — Active Tenants</h1>
-    <p>Tenants with <code>time-tracking-redesign</code> flag on in Production · LaunchDarkly</p>
+    <h1>Time Tracking — Active Tenants</h1>
+    <p>Tenants with <code>time-tracking-redesign</code> or <code>track-time-on-projects-without-visit</code> flag on in Production · LaunchDarkly</p>
   </div>
   <div class="header-right">
     <span class="refreshed-at" id="refreshed-at">Snapshot: May 11, 2026</span>
@@ -89,19 +89,19 @@
 
   <div class="stats">
     <div class="stat-card">
-      <div class="label">Tenants with TT 2.0 On</div>
+      <div class="label">Total Tenants</div>
       <div class="value" id="stat-total">19</div>
-      <div class="sub">Production LD environment</div>
+      <div class="sub">Either flag on in Production</div>
     </div>
     <div class="stat-card">
-      <div class="label">Training / Sandbox</div>
-      <div class="value" id="stat-training">—</div>
-      <div class="sub">Customer test environments</div>
+      <div class="label">TT 2.0 On</div>
+      <div class="value" id="stat-tt2">19</div>
+      <div class="sub">time-tracking-redesign flag</div>
     </div>
     <div class="stat-card">
-      <div class="label">Demo / Internal</div>
-      <div class="value" id="stat-demo">—</div>
-      <div class="sub">SE &amp; internal demos</div>
+      <div class="label">Project TT On</div>
+      <div class="value" id="stat-project-tt">—</div>
+      <div class="sub">track-time-on-projects flag</div>
     </div>
   </div>
 
@@ -116,10 +116,11 @@
           <th style="width:40px">#</th>
           <th>Tenant</th>
           <th style="width:120px">Type</th>
-          <th style="width:120px">Enabled On</th>
+          <th style="width:80px" class="th-tip">TT 2.0<span class="tip-icon">?</span><span class="tip-box">Whether the tenant has the<br>time-tracking-redesign flag on.<br>Live from LD.</span></th>
+          <th style="width:110px" class="th-tip">Project TT<span class="tip-icon">?</span><span class="tip-box">Whether the tenant has the<br>"Track Time on Projects Without Visit"<br>feature flag on. Live from LD.</span></th>
+          <th style="width:120px">TT 2.0 Enabled</th>
           <th style="width:80px" class="th-tip">Web<span class="tip-icon">?</span><span class="tip-box">Times the TT 2.0 web page was opened<br>since this tenant's enable date.<br>Source: Heap (snapshot May 11, 2026)</span></th>
           <th style="width:80px" class="th-tip">Mobile<span class="tip-icon">?</span><span class="tip-box">Mobile timesheet events fired<br>since this tenant's enable date.<br>Source: Heap (snapshot May 11, 2026)</span></th>
-          <th style="width:110px" class="th-tip">Project TT<span class="tip-icon">?</span><span class="tip-box">Whether the tenant has the<br>"Track Time on Projects Without Visit"<br>feature flag on. Live from LD.</span></th>
           <th style="width:100px">Status</th>
         </tr>
       </thead>
@@ -197,6 +198,11 @@ function renderTable(tenants) {
     const mobile = t.mobileEvents || 0;
     const webLabel = web > 0 ? `<span class="usage-cell">${web}</span>` : `<span class="usage-zero">—</span>`;
     const mobileLabel = mobile > 0 ? `<span class="usage-cell">${mobile}</span>` : `<span class="usage-zero">—</span>`;
+    // ttOn defaults to true for snapshot tenants (all have TT 2.0); set explicitly after a live refresh
+    const ttOn = t.ttOn !== undefined ? t.ttOn : true;
+    const ttOnLabel = ttOn
+      ? `<span class="badge badge-on">On</span>`
+      : `<span style="color:#ccc">—</span>`;
     const projectTTLabel = t.projectTT
       ? `<span class="badge badge-on">On</span>`
       : `<span style="color:#ccc">—</span>`;
@@ -204,19 +210,20 @@ function renderTable(tenants) {
       <td style="color:#bbb">${i + 1}</td>
       <td><div class="tenant-name">${name}</div><div class="tenant-id">${t.id}</div></td>
       <td><span class="badge badge-${type}">${BADGE_LABELS[type]}</span></td>
+      <td>${ttOnLabel}</td>
+      <td>${projectTTLabel}</td>
       <td>${dateLabel}</td>
       <td>${webLabel}</td>
       <td>${mobileLabel}</td>
-      <td>${projectTTLabel}</td>
       <td><span class="dot"></span>Enabled</td>
     </tr>`;
   }).join('');
 
   document.getElementById('stat-total').textContent = tenants.length;
-  document.getElementById('stat-training').textContent =
-    tenants.filter(t => ['training','sandbox','staging','validation'].includes(classify(t.name))).length;
-  document.getElementById('stat-demo').textContent =
-    tenants.filter(t => classify(t.name) === 'demo').length;
+  document.getElementById('stat-tt2').textContent =
+    tenants.filter(t => t.ttOn !== undefined ? t.ttOn : true).length;
+  document.getElementById('stat-project-tt').textContent =
+    tenants.filter(t => t.projectTT).length;
   document.getElementById('table-title').textContent = `Tenant List (${tenants.length})`;
 }
 
@@ -245,12 +252,15 @@ async function doRefresh() {
     const [ttData, projectData] = await Promise.all([ttResp.json(), projectResp.json()]);
 
     const ttTargets = ttData?.environments?.production?.targets || [];
-    const ttIds = ttTargets.find(t => t.variation === 0)?.values || [];
+    const ttIds = new Set(ttTargets.find(t => t.variation === 0)?.values || []);
 
     const projectTargets = projectData?.environments?.production?.targets || [];
     const projectOnIds = new Set(projectTargets.find(t => t.variation === 0)?.values || []);
 
-    const tenants = ttIds.map(id => {
+    // Union: show any tenant with either flag on
+    const allIds = new Set([...ttIds, ...projectOnIds]);
+
+    const tenants = [...allIds].map(id => {
       const known = SNAPSHOT_TENANTS.find(s => s.id === id);
       return {
         id,
@@ -258,6 +268,7 @@ async function doRefresh() {
         enabledDate: known?.enabledDate || null,
         webViews: known?.webViews || 0,
         mobileEvents: known?.mobileEvents || 0,
+        ttOn: ttIds.has(id),
         projectTT: projectOnIds.has(id),
       };
     });
