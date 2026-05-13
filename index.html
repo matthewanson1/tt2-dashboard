@@ -79,7 +79,7 @@
     <p>Tenants with <code>time-tracking-redesign</code> or <code>track-time-on-projects-without-visit</code> flag on in Production · LaunchDarkly</p>
   </div>
   <div class="header-right">
-    <span class="refreshed-at" id="refreshed-at">Snapshot: May 11, 2026</span>
+    <span class="refreshed-at" id="refreshed-at">Snapshot: May 13, 2026</span>
     <button class="btn btn-ghost" id="refresh-btn" onclick="doRefresh()">↻ Refresh</button>
   </div>
 </header>
@@ -119,8 +119,8 @@
           <th style="width:80px" class="th-tip">TT 2.0<span class="tip-icon">?</span><span class="tip-box">Whether the tenant has the<br>time-tracking-redesign flag on.<br>Live from LD.</span></th>
           <th style="width:110px" class="th-tip">Project TT<span class="tip-icon">?</span><span class="tip-box">Whether the tenant has the<br>"Track Time on Projects Without Visit"<br>feature flag on. Live from LD.</span></th>
           <th style="width:120px">TT 2.0 Enabled</th>
-          <th style="width:80px" class="th-tip">Web<span class="tip-icon">?</span><span class="tip-box">Times the TT 2.0 web page was opened<br>since this tenant's enable date.<br>Source: Heap (snapshot May 11, 2026)</span></th>
-          <th style="width:80px" class="th-tip">Mobile<span class="tip-icon">?</span><span class="tip-box">Mobile timesheet events fired<br>since this tenant's enable date.<br>Source: Heap (snapshot May 11, 2026)</span></th>
+          <th style="width:80px" class="th-tip">Web<span class="tip-icon">?</span><span class="tip-box">Times the TT 2.0 web page was opened<br>since this tenant's enable date.<br>Source: Heap (snapshot May 13, 2026)</span></th>
+          <th style="width:80px" class="th-tip">Mobile<span class="tip-icon">?</span><span class="tip-box">Mobile timesheet events fired<br>since this tenant's enable date.<br>Source: Heap (snapshot May 13, 2026)</span></th>
           <th style="width:100px">Status</th>
         </tr>
       </thead>
@@ -132,23 +132,23 @@
 
 <script>
 // ── Embedded snapshot data ────────────────────────────────────────────────────
-// Last fetched from LaunchDarkly production on May 11, 2026
+// Last fetched from LaunchDarkly production on May 13, 2026
 // enabledDate sourced from LD audit log (null = no audit record found)
-// webViews = TT web page views since enable date (Heap/Snowflake, snapshot May 11 2026)
+// webViews = TT web page views since enable date (Heap/Snowflake, snapshot May 13 2026)
 // mobileEvents = mobile timesheet events since enable date
 // projectTT = track-time-on-projects-without-visit flag (live from LD on refresh)
 const SNAPSHOT_TENANTS = [
   { id: '8ea18cd0-a81d-4c15-aac5-c3bd61114cd8', name: 'UrbanForge Building Systems',                    enabledDate: '2026-05-06', webViews:   3, mobileEvents:   0, projectTT: true  },
   { id: '02cde03f-4032-479d-bae6-8de4cd9a54f4', name: 'Vanco Commercial Service Training',             enabledDate: '2026-05-05', webViews:   0, mobileEvents:   0, projectTT: false },
-  { id: '8b6157dd-d727-4702-9011-af952144bba5', name: 'Dual Fuel Training',                            enabledDate: '2026-05-01', webViews:   0, mobileEvents:   0, projectTT: true  },
+  { id: '8b6157dd-d727-4702-9011-af952144bba5', name: 'Dual Fuel Training',                            enabledDate: '2026-05-01', webViews:   2, mobileEvents:   0, projectTT: true  },
   { id: 'a771e416-bd0b-4b9a-8496-6caa136ee8da', name: 'Kaemmerlen Solutions Training',                 enabledDate: '2026-05-01', webViews:   0, mobileEvents:   0, projectTT: false },
   { id: '01f331b8-1749-4ee9-a447-237f989206b4', name: 'Design Solutions & Integration Training',       enabledDate: '2026-04-30', webViews:  41, mobileEvents:   0, projectTT: false },
-  { id: '7a213da2-023c-4770-b609-921ae6a4b53b', name: 'Billy Wonka Mechanical Demo',                   enabledDate: '2026-04-28', webViews:  24, mobileEvents:   0, projectTT: true  },
-  { id: '3a43a3d3-91dc-4246-8c3f-b2a557395a78', name: 'Jorge Demo',                                   enabledDate: '2026-04-28', webViews:   7, mobileEvents:   0, projectTT: true  },
-  { id: '55b2a823-3eb6-4c79-920f-e7559758edbc', name: "Maddie B's Demo Account",                      enabledDate: '2026-04-28', webViews:  27, mobileEvents:   0, projectTT: true  },
+  { id: '7a213da2-023c-4770-b609-921ae6a4b53b', name: 'Billy Wonka Mechanical Demo',                   enabledDate: '2026-04-28', webViews:  29, mobileEvents:   0, projectTT: true  },
+  { id: '3a43a3d3-91dc-4246-8c3f-b2a557395a78', name: 'Jorge Demo',                                   enabledDate: '2026-04-28', webViews:  26, mobileEvents:   0, projectTT: true  },
+  { id: '55b2a823-3eb6-4c79-920f-e7559758edbc', name: "Maddie B's Demo Account",                      enabledDate: '2026-04-28', webViews:  28, mobileEvents:   0, projectTT: true  },
   { id: 'b489c225-cd3a-4f2f-adb1-1a70a31ac2ca', name: 'Genset Holdings Training',                     enabledDate: '2026-04-28', webViews:  13, mobileEvents:   0, projectTT: false },
-  { id: '8cd427b5-2036-4c1b-ae16-6e5acd5a179f', name: 'Sauer Building Solutions Training',            enabledDate: '2026-04-27', webViews:  18, mobileEvents:   0, projectTT: false },
-  { id: 'da81cd2a-0b91-497b-b44a-476488a5b489', name: 'Upchurch SANDBOX',                             enabledDate: '2026-04-27', webViews:  79, mobileEvents:   0, projectTT: true  },
+  { id: '8cd427b5-2036-4c1b-ae16-6e5acd5a179f', name: 'Sauer Building Solutions Training',            enabledDate: '2026-04-27', webViews:  19, mobileEvents:   0, projectTT: false },
+  { id: 'da81cd2a-0b91-497b-b44a-476488a5b489', name: 'Upchurch SANDBOX',                             enabledDate: '2026-04-27', webViews: 100, mobileEvents:   0, projectTT: true  },
   { id: '6b535d0a-4519-4e77-b7d2-b24877f499b1', name: 'SE Demo',                                      enabledDate: '2026-03-30', webViews:  15, mobileEvents:   0, projectTT: true  },
   { id: '4cecaade-1364-4171-8341-aa75666263e9', name: 'Remco Inc. Training',                           enabledDate: '2026-04-27', webViews:   5, mobileEvents:   0, projectTT: false },
   { id: 'c168626b-0f18-4d10-8b32-a521a7a6f56d', name: 'Bierlein-Trombley Electric Training',          enabledDate: '2026-04-28', webViews:   3, mobileEvents:   0, projectTT: false },
@@ -157,6 +157,7 @@ const SNAPSHOT_TENANTS = [
   { id: '9c178fd0-d86c-4a1b-bc69-55989d7e08ce', name: 'Jolma Electric Training',                      enabledDate: null,         webViews:   0, mobileEvents:   2, projectTT: false },
   { id: 'eba3743a-5128-4659-8668-e19e712d633e', name: 'TJW Industrial Validation',                    enabledDate: '2025-12-21', webViews: 211, mobileEvents: 153, projectTT: false },
   { id: 'f63f7159-7079-4f8e-b526-95f5e4b3e6be', name: 'Westcoast Mechanical Contractors Training',    enabledDate: null,         webViews:   9, mobileEvents:   0, projectTT: false },
+  { id: '3319885d-fc04-41bc-804b-5b3baaf8adff', name: null,                                           enabledDate: null,         webViews:   8, mobileEvents:   0, projectTT: true  },
   // Project TT only (no TT 2.0) — production customers
   { id: '9253081b-d645-4427-af4c-50abf5d103c0', name: 'Silver State Refrigeration, HVAC & Plumbing', enabledDate: null, webViews: 0, mobileEvents: 0, ttOn: false, projectTT: true },
   { id: '2307316a-f9ee-48ef-b47c-236c1e84b148', name: 'DWC Mechanical',                               enabledDate: null, webViews: 0, mobileEvents: 0, ttOn: false, projectTT: true },
