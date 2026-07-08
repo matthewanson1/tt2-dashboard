@@ -92,7 +92,7 @@
     <p>Tenants with the <code>time-tracking-redesign</code> flag on in Production · LaunchDarkly + Salesforce</p>
   </div>
   <div class="header-right">
-    <span class="refreshed-at" id="refreshed-at">Snapshot: Jul 8, 2026</span>
+    <span class="refreshed-at" id="refreshed-at">Snapshot: Jul 7, 2026</span>
   </div>
 </header>
 
@@ -133,11 +133,9 @@
             <th style="width:90px">Status</th>
             <th style="width:140px">Industry</th>
             <th style="width:110px">Segment</th>
-            <th style="width:100px" class="th-tip">Core Licenses<span class="tip-icon">?</span><span class="tip-box">Active BuildOps Core product<br>licenses. Source: Salesforce.<br>More reliable than firmographic<br>employee estimates for trades.</span></th>
-            <th style="width:110px" class="th-tip">Go-Live<span class="tip-icon">?</span><span class="tip-box">buildops_core_go_live_date<br>from Salesforce. Blank = not yet set.</span></th>
-            <th style="width:170px">AE / CSM</th>
-            <th style="width:80px" class="th-tip">Web<span class="tip-icon">?</span><span class="tip-box">All-time TT 2.0 web page opens.<br>Source: Heap, snapshot Jul 8, 2026.</span></th>
-            <th style="width:80px" class="th-tip">Mobile<span class="tip-icon">?</span><span class="tip-box">All-time mobile timesheet events.<br>Source: Heap, snapshot Jul 8, 2026.</span></th>
+            <th style="width:120px" class="th-tip">TT 2.0 Enabled<span class="tip-icon">?</span><span class="tip-box">When the time-tracking-redesign<br>flag was turned on for this tenant.<br>Source: LD audit log. — = older than<br>the audit log's retention window.</span></th>
+            <th style="width:80px" class="th-tip">Web<span class="tip-icon">?</span><span class="tip-box">All-time TT 2.0 web page opens.<br>Source: Heap, snapshot Jul 7, 2026.</span></th>
+            <th style="width:80px" class="th-tip">Mobile<span class="tip-icon">?</span><span class="tip-box">All-time mobile timesheet events.<br>Source: Heap, snapshot Jul 7, 2026.</span></th>
           </tr>
         </thead>
         <tbody id="customer-table-body"></tbody>
@@ -174,38 +172,31 @@
 <script>
 // ── Embedded customer data ──────────────────────────────────────────────────────
 // Real Salesforce accounts (account_status = Customer) that currently have the
-// time-tracking-redesign flag on. Snapshot fetched from Salesforce on Jul 8, 2026.
-// "live" vs "pending" is derived from buildops_core_go_live_date vs. today, so it
-// self-updates as accounts pass their go-live date.
+// time-tracking-redesign flag on. Snapshot fetched from Salesforce on Jul 7, 2026.
+// isLive is a precomputed snapshot (not the exact go-live date, which is kept
+// private) of whether the account has passed go-live as of the snapshot date.
 const CUSTOMER_ACCOUNTS = [
-  { id: '05e80590-d03f-4ef2-b1e5-26e8e0d48ff5', name: 'Anderson Systems, Inc.',
-    industry: 'HVAC/Mechanical', segment: 'Commercial', coreLicenses: 30,
-    accountExec: 'Ben Kaslow', csm: null, goLiveDate: null,
-    webViews: 0, mobileEvents: 0 },
-  { id: '2eb374f1-8cb6-467c-8d7d-6e720eabad1f', name: 'Trinity Southern',
-    industry: null, segment: '1-10', coreLicenses: 6,
-    accountExec: 'Jacob Smiley', csm: null, goLiveDate: null,
-    webViews: 2, mobileEvents: 0 },
-  { id: 'b7a34115-63d2-4d2f-b8af-13519d4dac83', name: 'Eagle Controls',
-    industry: 'Electrical', segment: 'Strategic', coreLicenses: 22,
-    accountExec: 'Devin Gray', csm: null, goLiveDate: '2026-06-30',
-    webViews: 0, mobileEvents: 0 },
-  { id: '4592bc69-bf6b-42db-b6c8-61f2fe5ba116', name: 'Fleming Network & Security Services',
-    industry: null, segment: 'Enterprise', coreLicenses: 0,
-    accountExec: 'Daniel Lee', csm: null, goLiveDate: null,
-    webViews: 97, mobileEvents: 6 },
-  { id: '3d2e0c95-766e-4b8d-93a0-ca8bf33d0383', name: 'Best Mechanical',
-    industry: 'HVAC/Mechanical', segment: 'Strategic', coreLicenses: 25,
-    accountExec: 'Asim Ali(Inactive)', csm: 'Delaney Weiland', goLiveDate: '2026-07-20',
-    webViews: 7, mobileEvents: 0 },
   { id: '23ea1210-d32e-4179-b317-bdb43c1f03fe', name: 'Dual Fuel',
-    industry: 'Plumbing', segment: 'Commercial', coreLicenses: 68,
-    accountExec: 'Sam Kuttner', csm: 'Delaney Weiland', goLiveDate: '2024-03-30',
-    webViews: 93696, mobileEvents: 5322 },
+    industry: 'Plumbing', segment: 'Commercial', isLive: true,
+    ttEnabledDate: null, webViews: 93156, mobileEvents: 5322 },
+  { id: 'b7a34115-63d2-4d2f-b8af-13519d4dac83', name: 'Eagle Controls',
+    industry: 'Electrical', segment: 'Strategic', isLive: true,
+    ttEnabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: '28d03ff8-1be3-4db8-b83c-9b3f080402f9', name: 'Genset Holdings',
-    industry: 'Electrical', segment: 'Strategic', coreLicenses: 156,
-    accountExec: 'Aaron Ervin', csm: null, goLiveDate: '2026-08-03',
-    webViews: 0, mobileEvents: 0 },
+    industry: 'Electrical', segment: 'Strategic', isLive: false,
+    ttEnabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '3d2e0c95-766e-4b8d-93a0-ca8bf33d0383', name: 'Best Mechanical',
+    industry: 'HVAC/Mechanical', segment: 'Strategic', isLive: false,
+    ttEnabledDate: null, webViews: 7, mobileEvents: 0 },
+  { id: '05e80590-d03f-4ef2-b1e5-26e8e0d48ff5', name: 'Anderson Systems, Inc.',
+    industry: 'HVAC/Mechanical', segment: 'Commercial', isLive: false,
+    ttEnabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '2eb374f1-8cb6-467c-8d7d-6e720eabad1f', name: 'Trinity Southern',
+    industry: null, segment: '1-10', isLive: false,
+    ttEnabledDate: null, webViews: 2, mobileEvents: 0 },
+  { id: '4592bc69-bf6b-42db-b6c8-61f2fe5ba116', name: 'Fleming Network & Security Services',
+    industry: null, segment: 'Enterprise', isLive: false,
+    ttEnabledDate: null, webViews: 97, mobileEvents: 6 },
 ];
 
 // ── Embedded training/test tenant snapshot ───────────────────────────────────────
@@ -214,57 +205,56 @@ const CUSTOMER_ACCOUNTS = [
 // webViews/mobileEvents = usage since enable date (Heap/Snowflake, snapshot May 13 2026);
 // tenants added after that snapshot show 0 until the next usage refresh.
 const SNAPSHOT_TENANTS = [
-  { id: '8ea18cd0-a81d-4c15-aac5-c3bd61114cd8', name: 'UrbanForge Building Systems',                       enabledDate: '2026-05-06', webViews: 15, mobileEvents: 0 },
-  { id: '02cde03f-4032-479d-bae6-8de4cd9a54f4', name: 'Vanco Commercial Service Training',                 enabledDate: '2026-05-05', webViews: 0, mobileEvents: 0 },
-  { id: '8b6157dd-d727-4702-9011-af952144bba5', name: 'Dual Fuel Training',                                enabledDate: '2026-05-01', webViews: 28, mobileEvents: 0 },
-  { id: 'a771e416-bd0b-4b9a-8496-6caa136ee8da', name: 'Kaemmerlen Solutions Training',                     enabledDate: '2026-05-01', webViews: 0, mobileEvents: 0 },
-  { id: '7a213da2-023c-4770-b609-921ae6a4b53b', name: 'Billy Wonka Mechanical Demo',                       enabledDate: '2026-04-28', webViews: 81, mobileEvents: 0 },
-  { id: '55b2a823-3eb6-4c79-920f-e7559758edbc', name: "Maddie B's Demo Account",                          enabledDate: '2026-04-28', webViews: 166, mobileEvents: 0 },
-  { id: 'b489c225-cd3a-4f2f-adb1-1a70a31ac2ca', name: 'Genset Holdings Training',                          enabledDate: '2026-04-28', webViews: 497, mobileEvents: 0 },
-  { id: '8cd427b5-2036-4c1b-ae16-6e5acd5a179f', name: 'Sauer Building Solutions Training',                 enabledDate: '2026-04-27', webViews: 579, mobileEvents: 0 },
-  { id: '6b535d0a-4519-4e77-b7d2-b24877f499b1', name: 'SE Demo',                                           enabledDate: '2026-03-30', webViews: 43, mobileEvents: 0 },
-  { id: '4cecaade-1364-4171-8341-aa75666263e9', name: 'Remco Inc. Training',                               enabledDate: '2026-04-27', webViews: 5, mobileEvents: 1 },
-  { id: 'c168626b-0f18-4d10-8b32-a521a7a6f56d', name: 'Bierlein-Trombley Electric Training',               enabledDate: '2026-04-28', webViews: 4, mobileEvents: 0 },
-  { id: '44b62934-70de-47cb-8034-da40ca3a37e4', name: 'PMC Energy Staging',                                enabledDate: '2026-04-28', webViews: 0, mobileEvents: 0 },
-  { id: '0f5b242a-1d93-4a3f-8be3-295372631d43', name: 'Stetner Construction Group Training',               enabledDate: '2026-04-28', webViews: 0, mobileEvents: 0 },
-  { id: '9c178fd0-d86c-4a1b-bc69-55989d7e08ce', name: 'Jolma Electric Training',                           enabledDate: null, webViews: 0, mobileEvents: 2 },
-  { id: 'eba3743a-5128-4659-8668-e19e712d633e', name: 'TJW Industrial Validation',                         enabledDate: '2025-12-21', webViews: 224, mobileEvents: 154 },
-  { id: 'f63f7159-7079-4f8e-b526-95f5e4b3e6be', name: 'Westcoast Mechanical Contractors Training',         enabledDate: null, webViews: 9, mobileEvents: 0 },
-  { id: 'b826c795-58e7-400e-ae37-ac7f702533fa', name: 'Daniels Electric Training',                         enabledDate: null, webViews: 96, mobileEvents: 72 },
-  { id: 'e8ceefc4-37fe-4456-80b9-290031078939', name: 'Fleming Network Training',                          enabledDate: null, webViews: 273, mobileEvents: 5 },
-  { id: 'ed98b3de-638c-489b-9c4f-a02a86448a07', name: 'CoreBuild Mechanical',                              enabledDate: null, webViews: 49, mobileEvents: 0 },
-  { id: '9bad1b78-5810-4807-98ae-a6a4fda25e76', name: 'Ellingson Training',                                enabledDate: null, webViews: 184, mobileEvents: 567 },
-  { id: '8f0e6cdb-c193-4097-92b7-251e8d5fd11c', name: 'PieperPower Validation',                            enabledDate: null, webViews: 0, mobileEvents: 0 },
-  { id: '2872ee32-5185-452d-ab6c-ef164d3828f8', name: 'MetroPower Validation',                             enabledDate: null, webViews: 0, mobileEvents: 0 },
-  { id: 'fff08999-7244-4ec6-9b1f-04bea5a9a952', name: 'CarolinaPower Validation',                          enabledDate: null, webViews: 0, mobileEvents: 0 },
-  { id: '5033e74e-6f79-4816-98b9-a47db67acfc0', name: 'H&S Electric Training',                             enabledDate: null, webViews: 93, mobileEvents: 40 },
-  { id: '71b8a042-c2a5-4899-b460-401a8aaa2a56', name: 'Eagle Controls Training',                           enabledDate: null, webViews: 345, mobileEvents: 69 },
-  { id: '91baf373-1168-4782-ad59-d730508ce9e7', name: 'Chris Watson Demo',                                 enabledDate: null, webViews: 395, mobileEvents: 2 },
-  { id: '4e824a19-601d-47bb-b847-2a975f11ba12', name: 'UMC Training 2',                                    enabledDate: null, webViews: 0, mobileEvents: 0 },
-  { id: 'dc471ece-d14d-4862-b213-c4ba4af96d56', name: 'Hayden Grant Demo Account',                         enabledDate: null, webViews: 49, mobileEvents: 2 },
-  { id: 'b2f4b38b-4dd0-408e-b8b6-7e912c01c6bc', name: 'Absolute Power - Training',                         enabledDate: null, webViews: 219, mobileEvents: 21 },
-  { id: 'c59fd209-a02e-4e15-bec4-e689045b314e', name: 'California Erosion Control Training',               enabledDate: null, webViews: 217, mobileEvents: 15 },
-  { id: '3a436eb6-1f01-4d0c-bf83-31b903f6ff0d', name: 'CarolinaPower Testing',                             enabledDate: null, webViews: 13, mobileEvents: 0 },
-  { id: 'a55cf1d7-c93e-4695-b9bf-13dbffefa000', name: 'PieperPower Testing',                               enabledDate: null, webViews: 15, mobileEvents: 0 },
-  { id: 'ed1d3716-c03d-47b2-80e9-79265d98a4e6', name: 'MetroPower Testing',                                enabledDate: null, webViews: 261, mobileEvents: 2 },
-  { id: '66a9cb4c-8f65-4be7-b18d-15a9d2ecc73c', name: 'MetroPower Training',                               enabledDate: null, webViews: 1112, mobileEvents: 192 },
-  { id: 'e6778d46-fca5-4e33-ab36-44a915de0f0c', name: 'PieperPower Training',                              enabledDate: null, webViews: 692, mobileEvents: 162 },
-  { id: '3ddb9a66-14ff-4e34-ad33-4b7a5303bd90', name: 'CarolinaPower Training',                            enabledDate: null, webViews: 359, mobileEvents: 37 },
-  { id: 'd974b8f8-658c-4b2b-a6b0-5eca590a1fa8', name: 'Anderson Systems Training',                         enabledDate: null, webViews: 355, mobileEvents: 56 },
-  { id: '9cd92420-55f7-4e65-a72c-1aff4e55056b', name: 'Cummings Electric Training',                        enabledDate: null, webViews: 83, mobileEvents: 25 },
-  { id: 'f2324822-cf1c-4be5-a1b7-a35800cf16ee', name: 'ICU Mechanical Training',                           enabledDate: null, webViews: 45, mobileEvents: 29 },
-  { id: 'f8936674-f09f-4409-8337-093803179c70', name: 'Holmes Black Box',                                  enabledDate: null, webViews: 1406, mobileEvents: 7 },
-  { id: 'befebc82-5d2f-4ae5-bd25-8af20d6797df', name: 'Pro Services Training',                             enabledDate: null, webViews: 1208, mobileEvents: 315 },
-  { id: 'ac6bed0f-6925-459f-82ac-263b3e4e6aac', name: 'Best Mechanical - Training',                        enabledDate: null, webViews: 207, mobileEvents: 3 },
-  { id: '2d911214-aa3d-436c-a110-6501ca8513c7', name: 'Muska Companies - Sage + Remarcable Testing',       enabledDate: null, webViews: 3, mobileEvents: 0 },
-  { id: '646bde7d-706f-49af-bc9f-dac1e620ed17', name: 'The Management Trust Training',                     enabledDate: null, webViews: 37, mobileEvents: 3 },
-  { id: '5fc1706d-6cb0-4dd4-81ae-084b51f7dc2b', name: 'FCM Training Clone',                                enabledDate: null, webViews: 112, mobileEvents: 15 },
-  { id: '1eea0fd2-7ef8-460a-a805-48c56d615677', name: 'Creative Cabling Solutions Training',               enabledDate: null, webViews: 3, mobileEvents: 0 },
-  { id: '726a2d51-3c39-4ed0-b81a-18c9acf1f30d', name: 'First Call Mechanical Training',                    enabledDate: null, webViews: 213, mobileEvents: 0 },
-  { id: '2029c9bd-51b1-4ca1-a916-e583bbb88bd4', name: 'PyroComm Training',                                 enabledDate: null, webViews: 1378, mobileEvents: 13 },
-  { id: 'd51fe9dc-1085-434d-8180-6ea74e470ced', name: 'Southwest Mechanical Services Training',            enabledDate: null, webViews: 84, mobileEvents: 1 },
-  { id: '71aa90b3-5a4d-4cbf-8699-7abc128bcda2', name: 'Lakeland Multi-trade Inc. Training',                enabledDate: null, webViews: 305, mobileEvents: 322 },
-  { id: '81023912-08e1-470e-ac4a-57562b5138d2', name: 'Pro-Craft Construction Training',                   enabledDate: null, webViews: 1, mobileEvents: 3 },
+  { id: '8ea18cd0-a81d-4c15-aac5-c3bd61114cd8', name: 'UrbanForge Building Systems',                    enabledDate: '2026-05-06', webViews:   3, mobileEvents:   0 },
+  { id: '02cde03f-4032-479d-bae6-8de4cd9a54f4', name: 'Vanco Commercial Service Training',             enabledDate: '2026-05-05', webViews:   0, mobileEvents:   0 },
+  { id: '8b6157dd-d727-4702-9011-af952144bba5', name: 'Dual Fuel Training',                            enabledDate: '2026-05-01', webViews:   2, mobileEvents:   0 },
+  { id: 'a771e416-bd0b-4b9a-8496-6caa136ee8da', name: 'Kaemmerlen Solutions Training',                 enabledDate: '2026-05-01', webViews:   0, mobileEvents:   0 },
+  { id: '7a213da2-023c-4770-b609-921ae6a4b53b', name: 'Billy Wonka Mechanical Demo',                   enabledDate: '2026-04-28', webViews:  29, mobileEvents:   0 },
+  { id: '55b2a823-3eb6-4c79-920f-e7559758edbc', name: "Maddie B's Demo Account",                      enabledDate: '2026-04-28', webViews:  28, mobileEvents:   0 },
+  { id: 'b489c225-cd3a-4f2f-adb1-1a70a31ac2ca', name: 'Genset Holdings Training',                     enabledDate: '2026-04-28', webViews:  13, mobileEvents:   0 },
+  { id: '8cd427b5-2036-4c1b-ae16-6e5acd5a179f', name: 'Sauer Building Solutions Training',            enabledDate: '2026-04-27', webViews:  19, mobileEvents:   0 },
+  { id: '6b535d0a-4519-4e77-b7d2-b24877f499b1', name: 'SE Demo',                                      enabledDate: '2026-03-30', webViews:  15, mobileEvents:   0 },
+  { id: '4cecaade-1364-4171-8341-aa75666263e9', name: 'Remco Inc. Training',                           enabledDate: '2026-04-27', webViews:   5, mobileEvents:   0 },
+  { id: 'c168626b-0f18-4d10-8b32-a521a7a6f56d', name: 'Bierlein-Trombley Electric Training',          enabledDate: '2026-04-28', webViews:   3, mobileEvents:   0 },
+  { id: '44b62934-70de-47cb-8034-da40ca3a37e4', name: 'PMC Energy Staging',                           enabledDate: '2026-04-28', webViews:   0, mobileEvents:   0 },
+  { id: '0f5b242a-1d93-4a3f-8be3-295372631d43', name: 'Stetner Construction Group Training',          enabledDate: '2026-04-28', webViews:   0, mobileEvents:   0 },
+  { id: '9c178fd0-d86c-4a1b-bc69-55989d7e08ce', name: 'Jolma Electric Training',                      enabledDate: null,         webViews:   0, mobileEvents:   2 },
+  { id: 'eba3743a-5128-4659-8668-e19e712d633e', name: 'TJW Industrial Validation',                    enabledDate: '2025-12-21', webViews: 211, mobileEvents: 153 },
+  { id: 'f63f7159-7079-4f8e-b526-95f5e4b3e6be', name: 'Westcoast Mechanical Contractors Training',    enabledDate: null,         webViews:   9, mobileEvents:   0 },
+  { id: 'b826c795-58e7-400e-ae37-ac7f702533fa', name: 'Daniels Electric Training',                     enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'e8ceefc4-37fe-4456-80b9-290031078939', name: 'Fleming Network Training',                      enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'ed98b3de-638c-489b-9c4f-a02a86448a07', name: 'CoreBuild Mechanical',                          enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '9bad1b78-5810-4807-98ae-a6a4fda25e76', name: 'Ellingson Training',                            enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '8f0e6cdb-c193-4097-92b7-251e8d5fd11c', name: 'PieperPower Validation',                        enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '2872ee32-5185-452d-ab6c-ef164d3828f8', name: 'MetroPower Validation',                         enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'fff08999-7244-4ec6-9b1f-04bea5a9a952', name: 'CarolinaPower Validation',                      enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '5033e74e-6f79-4816-98b9-a47db67acfc0', name: 'H&S Electric Training',                         enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '71b8a042-c2a5-4899-b460-401a8aaa2a56', name: 'Eagle Controls Training',                       enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '91baf373-1168-4782-ad59-d730508ce9e7', name: 'Chris Watson Demo',                             enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '4e824a19-601d-47bb-b847-2a975f11ba12', name: 'UMC Training 2',                                enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'dc471ece-d14d-4862-b213-c4ba4af96d56', name: 'Hayden Grant Demo Account',                     enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'b2f4b38b-4dd0-408e-b8b6-7e912c01c6bc', name: 'Absolute Power - Training',                     enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'c59fd209-a02e-4e15-bec4-e689045b314e', name: 'California Erosion Control Training',           enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '3a436eb6-1f01-4d0c-bf83-31b903f6ff0d', name: 'CarolinaPower Testing',                         enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'a55cf1d7-c93e-4695-b9bf-13dbffefa000', name: 'PieperPower Testing',                           enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'ed1d3716-c03d-47b2-80e9-79265d98a4e6', name: 'MetroPower Testing',                            enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '66a9cb4c-8f65-4be7-b18d-15a9d2ecc73c', name: 'MetroPower Training',                           enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'e6778d46-fca5-4e33-ab36-44a915de0f0c', name: 'PieperPower Training',                          enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '3ddb9a66-14ff-4e34-ad33-4b7a5303bd90', name: 'CarolinaPower Training',                        enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'd974b8f8-658c-4b2b-a6b0-5eca590a1fa8', name: 'Anderson Systems Training',                     enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '9cd92420-55f7-4e65-a72c-1aff4e55056b', name: 'Cummings Electric Training',                    enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'f2324822-cf1c-4be5-a1b7-a35800cf16ee', name: 'ICU Mechanical Training',                       enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'f8936674-f09f-4409-8337-093803179c70', name: 'Holmes Black Box',                              enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'befebc82-5d2f-4ae5-bd25-8af20d6797df', name: 'Pro Services Training',                         enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'ac6bed0f-6925-459f-82ac-263b3e4e6aac', name: 'Best Mechanical - Training',                    enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '2d911214-aa3d-436c-a110-6501ca8513c7', name: 'Muska Companies - Sage + Remarcable Testing',   enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '646bde7d-706f-49af-bc9f-dac1e620ed17', name: 'The Management Trust Training',                 enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '5fc1706d-6cb0-4dd4-81ae-084b51f7dc2b', name: 'FCM Training Clone',                            enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '1eea0fd2-7ef8-460a-a805-48c56d615677', name: 'Creative Cabling Solutions Training',           enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '726a2d51-3c39-4ed0-b81a-18c9acf1f30d', name: 'First Call Mechanical Training',                enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '2029c9bd-51b1-4ca1-a916-e583bbb88bd4', name: 'PyroComm Training',                             enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'd51fe9dc-1085-434d-8180-6ea74e470ced', name: 'Southwest Mechanical Services Training',        enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '71aa90b3-5a4d-4cbf-8699-7abc128bcda2', name: 'Lakeland Multi-trade Inc. Training',            enabledDate: null, webViews: 0, mobileEvents: 0 },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -295,34 +285,26 @@ function segmentBadgeClass(segment) {
   return 'badge-seg-smb';
 }
 
-function isCustomerLive(c) {
-  return !!c.goLiveDate && new Date(c.goLiveDate + 'T00:00:00Z') <= new Date();
-}
-
 const BADGE_LABELS = { training: 'Training', sandbox: 'Sandbox', demo: 'Demo', staging: 'Staging', validation: 'Validation', testing: 'Testing', unknown: 'Unknown' };
 
 function renderCustomerTable(customers) {
   const sorted = [...customers].sort((a, b) => {
-    const aLive = isCustomerLive(a), bLive = isCustomerLive(b);
-    if (aLive !== bLive) return aLive ? -1 : 1;
+    if (a.isLive !== b.isLive) return a.isLive ? -1 : 1;
     return a.name.localeCompare(b.name);
   });
 
   const tbody = document.getElementById('customer-table-body');
   tbody.innerHTML = sorted.map((c, i) => {
-    const live = isCustomerLive(c);
-    const statusLabel = live
+    const statusLabel = c.isLive
       ? `<span class="badge badge-live">Live</span>`
       : `<span class="badge badge-pending">Pending</span>`;
     const industry = c.industry ? c.industry : `<span class="dim-cell">—</span>`;
     const segment = c.segment
       ? `<span class="badge ${segmentBadgeClass(c.segment)}">${c.segment}</span>`
       : `<span class="dim-cell">—</span>`;
-    const coreLicenses = c.coreLicenses ? `<span class="usage-cell">${c.coreLicenses}</span>` : `<span class="dim-cell">—</span>`;
-    const goLive = c.goLiveDate
-      ? `<span class="date-cell">${formatDate(c.goLiveDate)}</span>`
-      : `<span class="date-cell date-unknown">Not set</span>`;
-    const team = `<div class="tenant-sub">AE: ${c.accountExec || '—'}</div><div class="tenant-sub">CSM: ${c.csm || '—'}</div>`;
+    const ttEnabled = c.ttEnabledDate
+      ? `<span class="date-cell">${formatDate(c.ttEnabledDate)}</span>`
+      : `<span class="date-cell date-unknown">—</span>`;
     const web = c.webViews || 0;
     const mobile = c.mobileEvents || 0;
     const webLabel = web > 0 ? `<span class="usage-cell">${web.toLocaleString()}</span>` : `<span class="usage-zero">—</span>`;
@@ -333,16 +315,14 @@ function renderCustomerTable(customers) {
       <td>${statusLabel}</td>
       <td>${industry}</td>
       <td>${segment}</td>
-      <td>${coreLicenses}</td>
-      <td>${goLive}</td>
-      <td>${team}</td>
+      <td>${ttEnabled}</td>
       <td>${webLabel}</td>
       <td>${mobileLabel}</td>
     </tr>`;
   }).join('');
 
-  document.getElementById('stat-live').textContent = customers.filter(isCustomerLive).length;
-  document.getElementById('stat-pending').textContent = customers.filter(c => !isCustomerLive(c)).length;
+  document.getElementById('stat-live').textContent = customers.filter(c => c.isLive).length;
+  document.getElementById('stat-pending').textContent = customers.filter(c => !c.isLive).length;
 }
 
 function renderTable(tenants) {
