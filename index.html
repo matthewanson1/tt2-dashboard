@@ -20,7 +20,7 @@
     .btn-ghost { background: rgba(255,255,255,0.1); color: white; }
     .btn-ghost:hover { background: rgba(255,255,255,0.2); }
 
-    .main { padding: 28px 32px; max-width: 1060px; margin: 0 auto; }
+    .main { padding: 28px 32px; max-width: 1160px; margin: 0 auto; }
 
     .stats { display: flex; gap: 14px; margin-bottom: 22px; }
     .stat-card { background: white; border-radius: 10px; padding: 16px 20px; border: 1px solid #e8e8e8; flex: 1; }
@@ -28,30 +28,42 @@
     .stat-card .value { font-size: 30px; font-weight: 700; margin-top: 4px; color: #1a1a2e; }
     .stat-card .sub { font-size: 11px; color: #bbb; margin-top: 2px; }
 
-    .card { background: white; border-radius: 10px; border: 1px solid #e8e8e8; overflow: hidden; }
+    .card { background: white; border-radius: 10px; border: 1px solid #e8e8e8; overflow: hidden; margin-bottom: 22px; }
     .card-header { padding: 14px 18px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
     .card-header h2 { font-size: 13px; font-weight: 600; color: #555; }
+    .card-header p { font-size: 11px; color: #aaa; margin-top: 2px; }
     .search { padding: 6px 11px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; width: 200px; outline: none; }
     .search:focus { border-color: #4f8ef7; }
 
+    .table-scroll { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; }
     thead { background: #fafafa; }
-    th { padding: 9px 16px; text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: #999; border-bottom: 1px solid #f0f0f0; }
+    th { padding: 9px 16px; text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: #999; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
     td { padding: 11px 16px; font-size: 13px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #fafcff; }
 
     .tenant-name { font-weight: 500; color: #1a1a2e; }
     .tenant-id { font-family: monospace; font-size: 10px; color: #bbb; margin-top: 2px; }
+    .tenant-sub { font-size: 11px; color: #999; margin-top: 2px; }
 
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; white-space: nowrap; }
     .badge-training  { background: #e8f3ff; color: #2d6cc0; }
     .badge-sandbox   { background: #fff3e0; color: #c07a00; }
     .badge-demo      { background: #f3e8ff; color: #7a2dc0; }
     .badge-staging   { background: #e8fff0; color: #1a8c45; }
     .badge-validation{ background: #fff0e8; color: #c04a00; }
+    .badge-testing   { background: #e8fcff; color: #0b8fa3; }
     .badge-unknown   { background: #f0f0f0; color: #888; }
     .badge-on        { background: #e6f9ee; color: #1a8c45; }
+
+    .badge-live      { background: #e6f9ee; color: #1a8c45; }
+    .badge-pending   { background: #fff3e0; color: #c07a00; }
+
+    .badge-seg-strategic  { background: #f3e8ff; color: #7a2dc0; }
+    .badge-seg-commercial { background: #e8f3ff; color: #2d6cc0; }
+    .badge-seg-enterprise { background: #fff0e8; color: #c04a00; }
+    .badge-seg-smb        { background: #f0f0f0; color: #888; }
 
     .dot { width: 7px; height: 7px; border-radius: 50%; background: #27ae60; display: inline-block; margin-right: 6px; }
 
@@ -60,6 +72,7 @@
 
     .usage-cell { font-size: 13px; font-weight: 600; color: #1a1a2e; }
     .usage-zero { color: #ccc; font-weight: 400; }
+    .dim-cell { color: #ccc; }
 
     .th-tip { position: relative; cursor: default; }
     .th-tip .tip-icon { display: inline-block; width: 13px; height: 13px; border-radius: 50%; background: #ddd; color: #888; font-size: 9px; font-weight: 700; line-height: 13px; text-align: center; margin-left: 4px; vertical-align: middle; }
@@ -76,11 +89,10 @@
 <header>
   <div>
     <h1>Time Tracking — Active Tenants</h1>
-    <p>Tenants with <code>time-tracking-redesign</code> or <code>track-time-on-projects-without-visit</code> flag on in Production · LaunchDarkly</p>
+    <p>Tenants with the <code>time-tracking-redesign</code> flag on in Production · LaunchDarkly + Salesforce</p>
   </div>
   <div class="header-right">
-    <span class="refreshed-at" id="refreshed-at">Snapshot: May 13, 2026</span>
-    <button class="btn btn-ghost" id="refresh-btn" onclick="doRefresh()">↻ Refresh</button>
+    <span class="refreshed-at" id="refreshed-at">Snapshot: Jul 7, 2026</span>
   </div>
 </header>
 
@@ -89,87 +101,159 @@
 
   <div class="stats">
     <div class="stat-card">
-      <div class="label">Total Tenants</div>
-      <div class="value" id="stat-total">19</div>
-      <div class="sub">Either flag on in Production</div>
+      <div class="label">Live Customers</div>
+      <div class="value" id="stat-live">2</div>
+      <div class="sub">Real accounts past their go-live date</div>
     </div>
     <div class="stat-card">
-      <div class="label">TT 2.0 On</div>
-      <div class="value" id="stat-tt2">19</div>
-      <div class="sub">time-tracking-redesign flag</div>
+      <div class="label">Pending Go-Live</div>
+      <div class="value" id="stat-pending">5</div>
+      <div class="sub">Real accounts, not live yet</div>
     </div>
     <div class="stat-card">
-      <div class="label">Project TT On</div>
-      <div class="value" id="stat-project-tt">—</div>
-      <div class="sub">track-time-on-projects flag</div>
+      <div class="label">Training &amp; Test Tenants</div>
+      <div class="value" id="stat-training">50</div>
+      <div class="sub">No Salesforce account (internal/demo)</div>
     </div>
   </div>
 
   <div class="card">
     <div class="card-header">
-      <h2 id="table-title">Tenant List</h2>
+      <div>
+        <h2>Customer Accounts</h2>
+        <p>Real Salesforce accounts with the flag on, live or in implementation</p>
+      </div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th>Account</th>
+            <th style="width:90px">Status</th>
+            <th style="width:140px">Industry</th>
+            <th style="width:110px">Segment</th>
+            <th style="width:80px" class="th-tip">Web<span class="tip-icon">?</span><span class="tip-box">All-time TT 2.0 web page opens.<br>Source: Heap, snapshot Jul 7, 2026.</span></th>
+            <th style="width:80px" class="th-tip">Mobile<span class="tip-icon">?</span><span class="tip-box">All-time mobile timesheet events.<br>Source: Heap, snapshot Jul 7, 2026.</span></th>
+          </tr>
+        </thead>
+        <tbody id="customer-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 id="table-title">Training &amp; Test Tenants</h2>
       <input class="search" type="text" placeholder="Search…" oninput="filterTable(this.value)" />
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th style="width:40px">#</th>
-          <th>Tenant</th>
-          <th style="width:120px">Type</th>
-          <th style="width:80px" class="th-tip">TT 2.0<span class="tip-icon">?</span><span class="tip-box">Whether the tenant has the<br>time-tracking-redesign flag on.<br>Live from LD.</span></th>
-          <th style="width:110px" class="th-tip">Project TT<span class="tip-icon">?</span><span class="tip-box">Whether the tenant has the<br>"Track Time on Projects Without Visit"<br>feature flag on. Live from LD.</span></th>
-          <th style="width:120px">TT 2.0 Enabled</th>
-          <th style="width:80px" class="th-tip">Web<span class="tip-icon">?</span><span class="tip-box">Times the TT 2.0 web page was opened<br>since this tenant's enable date.<br>Source: Heap (snapshot May 13, 2026)</span></th>
-          <th style="width:80px" class="th-tip">Mobile<span class="tip-icon">?</span><span class="tip-box">Mobile timesheet events fired<br>since this tenant's enable date.<br>Source: Heap (snapshot May 13, 2026)</span></th>
-          <th style="width:100px">Status</th>
-        </tr>
-      </thead>
-      <tbody id="table-body"></tbody>
-    </table>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th>Tenant</th>
+            <th style="width:120px">Type</th>
+            <th style="width:80px" class="th-tip">TT 2.0<span class="tip-icon">?</span><span class="tip-box">Whether the tenant has the<br>time-tracking-redesign flag on.<br>Live from LD.</span></th>
+            <th style="width:120px">TT 2.0 Enabled</th>
+            <th style="width:80px" class="th-tip">Web<span class="tip-icon">?</span><span class="tip-box">Times the TT 2.0 web page was opened<br>since this tenant's enable date.<br>Source: Heap (snapshot May 13, 2026)</span></th>
+            <th style="width:80px" class="th-tip">Mobile<span class="tip-icon">?</span><span class="tip-box">Mobile timesheet events fired<br>since this tenant's enable date.<br>Source: Heap (snapshot May 13, 2026)</span></th>
+            <th style="width:100px">Status</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
 
 <script>
-// ── Embedded snapshot data ────────────────────────────────────────────────────
-// Last fetched from LaunchDarkly production on May 13, 2026
-// enabledDate sourced from LD audit log (null = no audit record found)
-// webViews = TT web page views since enable date (Heap/Snowflake, snapshot May 13 2026)
-// mobileEvents = mobile timesheet events since enable date
-// projectTT = track-time-on-projects-without-visit flag (live from LD on refresh)
+// ── Embedded customer data ──────────────────────────────────────────────────────
+// Real Salesforce accounts (account_status = Customer) that currently have the
+// time-tracking-redesign flag on. Snapshot fetched from Salesforce on Jul 7, 2026.
+// "live" vs "pending" is derived from buildops_core_go_live_date vs. today, so it
+// self-updates as accounts pass their go-live date.
+const CUSTOMER_ACCOUNTS = [
+  { id: '23ea1210-d32e-4179-b317-bdb43c1f03fe', name: 'Dual Fuel',
+    industry: 'Plumbing', segment: 'Commercial', isLive: true,
+    webViews: 93156, mobileEvents: 5322 },
+  { id: 'b7a34115-63d2-4d2f-b8af-13519d4dac83', name: 'Eagle Controls',
+    industry: 'Electrical', segment: 'Strategic', isLive: true,
+    webViews: 0, mobileEvents: 0 },
+  { id: '28d03ff8-1be3-4db8-b83c-9b3f080402f9', name: 'Genset Holdings',
+    industry: 'Electrical', segment: 'Strategic', isLive: false,
+    webViews: 0, mobileEvents: 0 },
+  { id: '3d2e0c95-766e-4b8d-93a0-ca8bf33d0383', name: 'Best Mechanical',
+    industry: 'HVAC/Mechanical', segment: 'Strategic', isLive: false,
+    webViews: 7, mobileEvents: 0 },
+  { id: '05e80590-d03f-4ef2-b1e5-26e8e0d48ff5', name: 'Anderson Systems, Inc.',
+    industry: 'HVAC/Mechanical', segment: 'Commercial', isLive: false,
+    webViews: 0, mobileEvents: 0 },
+  { id: '2eb374f1-8cb6-467c-8d7d-6e720eabad1f', name: 'Trinity Southern',
+    industry: null, segment: '1-10', isLive: false,
+    webViews: 2, mobileEvents: 0 },
+  { id: '4592bc69-bf6b-42db-b6c8-61f2fe5ba116', name: 'Fleming Network & Security Services',
+    industry: null, segment: 'Enterprise', isLive: false,
+    webViews: 97, mobileEvents: 6 },
+];
+
+// ── Embedded training/test tenant snapshot ───────────────────────────────────────
+// Any tenant with the flag on that has no Salesforce account (internal/demo/QA).
+// enabledDate sourced from LD audit log (null = no audit record found).
+// webViews/mobileEvents = usage since enable date (Heap/Snowflake, snapshot May 13 2026);
+// tenants added after that snapshot show 0 until the next usage refresh.
 const SNAPSHOT_TENANTS = [
-  { id: '8ea18cd0-a81d-4c15-aac5-c3bd61114cd8', name: 'UrbanForge Building Systems',                    enabledDate: '2026-05-06', webViews:   3, mobileEvents:   0, projectTT: true  },
-  { id: '02cde03f-4032-479d-bae6-8de4cd9a54f4', name: 'Vanco Commercial Service Training',             enabledDate: '2026-05-05', webViews:   0, mobileEvents:   0, projectTT: false },
-  { id: '8b6157dd-d727-4702-9011-af952144bba5', name: 'Dual Fuel Training',                            enabledDate: '2026-05-01', webViews:   2, mobileEvents:   0, projectTT: true  },
-  { id: 'a771e416-bd0b-4b9a-8496-6caa136ee8da', name: 'Kaemmerlen Solutions Training',                 enabledDate: '2026-05-01', webViews:   0, mobileEvents:   0, projectTT: false },
-  { id: '01f331b8-1749-4ee9-a447-237f989206b4', name: 'Design Solutions & Integration Training',       enabledDate: '2026-04-30', webViews:  41, mobileEvents:   0, projectTT: false },
-  { id: '7a213da2-023c-4770-b609-921ae6a4b53b', name: 'Billy Wonka Mechanical Demo',                   enabledDate: '2026-04-28', webViews:  29, mobileEvents:   0, projectTT: true  },
-  { id: '3a43a3d3-91dc-4246-8c3f-b2a557395a78', name: 'Jorge Demo',                                   enabledDate: '2026-04-28', webViews:  26, mobileEvents:   0, projectTT: true  },
-  { id: '55b2a823-3eb6-4c79-920f-e7559758edbc', name: "Maddie B's Demo Account",                      enabledDate: '2026-04-28', webViews:  28, mobileEvents:   0, projectTT: true  },
-  { id: 'b489c225-cd3a-4f2f-adb1-1a70a31ac2ca', name: 'Genset Holdings Training',                     enabledDate: '2026-04-28', webViews:  13, mobileEvents:   0, projectTT: false },
-  { id: '8cd427b5-2036-4c1b-ae16-6e5acd5a179f', name: 'Sauer Building Solutions Training',            enabledDate: '2026-04-27', webViews:  19, mobileEvents:   0, projectTT: false },
-  { id: 'da81cd2a-0b91-497b-b44a-476488a5b489', name: 'Upchurch SANDBOX',                             enabledDate: '2026-04-27', webViews: 100, mobileEvents:   0, projectTT: true  },
-  { id: '6b535d0a-4519-4e77-b7d2-b24877f499b1', name: 'SE Demo',                                      enabledDate: '2026-03-30', webViews:  15, mobileEvents:   0, projectTT: true  },
-  { id: '4cecaade-1364-4171-8341-aa75666263e9', name: 'Remco Inc. Training',                           enabledDate: '2026-04-27', webViews:   5, mobileEvents:   0, projectTT: false },
-  { id: 'c168626b-0f18-4d10-8b32-a521a7a6f56d', name: 'Bierlein-Trombley Electric Training',          enabledDate: '2026-04-28', webViews:   3, mobileEvents:   0, projectTT: false },
-  { id: '44b62934-70de-47cb-8034-da40ca3a37e4', name: 'PMC Energy Staging',                           enabledDate: '2026-04-28', webViews:   0, mobileEvents:   0, projectTT: false },
-  { id: '0f5b242a-1d93-4a3f-8be3-295372631d43', name: 'Stetner Construction Group Training',          enabledDate: '2026-04-28', webViews:   0, mobileEvents:   0, projectTT: false },
-  { id: '9c178fd0-d86c-4a1b-bc69-55989d7e08ce', name: 'Jolma Electric Training',                      enabledDate: null,         webViews:   0, mobileEvents:   2, projectTT: false },
-  { id: 'eba3743a-5128-4659-8668-e19e712d633e', name: 'TJW Industrial Validation',                    enabledDate: '2025-12-21', webViews: 211, mobileEvents: 153, projectTT: false },
-  { id: 'f63f7159-7079-4f8e-b526-95f5e4b3e6be', name: 'Westcoast Mechanical Contractors Training',    enabledDate: null,         webViews:   9, mobileEvents:   0, projectTT: false },
-  { id: '3319885d-fc04-41bc-804b-5b3baaf8adff', name: null,                                           enabledDate: null,         webViews:   8, mobileEvents:   0, projectTT: true  },
-  // Project TT only (no TT 2.0) — production customers
-  { id: '9253081b-d645-4427-af4c-50abf5d103c0', name: 'Silver State Refrigeration, HVAC & Plumbing', enabledDate: null, webViews: 0, mobileEvents: 0, ttOn: false, projectTT: true },
-  { id: '2307316a-f9ee-48ef-b47c-236c1e84b148', name: 'DWC Mechanical',                               enabledDate: null, webViews: 0, mobileEvents: 0, ttOn: false, projectTT: true },
-  { id: 'd30f6321-551a-4ed8-ad69-c43e11d1f0b9', name: 'Bingham Mechanical, Inc.',                     enabledDate: null, webViews: 0, mobileEvents: 0, ttOn: false, projectTT: true },
-  { id: 'dfcef1d4-a4e8-4765-8de2-880d1d8ce466', name: 'Facility Improvement Corporation - FICO',      enabledDate: null, webViews: 0, mobileEvents: 0, ttOn: false, projectTT: true },
-  { id: '44adee09-9d5f-465c-a4d8-0d1b4ca47c96', name: 'Kenyon & Partners, Inc.',                      enabledDate: null, webViews: 0, mobileEvents: 0, ttOn: false, projectTT: true },
-  { id: '5d750faa-ab04-4aed-9424-811fffe2f893', name: 'Total Electric of Montana',                    enabledDate: null, webViews: 0, mobileEvents: 0, ttOn: false, projectTT: true },
-  { id: '9fddc0f2-8635-4a31-ace5-0a9464969606', name: 'Phoenix Fire Protection',                       enabledDate: null, webViews: 0, mobileEvents: 0, ttOn: false, projectTT: true },
-  { id: '82b2b281-ee15-4e19-bec9-5b0f43a7a97a', name: 'Corporate Air Mechanical Services',            enabledDate: null, webViews: 0, mobileEvents: 0, ttOn: false, projectTT: true },
-  { id: '8d2fc962-f6da-47b9-beba-f6fc6506d124', name: 'Kaemmerlen Solutions',                         enabledDate: null, webViews: 0, mobileEvents: 0, ttOn: false, projectTT: true },
-  { id: '128655d4-2788-425e-99e6-2180bc9a489d', name: 'Silvertip, Inc.',                              enabledDate: null, webViews: 0, mobileEvents: 0, ttOn: false, projectTT: true },
-  { id: 'e579cd7e-101d-4efd-9b13-2a05749a637a', name: 'S.E. Mechanical Plumbing, Heating & Drain',   enabledDate: null, webViews: 0, mobileEvents: 0, ttOn: false, projectTT: true },
+  { id: '8ea18cd0-a81d-4c15-aac5-c3bd61114cd8', name: 'UrbanForge Building Systems',                    enabledDate: '2026-05-06', webViews:   3, mobileEvents:   0 },
+  { id: '02cde03f-4032-479d-bae6-8de4cd9a54f4', name: 'Vanco Commercial Service Training',             enabledDate: '2026-05-05', webViews:   0, mobileEvents:   0 },
+  { id: '8b6157dd-d727-4702-9011-af952144bba5', name: 'Dual Fuel Training',                            enabledDate: '2026-05-01', webViews:   2, mobileEvents:   0 },
+  { id: 'a771e416-bd0b-4b9a-8496-6caa136ee8da', name: 'Kaemmerlen Solutions Training',                 enabledDate: '2026-05-01', webViews:   0, mobileEvents:   0 },
+  { id: '7a213da2-023c-4770-b609-921ae6a4b53b', name: 'Billy Wonka Mechanical Demo',                   enabledDate: '2026-04-28', webViews:  29, mobileEvents:   0 },
+  { id: '55b2a823-3eb6-4c79-920f-e7559758edbc', name: "Maddie B's Demo Account",                      enabledDate: '2026-04-28', webViews:  28, mobileEvents:   0 },
+  { id: 'b489c225-cd3a-4f2f-adb1-1a70a31ac2ca', name: 'Genset Holdings Training',                     enabledDate: '2026-04-28', webViews:  13, mobileEvents:   0 },
+  { id: '8cd427b5-2036-4c1b-ae16-6e5acd5a179f', name: 'Sauer Building Solutions Training',            enabledDate: '2026-04-27', webViews:  19, mobileEvents:   0 },
+  { id: '6b535d0a-4519-4e77-b7d2-b24877f499b1', name: 'SE Demo',                                      enabledDate: '2026-03-30', webViews:  15, mobileEvents:   0 },
+  { id: '4cecaade-1364-4171-8341-aa75666263e9', name: 'Remco Inc. Training',                           enabledDate: '2026-04-27', webViews:   5, mobileEvents:   0 },
+  { id: 'c168626b-0f18-4d10-8b32-a521a7a6f56d', name: 'Bierlein-Trombley Electric Training',          enabledDate: '2026-04-28', webViews:   3, mobileEvents:   0 },
+  { id: '44b62934-70de-47cb-8034-da40ca3a37e4', name: 'PMC Energy Staging',                           enabledDate: '2026-04-28', webViews:   0, mobileEvents:   0 },
+  { id: '0f5b242a-1d93-4a3f-8be3-295372631d43', name: 'Stetner Construction Group Training',          enabledDate: '2026-04-28', webViews:   0, mobileEvents:   0 },
+  { id: '9c178fd0-d86c-4a1b-bc69-55989d7e08ce', name: 'Jolma Electric Training',                      enabledDate: null,         webViews:   0, mobileEvents:   2 },
+  { id: 'eba3743a-5128-4659-8668-e19e712d633e', name: 'TJW Industrial Validation',                    enabledDate: '2025-12-21', webViews: 211, mobileEvents: 153 },
+  { id: 'f63f7159-7079-4f8e-b526-95f5e4b3e6be', name: 'Westcoast Mechanical Contractors Training',    enabledDate: null,         webViews:   9, mobileEvents:   0 },
+  { id: 'b826c795-58e7-400e-ae37-ac7f702533fa', name: 'Daniels Electric Training',                     enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'e8ceefc4-37fe-4456-80b9-290031078939', name: 'Fleming Network Training',                      enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'ed98b3de-638c-489b-9c4f-a02a86448a07', name: 'CoreBuild Mechanical',                          enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '9bad1b78-5810-4807-98ae-a6a4fda25e76', name: 'Ellingson Training',                            enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '8f0e6cdb-c193-4097-92b7-251e8d5fd11c', name: 'PieperPower Validation',                        enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '2872ee32-5185-452d-ab6c-ef164d3828f8', name: 'MetroPower Validation',                         enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'fff08999-7244-4ec6-9b1f-04bea5a9a952', name: 'CarolinaPower Validation',                      enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '5033e74e-6f79-4816-98b9-a47db67acfc0', name: 'H&S Electric Training',                         enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '71b8a042-c2a5-4899-b460-401a8aaa2a56', name: 'Eagle Controls Training',                       enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '91baf373-1168-4782-ad59-d730508ce9e7', name: 'Chris Watson Demo',                             enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '4e824a19-601d-47bb-b847-2a975f11ba12', name: 'UMC Training 2',                                enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'dc471ece-d14d-4862-b213-c4ba4af96d56', name: 'Hayden Grant Demo Account',                     enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'b2f4b38b-4dd0-408e-b8b6-7e912c01c6bc', name: 'Absolute Power - Training',                     enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'c59fd209-a02e-4e15-bec4-e689045b314e', name: 'California Erosion Control Training',           enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '3a436eb6-1f01-4d0c-bf83-31b903f6ff0d', name: 'CarolinaPower Testing',                         enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'a55cf1d7-c93e-4695-b9bf-13dbffefa000', name: 'PieperPower Testing',                           enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'ed1d3716-c03d-47b2-80e9-79265d98a4e6', name: 'MetroPower Testing',                            enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '66a9cb4c-8f65-4be7-b18d-15a9d2ecc73c', name: 'MetroPower Training',                           enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'e6778d46-fca5-4e33-ab36-44a915de0f0c', name: 'PieperPower Training',                          enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '3ddb9a66-14ff-4e34-ad33-4b7a5303bd90', name: 'CarolinaPower Training',                        enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'd974b8f8-658c-4b2b-a6b0-5eca590a1fa8', name: 'Anderson Systems Training',                     enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '9cd92420-55f7-4e65-a72c-1aff4e55056b', name: 'Cummings Electric Training',                    enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'f2324822-cf1c-4be5-a1b7-a35800cf16ee', name: 'ICU Mechanical Training',                       enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'f8936674-f09f-4409-8337-093803179c70', name: 'Holmes Black Box',                              enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'befebc82-5d2f-4ae5-bd25-8af20d6797df', name: 'Pro Services Training',                         enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'ac6bed0f-6925-459f-82ac-263b3e4e6aac', name: 'Best Mechanical - Training',                    enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '2d911214-aa3d-436c-a110-6501ca8513c7', name: 'Muska Companies - Sage + Remarcable Testing',   enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '646bde7d-706f-49af-bc9f-dac1e620ed17', name: 'The Management Trust Training',                 enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '5fc1706d-6cb0-4dd4-81ae-084b51f7dc2b', name: 'FCM Training Clone',                            enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '1eea0fd2-7ef8-460a-a805-48c56d615677', name: 'Creative Cabling Solutions Training',           enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '726a2d51-3c39-4ed0-b81a-18c9acf1f30d', name: 'First Call Mechanical Training',                enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '2029c9bd-51b1-4ca1-a916-e583bbb88bd4', name: 'PyroComm Training',                             enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: 'd51fe9dc-1085-434d-8180-6ea74e470ced', name: 'Southwest Mechanical Services Training',        enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '71aa90b3-5a4d-4cbf-8699-7abc128bcda2', name: 'Lakeland Multi-trade Inc. Training',            enabledDate: null, webViews: 0, mobileEvents: 0 },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -179,6 +263,7 @@ function classify(name) {
   if (n.includes('sandbox')) return 'sandbox';
   if (n.includes('staging')) return 'staging';
   if (n.includes('validation')) return 'validation';
+  if (n.includes('testing')) return 'testing';
   if (n.includes('demo')) return 'demo';
   if (n.includes('training')) return 'training';
   return 'unknown';
@@ -190,7 +275,50 @@ function formatDate(iso) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 }
 
-const BADGE_LABELS = { training: 'Training', sandbox: 'Sandbox', demo: 'Demo', staging: 'Staging', validation: 'Validation', unknown: 'Unknown' };
+function segmentBadgeClass(segment) {
+  if (!segment) return 'badge-seg-smb';
+  const s = segment.toLowerCase();
+  if (s.includes('strategic')) return 'badge-seg-strategic';
+  if (s.includes('enterprise')) return 'badge-seg-enterprise';
+  if (s.includes('commercial')) return 'badge-seg-commercial';
+  return 'badge-seg-smb';
+}
+
+const BADGE_LABELS = { training: 'Training', sandbox: 'Sandbox', demo: 'Demo', staging: 'Staging', validation: 'Validation', testing: 'Testing', unknown: 'Unknown' };
+
+function renderCustomerTable(customers) {
+  const sorted = [...customers].sort((a, b) => {
+    if (a.isLive !== b.isLive) return a.isLive ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+
+  const tbody = document.getElementById('customer-table-body');
+  tbody.innerHTML = sorted.map((c, i) => {
+    const statusLabel = c.isLive
+      ? `<span class="badge badge-live">Live</span>`
+      : `<span class="badge badge-pending">Pending</span>`;
+    const industry = c.industry ? c.industry : `<span class="dim-cell">—</span>`;
+    const segment = c.segment
+      ? `<span class="badge ${segmentBadgeClass(c.segment)}">${c.segment}</span>`
+      : `<span class="dim-cell">—</span>`;
+    const web = c.webViews || 0;
+    const mobile = c.mobileEvents || 0;
+    const webLabel = web > 0 ? `<span class="usage-cell">${web.toLocaleString()}</span>` : `<span class="usage-zero">—</span>`;
+    const mobileLabel = mobile > 0 ? `<span class="usage-cell">${mobile.toLocaleString()}</span>` : `<span class="usage-zero">—</span>`;
+    return `<tr>
+      <td style="color:#bbb">${i + 1}</td>
+      <td><div class="tenant-name">${c.name}</div><div class="tenant-id">${c.id}</div></td>
+      <td>${statusLabel}</td>
+      <td>${industry}</td>
+      <td>${segment}</td>
+      <td>${webLabel}</td>
+      <td>${mobileLabel}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('stat-live').textContent = customers.filter(c => c.isLive).length;
+  document.getElementById('stat-pending').textContent = customers.filter(c => !c.isLive).length;
+}
 
 function renderTable(tenants) {
   const sorted = [...tenants].sort((a, b) => {
@@ -216,15 +344,11 @@ function renderTable(tenants) {
     const ttOnLabel = ttOn
       ? `<span class="badge badge-on">On</span>`
       : `<span style="color:#ccc">—</span>`;
-    const projectTTLabel = t.projectTT
-      ? `<span class="badge badge-on">On</span>`
-      : `<span style="color:#ccc">—</span>`;
     return `<tr data-search="${name.toLowerCase()}">
       <td style="color:#bbb">${i + 1}</td>
       <td><div class="tenant-name">${name}</div><div class="tenant-id">${t.id}</div></td>
       <td><span class="badge badge-${type}">${BADGE_LABELS[type]}</span></td>
       <td>${ttOnLabel}</td>
-      <td>${projectTTLabel}</td>
       <td>${dateLabel}</td>
       <td>${webLabel}</td>
       <td>${mobileLabel}</td>
@@ -232,12 +356,8 @@ function renderTable(tenants) {
     </tr>`;
   }).join('');
 
-  document.getElementById('stat-total').textContent = tenants.length;
-  document.getElementById('stat-tt2').textContent =
-    tenants.filter(t => t.ttOn !== undefined ? t.ttOn : true).length;
-  document.getElementById('stat-project-tt').textContent =
-    tenants.filter(t => t.projectTT).length;
-  document.getElementById('table-title').textContent = `Tenant List (${tenants.length})`;
+  document.getElementById('stat-training').textContent = tenants.length;
+  document.getElementById('table-title').textContent = `Training & Test Tenants (${tenants.length})`;
 }
 
 function filterTable(q) {
@@ -246,61 +366,12 @@ function filterTable(q) {
   });
 }
 
-const LD_TOKEN = 'api-a6c609f8-7516-46bb-a945-511726b955b5';
-
-async function doRefresh() {
-  const btn = document.getElementById('refresh-btn');
-  btn.textContent = '↻ Loading…';
-  btn.disabled = true;
-  document.getElementById('error-bar').classList.add('hidden');
-
-  try {
-    const [ttResp, projectResp] = await Promise.all([
-      fetch('https://app.launchdarkly.com/api/v2/flags/default/time-tracking-redesign', { headers: { Authorization: LD_TOKEN } }),
-      fetch('https://app.launchdarkly.com/api/v2/flags/default/track-time-on-projects-without-visit', { headers: { Authorization: LD_TOKEN } }),
-    ]);
-    if (!ttResp.ok) throw new Error(`LD time-tracking-redesign returned ${ttResp.status}`);
-    if (!projectResp.ok) throw new Error(`LD track-time-on-projects returned ${projectResp.status}`);
-
-    const [ttData, projectData] = await Promise.all([ttResp.json(), projectResp.json()]);
-
-    const ttTargets = ttData?.environments?.production?.targets || [];
-    const ttIds = new Set(ttTargets.find(t => t.variation === 0)?.values || []);
-
-    const projectTargets = projectData?.environments?.production?.targets || [];
-    const projectOnIds = new Set(projectTargets.find(t => t.variation === 0)?.values || []);
-
-    // Union: show any tenant with either flag on
-    const allIds = new Set([...ttIds, ...projectOnIds]);
-
-    const tenants = [...allIds].map(id => {
-      const known = SNAPSHOT_TENANTS.find(s => s.id === id);
-      return {
-        id,
-        name: known?.name || null,
-        enabledDate: known?.enabledDate || null,
-        webViews: known?.webViews || 0,
-        mobileEvents: known?.mobileEvents || 0,
-        ttOn: ttIds.has(id),
-        projectTT: projectOnIds.has(id),
-      };
-    });
-
-    renderTable(tenants);
-    document.getElementById('refreshed-at').textContent =
-      'Updated ' + new Date().toLocaleTimeString();
-  } catch (err) {
-    document.getElementById('error-bar').textContent = 'Refresh failed: ' + err.message;
-    document.getElementById('error-bar').classList.remove('hidden');
-  } finally {
-    btn.textContent = '↻ Refresh';
-    btn.disabled = false;
-  }
-}
-
-// ── Init: render snapshot then fetch live LD data ─────────────────────────────
+// ── Init: render embedded snapshot data ───────────────────────────────────────
+// No client-side LaunchDarkly fetch here on purpose — an API token can't be
+// shipped in public client-side JS. The daily scheduled refresh job fetches
+// LD/Salesforce/Heap data server-side and republishes this file with fresh data.
+renderCustomerTable(CUSTOMER_ACCOUNTS);
 renderTable(SNAPSHOT_TENANTS);
-doRefresh();
 </script>
 </body>
 </html>
