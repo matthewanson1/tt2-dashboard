@@ -1,0 +1,32 @@
+name: Refresh tenant list
+
+on:
+  schedule:
+    - cron: '5 9 * * *'   # ~9:05am PT (UTC-7/-8) — approximate, GH cron is UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync tenant list from LaunchDarkly
+        env:
+          LD_API_TOKEN: ${{ secrets.LD_API_TOKEN }}
+        run: node scripts/refresh-tenants.js
+
+      - name: Commit and push if changed
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "tt2-dashboard-bot"
+          git config user.email "actions@github.com"
+          git add index.html
+          git commit -m "Automated tenant list refresh — $(date -u +%Y-%m-%d)"
+          git push
