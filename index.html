@@ -92,7 +92,7 @@
     <p>Tenants with the <code>time-tracking-redesign</code> flag on in Production · LaunchDarkly + Salesforce</p>
   </div>
   <div class="header-right">
-    <span class="refreshed-at" id="refreshed-at">Snapshot: Jul 28, 2026</span>
+    <span class="refreshed-at" id="refreshed-at"></span>
   </div>
 </header>
 
@@ -170,6 +170,11 @@
 
 
 <script>
+// ── Snapshot date ────────────────────────────────────────────────────────────────
+// Single source of truth for "when was this last refreshed" — the daily job bumps
+// only this constant. Header text and staleness banner both derive from it.
+const SNAPSHOT_DATE = '2026-07-28';
+
 // ── Embedded customer data ──────────────────────────────────────────────────────
 // Real Salesforce accounts (account_status = Customer) that currently have the
 // time-tracking-redesign flag on. Snapshot fetched from Salesforce on Jul 7, 2026.
@@ -393,12 +398,27 @@ function filterTable(q) {
   });
 }
 
+// Warns if the daily publish job has stalled — this page is a static snapshot
+// republished once a day, so there's no other way to notice it silently broke
+// (this is exactly how it went 20 days stale on 2026-07-08 without anyone seeing).
+function checkStaleness() {
+  const snap = new Date(SNAPSHOT_DATE + 'T00:00:00Z');
+  const daysOld = Math.floor((Date.now() - snap.getTime()) / 86400000);
+  if (daysOld >= 2) {
+    const bar = document.getElementById('error-bar');
+    bar.textContent = `⚠ This snapshot is ${daysOld} days old (last refreshed ${formatDate(SNAPSHOT_DATE)}). The daily refresh job may be stalled.`;
+    bar.classList.remove('hidden');
+  }
+}
+
 // ── Init: render embedded snapshot data ───────────────────────────────────────
 // No client-side LaunchDarkly fetch here on purpose — an API token can't be
 // shipped in public client-side JS. The daily scheduled refresh job fetches
 // LD/Salesforce/Heap data server-side and republishes this file with fresh data.
+document.getElementById('refreshed-at').textContent = 'Snapshot: ' + formatDate(SNAPSHOT_DATE);
 renderCustomerTable(CUSTOMER_ACCOUNTS);
 renderTable(SNAPSHOT_TENANTS);
+checkStaleness();
 </script>
 </body>
 </html>
