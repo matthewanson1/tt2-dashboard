@@ -347,6 +347,8 @@ function renderCustomerTable(customers) {
 
 function renderTable(tenants) {
   const sorted = [...tenants].sort((a, b) => {
+    const aNamed = !!a.name, bNamed = !!b.name;
+    if (aNamed !== bNamed) return aNamed ? -1 : 1;
     if (a.enabledDate && b.enabledDate) return b.enabledDate.localeCompare(a.enabledDate);
     if (a.enabledDate) return -1;
     if (b.enabledDate) return 1;
