@@ -92,7 +92,7 @@
     <p>Tenants with the <code>time-tracking-redesign</code> flag on in Production · LaunchDarkly + Salesforce</p>
   </div>
   <div class="header-right">
-    <span class="refreshed-at" id="refreshed-at">Snapshot: Jul 7, 2026</span>
+    <span class="refreshed-at" id="refreshed-at">Snapshot: Jul 28, 2026</span>
   </div>
 </header>
 
@@ -102,17 +102,17 @@
   <div class="stats">
     <div class="stat-card">
       <div class="label">Live Customers</div>
-      <div class="value" id="stat-live">2</div>
+      <div class="value" id="stat-live">3</div>
       <div class="sub">Real accounts past their go-live date</div>
     </div>
     <div class="stat-card">
       <div class="label">Pending Go-Live</div>
-      <div class="value" id="stat-pending">5</div>
+      <div class="value" id="stat-pending">4</div>
       <div class="sub">Real accounts, not live yet</div>
     </div>
     <div class="stat-card">
       <div class="label">Training &amp; Test Tenants</div>
-      <div class="value" id="stat-training">50</div>
+      <div class="value" id="stat-training">68</div>
       <div class="sub">No Salesforce account (internal/demo)</div>
     </div>
   </div>
@@ -186,7 +186,7 @@ const CUSTOMER_ACCOUNTS = [
     industry: 'Electrical', segment: 'Strategic', isLive: false,
     ttEnabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: '3d2e0c95-766e-4b8d-93a0-ca8bf33d0383', name: 'Best Mechanical',
-    industry: 'HVAC/Mechanical', segment: 'Strategic', isLive: false,
+    industry: 'HVAC/Mechanical', segment: 'Strategic', isLive: true,
     ttEnabledDate: null, webViews: 7, mobileEvents: 0 },
   { id: '05e80590-d03f-4ef2-b1e5-26e8e0d48ff5', name: 'Anderson Systems, Inc.',
     industry: 'HVAC/Mechanical', segment: 'Commercial', isLive: false,
@@ -223,14 +223,12 @@ const SNAPSHOT_TENANTS = [
   { id: 'f63f7159-7079-4f8e-b526-95f5e4b3e6be', name: 'Westcoast Mechanical Contractors Training',    enabledDate: null,         webViews:   9, mobileEvents:   0 },
   { id: 'b826c795-58e7-400e-ae37-ac7f702533fa', name: 'Daniels Electric Training',                     enabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: 'e8ceefc4-37fe-4456-80b9-290031078939', name: 'Fleming Network Training',                      enabledDate: null, webViews: 0, mobileEvents: 0 },
-  { id: 'ed98b3de-638c-489b-9c4f-a02a86448a07', name: 'CoreBuild Mechanical',                          enabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: '9bad1b78-5810-4807-98ae-a6a4fda25e76', name: 'Ellingson Training',                            enabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: '8f0e6cdb-c193-4097-92b7-251e8d5fd11c', name: 'PieperPower Validation',                        enabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: '2872ee32-5185-452d-ab6c-ef164d3828f8', name: 'MetroPower Validation',                         enabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: 'fff08999-7244-4ec6-9b1f-04bea5a9a952', name: 'CarolinaPower Validation',                      enabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: '5033e74e-6f79-4816-98b9-a47db67acfc0', name: 'H&S Electric Training',                         enabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: '71b8a042-c2a5-4899-b460-401a8aaa2a56', name: 'Eagle Controls Training',                       enabledDate: null, webViews: 0, mobileEvents: 0 },
-  { id: '91baf373-1168-4782-ad59-d730508ce9e7', name: 'Chris Watson Demo',                             enabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: '4e824a19-601d-47bb-b847-2a975f11ba12', name: 'UMC Training 2',                                enabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: 'dc471ece-d14d-4862-b213-c4ba4af96d56', name: 'Hayden Grant Demo Account',                     enabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: 'b2f4b38b-4dd0-408e-b8b6-7e912c01c6bc', name: 'Absolute Power - Training',                     enabledDate: null, webViews: 0, mobileEvents: 0 },
@@ -255,6 +253,28 @@ const SNAPSHOT_TENANTS = [
   { id: '2029c9bd-51b1-4ca1-a916-e583bbb88bd4', name: 'PyroComm Training',                             enabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: 'd51fe9dc-1085-434d-8180-6ea74e470ced', name: 'Southwest Mechanical Services Training',        enabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: '71aa90b3-5a4d-4cbf-8699-7abc128bcda2', name: 'Lakeland Multi-trade Inc. Training',            enabledDate: null, webViews: 0, mobileEvents: 0 },
+  { id: '81023912-08e1-470e-ac4a-57562b5138d2', name: 'Pro-Craft Construction Training',               enabledDate: null, webViews: 0, mobileEvents: 0 },
+  // Added 2026-07-28: newly flagged since the daily refresh job stalled on Jul 8.
+  // Names/usage need a Salesforce+Heap refresh (blocked on Snowflake auth) — placeholders for now.
+  { id: '00d49241-efb5-4424-9d1a-03623c774308', name: null, enabledDate: '2026-07-09', webViews: 0, mobileEvents: 0 },
+  { id: '50973bc0-f107-4f0a-aeb0-db49202853ce', name: null, enabledDate: '2026-07-09', webViews: 0, mobileEvents: 0 },
+  { id: 'd3699632-30f7-4200-8a80-73aece9e6d86', name: null, enabledDate: '2026-07-09', webViews: 0, mobileEvents: 0 },
+  { id: 'ed60e594-4cea-4738-a1ce-979e799b1668', name: null, enabledDate: '2026-07-10', webViews: 0, mobileEvents: 0 },
+  { id: '6fc8f7e0-15b6-42bd-bf0c-331c1b7feb9a', name: null, enabledDate: '2026-07-15', webViews: 0, mobileEvents: 0 },
+  { id: '3b008a2d-b0ea-4e88-9b19-a3b37c83f5c6', name: null, enabledDate: '2026-07-21', webViews: 0, mobileEvents: 0 },
+  { id: '7930c279-882d-4a40-b303-360d9d546799', name: null, enabledDate: '2026-07-21', webViews: 0, mobileEvents: 0 },
+  { id: '11e1953b-4427-4cb1-9570-5ffb7f0b17a6', name: null, enabledDate: '2026-07-24', webViews: 0, mobileEvents: 0 },
+  { id: 'ed1b794d-138f-4c3f-a35e-a4e02779c467', name: null, enabledDate: '2026-07-24', webViews: 0, mobileEvents: 0 },
+  { id: '0e20f5d7-f440-46bc-91d1-4913bb9ce6fa', name: null, enabledDate: '2026-07-27', webViews: 0, mobileEvents: 0 },
+  { id: '06a73f68-61c8-428e-beea-929b6565a6b2', name: null, enabledDate: '2026-07-28', webViews: 0, mobileEvents: 0 },
+  { id: '07e2dc0f-9718-46a5-a148-8aa41ebc76e5', name: null, enabledDate: '2026-07-28', webViews: 0, mobileEvents: 0 },
+  { id: '0ef78f50-11cd-4e93-a95a-676e51bf3a51', name: null, enabledDate: '2026-07-28', webViews: 0, mobileEvents: 0 },
+  { id: '1054105d-0193-4836-9baf-70d25173604d', name: null, enabledDate: '2026-07-28', webViews: 0, mobileEvents: 0 },
+  { id: '2203ddff-2384-49e0-9618-667b694214e4', name: null, enabledDate: '2026-07-28', webViews: 0, mobileEvents: 0 },
+  { id: '5d23103d-98fe-44f7-9bb3-591fb63af2af', name: null, enabledDate: '2026-07-28', webViews: 0, mobileEvents: 0 },
+  { id: '8e59a0b5-8036-4c7a-8677-e182774b33ff', name: null, enabledDate: '2026-07-28', webViews: 0, mobileEvents: 0 },
+  { id: '9a20d9d1-a513-4a73-8d8e-587a41d7963f', name: null, enabledDate: '2026-07-28', webViews: 0, mobileEvents: 0 },
+  { id: 'abb0133a-e0f6-4787-b624-547857329b0d', name: null, enabledDate: '2026-07-28', webViews: 0, mobileEvents: 0 },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
