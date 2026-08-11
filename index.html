@@ -134,6 +134,7 @@
             <th style="width:90px">Status</th>
             <th style="width:140px">Industry</th>
             <th style="width:110px">Segment</th>
+            <th style="width:110px" class="th-tip">Go-Live<span class="tip-icon">?</span><span class="tip-box">buildops_core_go_live_date<br>from Salesforce. Not set = blank.<br>NOT the same as TT 2.0 Enabled →</span></th>
             <th style="width:120px" class="th-tip">TT 2.0 Enabled<span class="tip-icon">?</span><span class="tip-box">When the time-tracking-redesign<br>flag was turned on for this tenant.<br>Source: LD audit log. — = older than<br>the audit log's retention window.</span></th>
             <th style="width:80px" class="th-tip">Web<span class="tip-icon">?</span><span class="tip-box">All-time TT 2.0 web page opens.<br>Source: Heap, snapshot Jul 7, 2026.</span></th>
             <th style="width:80px" class="th-tip">Mobile<span class="tip-icon">?</span><span class="tip-box">All-time mobile timesheet events.<br>Source: Heap, snapshot Jul 7, 2026.</span></th>
@@ -183,40 +184,40 @@ const SNAPSHOT_DATE = '2026-08-11';
 // private) of whether the account has passed go-live as of the snapshot date.
 const CUSTOMER_ACCOUNTS = [
   { id: '05e80590-d03f-4ef2-b1e5-26e8e0d48ff5', name: 'Anderson Systems, Inc.',
-    industry: 'HVAC/Mechanical', segment: 'Commercial', isLive: false,
+    industry: 'HVAC/Mechanical', segment: 'Commercial', goLiveDate: null,
     ttEnabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: '3d2e0c95-766e-4b8d-93a0-ca8bf33d0383', name: 'Best Mechanical',
-    industry: 'HVAC/Mechanical', segment: 'Strategic', isLive: true,
+    industry: 'HVAC/Mechanical', segment: 'Strategic', goLiveDate: '2026-07-20',
     ttEnabledDate: null, webViews: 7, mobileEvents: 0 },
   { id: '8e59a0b5-8036-4c7a-8677-e182774b33ff', name: 'Cabworks Custom Elevators',
-    industry: null, segment: 'Commercial', isLive: true,
+    industry: null, segment: 'Commercial', goLiveDate: '2026-06-30',
     ttEnabledDate: '2026-07-28', webViews: 7, mobileEvents: 0 },
   { id: '7930c279-882d-4a40-b303-360d9d546799', name: 'Calray Gas Heat Corp. dba Omnia Mechanical Group',
-    industry: 'HVAC/Mechanical', segment: 'Commercial', isLive: true,
+    industry: 'HVAC/Mechanical', segment: 'Commercial', goLiveDate: '2022-07-27',
     ttEnabledDate: '2026-07-21', webViews: 48141, mobileEvents: 23475 },
   { id: '29ebabdf-323d-4f1b-8779-874aa9ee509a', name: 'Creative Cabling Solutions',
-    industry: 'Electrical', segment: 'Commercial', isLive: true,
+    industry: 'Electrical', segment: 'Commercial', goLiveDate: '2026-07-31',
     ttEnabledDate: '2026-07-31', webViews: 1, mobileEvents: 0 },
   { id: '23ea1210-d32e-4179-b317-bdb43c1f03fe', name: 'Dual Fuel',
-    industry: 'Plumbing', segment: 'Commercial', isLive: true,
+    industry: 'Plumbing', segment: 'Commercial', goLiveDate: '2024-03-30',
     ttEnabledDate: null, webViews: 106458, mobileEvents: 5334 },
   { id: 'b7a34115-63d2-4d2f-b8af-13519d4dac83', name: 'Eagle Controls',
-    industry: 'Electrical', segment: 'Strategic', isLive: true,
+    industry: 'Electrical', segment: 'Strategic', goLiveDate: '2026-06-30',
     ttEnabledDate: null, webViews: 5, mobileEvents: 0 },
   { id: '4592bc69-bf6b-42db-b6c8-61f2fe5ba116', name: 'Fleming Network & Security Services',
-    industry: null, segment: 'Enterprise', isLive: false,
+    industry: null, segment: 'Enterprise', goLiveDate: null,
     ttEnabledDate: null, webViews: 740, mobileEvents: 6 },
   { id: '28d03ff8-1be3-4db8-b83c-9b3f080402f9', name: 'Genset Holdings',
-    industry: 'Electrical', segment: 'Strategic', isLive: true,
+    industry: 'Electrical', segment: 'Strategic', goLiveDate: '2026-08-03',
     ttEnabledDate: null, webViews: 0, mobileEvents: 0 },
   { id: 'abb0133a-e0f6-4787-b624-547857329b0d', name: 'New England Mechanical Overlay, Inc.',
-    industry: 'HVAC/Mechanical', segment: 'Enterprise', isLive: false,
+    industry: 'HVAC/Mechanical', segment: 'Enterprise', goLiveDate: '2026-08-14',
     ttEnabledDate: '2026-07-28', webViews: 0, mobileEvents: 0 },
   { id: '3b008a2d-b0ea-4e88-9b19-a3b37c83f5c6', name: 'The Management Trust',
-    industry: null, segment: 'Strategic', isLive: true,
+    industry: null, segment: 'Strategic', goLiveDate: '2025-08-29',
     ttEnabledDate: '2026-07-21', webViews: 73366, mobileEvents: 1262 },
   { id: '2eb374f1-8cb6-467c-8d7d-6e720eabad1f', name: 'Trinity Southern',
-    industry: null, segment: '1-10', isLive: false,
+    industry: null, segment: '1-10', goLiveDate: null,
     ttEnabledDate: null, webViews: 2, mobileEvents: 0 },
 ];
 
@@ -336,21 +337,30 @@ function segmentBadgeClass(segment) {
 
 const BADGE_LABELS = { training: 'Training', sandbox: 'Sandbox', demo: 'Demo', staging: 'Staging', validation: 'Validation', testing: 'Testing', unknown: 'Unknown' };
 
+function isCustomerLive(c) {
+  return !!c.goLiveDate && new Date(c.goLiveDate + 'T00:00:00Z') <= new Date();
+}
+
 function renderCustomerTable(customers) {
   const sorted = [...customers].sort((a, b) => {
-    if (a.isLive !== b.isLive) return a.isLive ? -1 : 1;
+    const aLive = isCustomerLive(a), bLive = isCustomerLive(b);
+    if (aLive !== bLive) return aLive ? -1 : 1;
     return a.name.localeCompare(b.name);
   });
 
   const tbody = document.getElementById('customer-table-body');
   tbody.innerHTML = sorted.map((c, i) => {
-    const statusLabel = c.isLive
+    const live = isCustomerLive(c);
+    const statusLabel = live
       ? `<span class="badge badge-live">Live</span>`
       : `<span class="badge badge-pending">Pending</span>`;
     const industry = c.industry ? c.industry : `<span class="dim-cell">—</span>`;
     const segment = c.segment
       ? `<span class="badge ${segmentBadgeClass(c.segment)}">${c.segment}</span>`
       : `<span class="dim-cell">—</span>`;
+    const goLive = c.goLiveDate
+      ? `<span class="date-cell">${formatDate(c.goLiveDate)}</span>`
+      : `<span class="date-cell date-unknown">Not set</span>`;
     const ttEnabled = c.ttEnabledDate
       ? `<span class="date-cell">${formatDate(c.ttEnabledDate)}</span>`
       : `<span class="date-cell date-unknown">—</span>`;
@@ -364,14 +374,15 @@ function renderCustomerTable(customers) {
       <td>${statusLabel}</td>
       <td>${industry}</td>
       <td>${segment}</td>
+      <td>${goLive}</td>
       <td>${ttEnabled}</td>
       <td>${webLabel}</td>
       <td>${mobileLabel}</td>
     </tr>`;
   }).join('');
 
-  document.getElementById('stat-live').textContent = customers.filter(c => c.isLive).length;
-  document.getElementById('stat-pending').textContent = customers.filter(c => !c.isLive).length;
+  document.getElementById('stat-live').textContent = customers.filter(isCustomerLive).length;
+  document.getElementById('stat-pending').textContent = customers.filter(c => !isCustomerLive(c)).length;
 }
 
 function renderTable(tenants) {
