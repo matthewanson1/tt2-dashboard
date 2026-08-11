@@ -116,6 +116,11 @@
       <div class="value" id="stat-training">68</div>
       <div class="sub">No Salesforce account (internal/demo)</div>
     </div>
+    <div class="stat-card">
+      <div class="label">Next Up for TT 2.0</div>
+      <div class="value" id="stat-next-up">0</div>
+      <div class="sub">Double-writes on, TT 2.0 still off</div>
+    </div>
   </div>
 
   <div class="card">
@@ -141,6 +146,30 @@
           </tr>
         </thead>
         <tbody id="customer-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>Next Up for TT 2.0</h2>
+        <p>Customers with <code>enable-timesheet-double-write</code> on but <code>time-tracking-redesign</code> still off — ready to flip</p>
+      </div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th>Account</th>
+            <th style="width:140px">Industry</th>
+            <th style="width:110px">Segment</th>
+            <th style="width:110px" class="th-tip">Core Go-Live<span class="tip-icon">?</span><span class="tip-box">buildops_core_go_live_date<br>from Salesforce.</span></th>
+            <th style="width:150px" class="th-tip">Double-Write Since<span class="tip-icon">?</span><span class="tip-box">When enable-timesheet-double-write<br>was turned on for this tenant.<br>Source: LD audit log.</span></th>
+          </tr>
+        </thead>
+        <tbody id="next-up-table-body"></tbody>
       </table>
     </div>
   </div>
@@ -219,6 +248,19 @@ const CUSTOMER_ACCOUNTS = [
   { id: '2eb374f1-8cb6-467c-8d7d-6e720eabad1f', name: 'Trinity Southern',
     industry: null, segment: '1-10', goLiveDate: null,
     ttEnabledDate: null, webViews: 2, mobileEvents: 0 },
+];
+
+// ── "Next Up for TT 2.0" ─────────────────────────────────────────────────────────
+// Customers with the enable-timesheet-double-write flag on (the migration prep step)
+// but time-tracking-redesign still off — i.e. ready/being readied to flip. Computed by
+// diffing the two flags' LD target lists; doubleWriteEnabledDate sourced from LD audit log.
+const NEXT_UP_TENANTS = [
+  { id: '98561bdd-4cd2-4585-a6ee-e42502c75a13', name: 'Dorvin D. Leis',
+    industry: 'HVAC/Mechanical', segment: 'Enterprise',
+    coreGoLiveDate: '2024-03-14', doubleWriteEnabledDate: '2026-07-24' },
+  { id: '49481e06-417b-44f6-8367-b3e88937dbbc', name: 'North Shore Tech Electric LLC',
+    industry: null, segment: '1-10',
+    coreGoLiveDate: '2026-07-15', doubleWriteEnabledDate: '2026-08-05' },
 ];
 
 // ── Embedded training/test tenant snapshot ───────────────────────────────────────
@@ -385,6 +427,36 @@ function renderCustomerTable(customers) {
   document.getElementById('stat-pending').textContent = customers.filter(c => !isCustomerLive(c)).length;
 }
 
+function renderNextUpTable(tenants) {
+  document.getElementById('stat-next-up').textContent = tenants.length;
+  const tbody = document.getElementById('next-up-table-body');
+  if (!tenants.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px;">Nobody waiting - every double-write tenant already has TT 2.0 on.</td></tr>';
+    return;
+  }
+  const sorted = [...tenants].sort((a, b) => (a.doubleWriteEnabledDate || '').localeCompare(b.doubleWriteEnabledDate || ''));
+  tbody.innerHTML = sorted.map((t, i) => {
+    const industry = t.industry ? t.industry : `<span class="dim-cell">—</span>`;
+    const segment = t.segment
+      ? `<span class="badge ${segmentBadgeClass(t.segment)}">${t.segment}</span>`
+      : `<span class="dim-cell">—</span>`;
+    const coreGoLive = t.coreGoLiveDate
+      ? `<span class="date-cell">${formatDate(t.coreGoLiveDate)}</span>`
+      : `<span class="date-cell date-unknown">Not set</span>`;
+    const dwSince = t.doubleWriteEnabledDate
+      ? `<span class="date-cell">${formatDate(t.doubleWriteEnabledDate)}</span>`
+      : `<span class="date-cell date-unknown">—</span>`;
+    return `<tr>
+      <td style="color:#bbb">${i + 1}</td>
+      <td><div class="tenant-name">${t.name}</div><div class="tenant-id">${t.id}</div></td>
+      <td>${industry}</td>
+      <td>${segment}</td>
+      <td>${coreGoLive}</td>
+      <td>${dwSince}</td>
+    </tr>`;
+  }).join('');
+}
+
 function renderTable(tenants) {
   const sorted = [...tenants].sort((a, b) => {
     const aNamed = !!a.name, bNamed = !!b.name;
@@ -452,6 +524,7 @@ function checkStaleness() {
 // LD/Salesforce/Heap data server-side and republishes this file with fresh data.
 document.getElementById('refreshed-at').textContent = 'Snapshot: ' + formatDate(SNAPSHOT_DATE);
 renderCustomerTable(CUSTOMER_ACCOUNTS);
+renderNextUpTable(NEXT_UP_TENANTS);
 renderTable(SNAPSHOT_TENANTS);
 checkStaleness();
 </script>
