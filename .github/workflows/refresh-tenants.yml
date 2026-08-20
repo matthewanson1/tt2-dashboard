@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   refresh:
@@ -30,3 +31,22 @@ jobs:
           git add index.html
           git commit -m "Automated tenant list refresh — $(date -u +%Y-%m-%d)"
           git push
+
+      # A failing scheduled workflow notifies nobody by default, which is how this job
+      # stayed broken for 10 days (2026-08-11 to 2026-08-20) without anyone noticing.
+      # On failure, open one issue and keep commenting on it rather than filing a fresh
+      # issue every day, so a long outage reads as one thread instead of a pile.
+      - name: Report failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          TITLE="Daily tenant refresh is failing"
+          BODY="The \`Refresh tenant list\` workflow failed on $(date -u +%Y-%m-%d) — the dashboard will go stale until this is fixed. Run log: $RUN_URL"
+          EXISTING=$(gh issue list --state open --limit 50 --json number,title --jq ".[] | select(.title == \"$TITLE\") | .number" | head -1)
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body "$BODY"
+          else
+            gh issue create --title "$TITLE" --body "$BODY" --assignee matthewanson1
+          fi
