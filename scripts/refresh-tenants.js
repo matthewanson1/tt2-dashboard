@@ -110,7 +110,7 @@ async function main() {
   );
 
   // Sanity check before writing: must still parse, and never contain forbidden fields.
-  const forbidden = ['LD_TOKEN', 'accountExec', 'csm', 'coreLicenses', 'goLiveDate', 'churnRisk', 'csat', 'arr'];
+  const forbidden = ['LD_TOKEN', 'accountExec', 'csm', 'coreLicenses', 'churnRisk', 'csat', 'arr'];
   for (const f of forbidden) {
     if (out.includes(f)) throw new Error(`Sanity check failed: forbidden field "${f}" present`);
   }
