@@ -204,7 +204,7 @@
 // ── Snapshot date ────────────────────────────────────────────────────────────────
 // Single source of truth for "when was this last refreshed" — the daily job bumps
 // only this constant. Header text and staleness banner both derive from it.
-const SNAPSHOT_DATE = '2026-08-21';
+const SNAPSHOT_DATE = '2026-08-22';
 
 // ── Embedded customer data ──────────────────────────────────────────────────────
 // Real Salesforce accounts (account_status = Customer) that currently have the
@@ -227,9 +227,6 @@ const CUSTOMER_ACCOUNTS = [
   { id: '29ebabdf-323d-4f1b-8779-874aa9ee509a', name: "Creative Cabling Solutions",
     industry: "Electrical", segment: "Commercial", isLive: undefined,
     ttEnabledDate: "2026-07-31", webViews: 18, mobileEvents: 0 },
-  { id: '98561bdd-4cd2-4585-a6ee-e42502c75a13', name: "Dorvin D. Leis",
-    industry: "HVAC/Mechanical", segment: "Enterprise", isLive: undefined,
-    ttEnabledDate: "2026-08-19", webViews: 29609, mobileEvents: 11124 },
   { id: '23ea1210-d32e-4179-b317-bdb43c1f03fe', name: "Dual Fuel",
     industry: "Plumbing", segment: "Commercial", isLive: undefined,
     ttEnabledDate: null, webViews: 108729, mobileEvents: 5334 },
@@ -373,6 +370,7 @@ const SNAPSHOT_TENANTS = [
   { id: 'b8dd23d4-8c23-4748-b5df-cafb7e362bf5', name: "Cobalt Refrigeration Training", enabledDate: "2026-08-19", webViews: 0, mobileEvents: 0 },
   { id: 'a9e6423d-3aed-4cb1-b339-779847e6f0e8', name: "Harvard NDE Training", enabledDate: "2026-08-20", webViews: 0, mobileEvents: 0 },
   { id: '298a1f9d-fc04-4909-bae1-76df760fca1d', name: null, enabledDate: "2026-08-20", webViews: 0, mobileEvents: 0 },
+  { id: '9ac1bacd-02f2-491a-a2e3-499a61c1960c', name: null, enabledDate: "2026-08-21", webViews: 0, mobileEvents: 0 },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
