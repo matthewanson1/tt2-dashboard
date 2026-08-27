@@ -112,7 +112,13 @@ async function main() {
   // Sanity check before writing: must still parse, and never contain forbidden fields.
   const forbidden = ['LD_TOKEN', 'accountExec', 'csm', 'coreLicenses', 'churnRisk', 'csat', 'arr'];
   for (const f of forbidden) {
-    if (out.includes(f)) throw new Error(`Sanity check failed: forbidden field "${f}" present`);
+    // Match each name only where it is actually a field/identifier — a JSON property
+    // key ("csm":) or an assignment target (LD_TOKEN =) — never as a bare substring.
+    // A plain out.includes(f) check false-positives on legitimate tenant data: the
+    // short entries 'arr' and 'csat' hide inside real account names (e.g. the tenant
+    // "SmartBarrel" contains "arr"), which would fail every refresh for no reason.
+    const re = new RegExp(`"${f}"\\s*:|\\b${f}\\b\\s*[:=]`);
+    if (re.test(out)) throw new Error(`Sanity check failed: forbidden field "${f}" present`);
   }
   loadArrays(out); // throws if it doesn't parse
 
