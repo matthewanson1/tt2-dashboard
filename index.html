@@ -82,6 +82,28 @@
 
     .error-bar { background: #ffebee; border: 1px solid #ef9a9a; border-radius: 7px; padding: 10px 14px; margin-bottom: 16px; color: #c62828; font-size: 13px; }
     .hidden { display: none !important; }
+
+  /* ── Analytics tab ─────────────────────────────────────────────────── */
+  .tabs { display:flex; gap:4px; margin:0 0 20px; border-bottom:1px solid #e3e3e6; }
+  .tab-btn { appearance:none; background:none; border:none; padding:10px 18px; font-size:14px;
+    font-weight:600; color:#77787c; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab-btn:hover { color:#1b1b1f; }
+  .tab-btn.active { color:#1b1b1f; border-bottom-color:#1b1b1f; }
+  .chart-card { background:#fff; border:1px solid #e6e6e9; border-radius:10px; padding:20px 22px; margin-bottom:18px; }
+  .chart-card h3 { margin:0 0 2px; font-size:15px; font-weight:650; color:#1b1b1f; }
+  .chart-card .chart-sub { margin:0 0 14px; font-size:12.5px; color:#77787c; line-height:1.5; }
+  .chart-wrap { overflow-x:auto; }
+  .legend { display:flex; flex-wrap:wrap; gap:14px; margin:10px 0 0; font-size:12px; color:#55565a; }
+  .legend i { display:inline-block; width:11px; height:11px; border-radius:2px; margin-right:5px; vertical-align:-1px; }
+  .caveat { background:#fffaf0; border:1px solid #f0e0c0; border-radius:8px; padding:12px 14px;
+    font-size:12.5px; color:#6b5836; line-height:1.6; margin-bottom:18px; }
+  .caveat b { color:#4a3c22; }
+  .chart-note { font-size:11.5px; color:#8a8b8f; margin-top:9px; line-height:1.5; }
+  svg .grid { stroke:#eeeef1; stroke-width:1; }
+  svg .axis { stroke:#d4d4d8; stroke-width:1; }
+  svg text.tick { font-size:10px; fill:#8a8b8f; }
+  svg text.lbl { font-size:11px; fill:#55565a; }
+  svg .cut { stroke:#c9463c; stroke-width:1.5; stroke-dasharray:4 3; }
   </style>
 </head>
 <body>
@@ -99,6 +121,13 @@
 
 <div class="main">
   <div id="error-bar" class="error-bar hidden"></div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-panel="panel-tenants">Tenants</button>
+    <button class="tab-btn" data-panel="panel-analytics">Analytics</button>
+  </div>
+
+  <div id="panel-tenants">
 
   <div class="stats">
     <div class="stat-card">
@@ -198,6 +227,75 @@
         </thead>
         <tbody id="table-body"></tbody>
       </table>
+    </div>
+  </div>
+  </div>
+
+  <div id="panel-analytics" hidden>
+    <div class="caveat">
+      <b>How “on 2.0” is decided.</b> The timesheet tables record no UI attribution — an entry does not
+      say whether it came from 1.0 or 2.0. So hours are split by <b>each tenant's own TT 2.0 enable date</b>:
+      a week is counted as 2.0 once its Monday falls on or after that tenant's enable date, and pre-2.0 before it.
+      A week containing the cutover is counted as pre-2.0, so the 2.0 series is slightly conservative.
+      <br><b>Seven tenants have no recoverable enable date</b> (enabled before LaunchDarkly's audit-log retention window,
+      ~mid-Apr 2026) — their hours are shown as a separate “unattributed” band and are never counted as 2.0.
+      Dual Fuel is the largest of these, so the unattributed band is big by volume, not by uncertainty about the tenant.
+      <br><b>Corrupt rows are capped.</b> Any single employee-day above 24h is clipped to 24 — this removes ~22,000
+      impossible hours per week from TJW Industrial's Feb–Jun history and similar spikes elsewhere.
+      The most recent week is partial and drawn dashed.
+      <br><b>Why this tab reads lower than the Tenants tab.</b> The Tenants table shows <b>24,008</b> h on 2.0;
+      this tab totals <b>16,502</b> h. Both are right for what they measure. The table counts from the exact
+      enable <i>date</i> and uses raw durations. This tab assigns whole weeks (a cutover week counts as pre-2.0)
+      and applies the 24h/employee-day cap. The gap is that conservatism plus the capped corrupt hours —
+      treat 24,008 as the headline and this tab as the shape of the trend.
+    </div>
+
+    <div class="stats" id="analytics-stats"></div>
+
+    <div class="chart-card">
+      <h3>Weekly labor hours — pre-2.0 vs on 2.0</h3>
+      <p class="chart-sub">Every customer tenant with recorded time, stacked. The green band is hours logged after that tenant went on 2.0.</p>
+      <div class="chart-wrap"><svg id="chart-stack" width="1080" height="300"></svg></div>
+      <div class="legend">
+        <span><i style="background:#2f9e5f"></i>On TT 2.0</span>
+        <span><i style="background:#c9cad0"></i>Pre-2.0 (same tenants, before cutover)</span>
+        <span><i style="background:#f0c674"></i>Unattributed — enable date unrecoverable</span>
+      </div>
+      <p class="chart-note" id="note-stack"></p>
+    </div>
+
+    <div class="chart-card">
+      <h3>Hours per employee-day</h3>
+      <p class="chart-sub">Realism check. A normal full working day sits in the shaded 6–10h band. Values far outside it mean bad clock-outs, not more work.</p>
+      <div class="chart-wrap"><svg id="chart-hpd" width="1080" height="260"></svg></div>
+      <div class="legend">
+        <span><i style="background:#2f9e5f"></i>On TT 2.0</span>
+        <span><i style="background:#c9cad0"></i>Pre-2.0</span>
+        <span><i style="background:#eef3ee;border:1px solid #cfe0d4"></i>6–10h normal band</span>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Employees recording time on TT 2.0, per week</h3>
+      <p class="chart-sub">Distinct employees who logged at least one entry that week, counting only tenants already on 2.0.</p>
+      <div class="chart-wrap"><svg id="chart-emps" width="1080" height="240"></svg></div>
+      <p class="chart-note" id="note-emps"></p>
+    </div>
+
+    <div class="chart-card">
+      <h3>Migration signature — daily hours before vs after cutover</h3>
+      <p class="chart-sub">Average hours/day in the 60 days before each tenant's enable date, against every day since. A tall right bar means volume genuinely moved onto 2.0; near-equal bars mean the same work simply carried over. Computed on exact dates, not weeks. A red <b>Nd</b> marker means fewer than 14 days since cutover — too early to read much into.</p>
+      <div class="chart-wrap"><svg id="chart-mig" width="1080" height="280"></svg></div>
+      <div class="legend">
+        <span><i style="background:#c9cad0"></i>60 days before cutover</span>
+        <span><i style="background:#2f9e5f"></i>Since cutover</span>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Customer tenants enabled on TT 2.0</h3>
+      <p class="chart-sub">Cumulative, by enable date. The dashed floor is the 7 tenants already on 2.0 before the audit log's retention window — real, but undateable.</p>
+      <div class="chart-wrap"><svg id="chart-cum" width="1080" height="230"></svg></div>
     </div>
   </div>
 </div>
@@ -537,6 +635,259 @@ renderCustomerTable(CUSTOMER_ACCOUNTS);
 renderNextUpTable(NEXT_UP_TENANTS);
 renderTable(SNAPSHOT_TENANTS);
 checkStaleness();
+
+// ── Analytics tab ──────────────────────────────────────────────────────────────
+// WEEKLY: [tenantIdPrefix, weekStart(Mon), cappedHours, distinctEmployees, employeeDays]
+// Hours are capped at 24h per employee-day at source; see the caveat box for why.
+const WEEKLY = [["23ea1210","2025-12-29",1025,53,113],["23ea1210","2026-01-05",2468,53,262],["23ea1210","2026-01-12",2726,53,272],["23ea1210","2026-01-19",2596,55,277],["23ea1210","2026-01-26",2540,52,273],["23ea1210","2026-02-02",2727,51,273],["23ea1210","2026-02-09",2746,53,276],["23ea1210","2026-02-16",2462,53,268],["23ea1210","2026-02-23",2274,52,247],["23ea1210","2026-03-02",2469,53,261],["23ea1210","2026-03-09",2681,55,275],["23ea1210","2026-03-16",2761,54,281],["23ea1210","2026-03-23",2707,54,279],["23ea1210","2026-03-30",2623,54,274],["23ea1210","2026-04-06",2791,59,289],["23ea1210","2026-04-13",2600,57,274],["23ea1210","2026-04-20",2785,57,289],["23ea1210","2026-04-27",2650,58,280],["23ea1210","2026-05-04",2649,61,283],["23ea1210","2026-05-11",2781,56,275],["23ea1210","2026-05-18",2579,55,271],["23ea1210","2026-05-25",2493,58,278],["23ea1210","2026-06-01",2803,62,296],["23ea1210","2026-06-08",2708,61,290],["23ea1210","2026-06-15",2743,61,293],["23ea1210","2026-06-22",2846,60,297],["23ea1210","2026-06-29",2930,65,307],["23ea1210","2026-07-06",2948,64,307],["23ea1210","2026-07-13",3109,70,322],["23ea1210","2026-07-20",3104,69,333],["23ea1210","2026-07-27",3130,65,327],["23ea1210","2026-08-03",3202,70,338],["23ea1210","2026-08-10",3132,67,336],["23ea1210","2026-08-17",3233,68,338],["23ea1210","2026-08-24",2351,66,248],["29ebabdf","2026-08-03",16,2,2],["29ebabdf","2026-08-10",41,3,5],["2eb374f1","2026-05-25",9,1,1],["2eb374f1","2026-06-01",93,5,13],["2eb374f1","2026-06-08",240,5,30],["2eb374f1","2026-06-15",240,5,30],["2eb374f1","2026-06-22",240,5,30],["2eb374f1","2026-06-29",175,5,20],["2eb374f1","2026-07-06",95,5,10],["2eb374f1","2026-07-20",204,4,20],["2eb374f1","2026-07-27",153,4,18],["2eb374f1","2026-08-03",64,4,8],["3b008a2d","2025-12-29",675,54,85],["3b008a2d","2026-01-05",2591,54,252],["3b008a2d","2026-01-12",2615,55,263],["3b008a2d","2026-01-19",2883,56,258],["3b008a2d","2026-01-26",2918,57,268],["3b008a2d","2026-02-02",2752,58,272],["3b008a2d","2026-02-09",2815,57,268],["3b008a2d","2026-02-16",2768,58,266],["3b008a2d","2026-02-23",2895,59,272],["3b008a2d","2026-03-02",3199,59,281],["3b008a2d","2026-03-09",3054,61,277],["3b008a2d","2026-03-16",2845,57,261],["3b008a2d","2026-03-23",2903,57,257],["3b008a2d","2026-03-30",2980,57,264],["3b008a2d","2026-04-06",2878,57,256],["3b008a2d","2026-04-13",2818,60,267],["3b008a2d","2026-04-20",2965,59,273],["3b008a2d","2026-04-27",3078,66,280],["3b008a2d","2026-05-04",3378,64,305],["3b008a2d","2026-05-11",3397,64,304],["3b008a2d","2026-05-18",3070,62,292],["3b008a2d","2026-05-25",3003,62,295],["3b008a2d","2026-06-01",2999,60,281],["3b008a2d","2026-06-08",2934,61,283],["3b008a2d","2026-06-15",2942,63,285],["3b008a2d","2026-06-22",3215,64,297],["3b008a2d","2026-06-29",2985,61,282],["3b008a2d","2026-07-06",2813,59,271],["3b008a2d","2026-07-13",2926,59,279],["3b008a2d","2026-07-20",2481,63,282],["3b008a2d","2026-07-27",2488,62,286],["3b008a2d","2026-08-03",2380,59,280],["3b008a2d","2026-08-10",2455,60,273],["3b008a2d","2026-08-17",2258,59,258],["3b008a2d","2026-08-24",1838,58,215],["4592bc69","2026-03-09",48,1,2],["4592bc69","2026-03-16",64,4,5],["4592bc69","2026-03-23",95,4,12],["4592bc69","2026-03-30",143,5,17],["4592bc69","2026-04-06",152,7,18],["4592bc69","2026-04-13",150,5,20],["4592bc69","2026-04-20",143,4,19],["4592bc69","2026-04-27",128,5,17],["4592bc69","2026-05-04",157,7,22],["4592bc69","2026-05-11",188,6,25],["4592bc69","2026-05-18",83,6,11],["4592bc69","2026-05-25",48,1,2],["4592bc69","2026-06-01",263,10,35],["4592bc69","2026-06-08",237,9,32],["4592bc69","2026-06-15",188,10,25],["4592bc69","2026-06-22",158,7,23],["4592bc69","2026-07-13",99,7,11],["4592bc69","2026-07-20",328,13,36],["4592bc69","2026-07-27",333,12,35],["4592bc69","2026-08-03",333,10,38],["4592bc69","2026-08-10",473,14,54],["4592bc69","2026-08-17",498,13,57],["4592bc69","2026-08-24",311,14,34],["7930c279","2026-07-13",670,26,72],["7930c279","2026-07-20",773,30,118],["7930c279","2026-07-27",810,27,113],["7930c279","2026-08-03",758,30,118],["7930c279","2026-08-10",773,28,112],["7930c279","2026-08-17",724,25,99],["7930c279","2026-08-24",478,23,75],["8d38df5b","2026-01-05",10,3,3],["8d38df5b","2026-02-02",75,6,6],["8d38df5b","2026-02-09",85,2,9],["8d38df5b","2026-02-16",357,12,34],["8d38df5b","2026-02-23",3187,62,282],["8d38df5b","2026-03-02",3187,64,300],["8d38df5b","2026-03-09",3332,62,305],["8d38df5b","2026-03-16",3709,65,327],["8d38df5b","2026-03-23",3268,64,301],["8d38df5b","2026-03-30",3608,65,335],["8d38df5b","2026-04-06",3663,71,350],["8d38df5b","2026-04-13",3575,72,337],["8d38df5b","2026-04-20",3977,71,359],["8d38df5b","2026-04-27",3661,74,347],["8d38df5b","2026-05-04",3464,72,342],["8d38df5b","2026-05-11",3622,73,348],["8d38df5b","2026-05-18",4184,74,391],["8d38df5b","2026-05-25",3346,73,327],["8d38df5b","2026-06-01",4049,83,398],["8d38df5b","2026-06-08",4731,86,441],["8d38df5b","2026-06-15",4301,83,407],["8d38df5b","2026-06-22",4351,81,407],["8d38df5b","2026-06-29",3102,81,324],["8d38df5b","2026-07-06",3560,78,364],["8d38df5b","2026-07-13",3782,82,381],["8d38df5b","2026-07-20",3665,78,368],["8d38df5b","2026-07-27",3579,79,372],["8d38df5b","2026-08-03",3757,79,389],["8d38df5b","2026-08-10",3441,77,352],["8d38df5b","2026-08-17",3482,78,378],["8d38df5b","2026-08-24",1357,54,145],["8e59a0b5","2026-07-27",0,1,1],["8e59a0b5","2026-08-03",9,2,2],["8e59a0b5","2026-08-24",21,2,2],["a76d247e","2026-08-10",16,2,2],["a76d247e","2026-08-17",80,2,10],["a76d247e","2026-08-24",96,3,12],["b7a34115","2026-08-10",81,4,8],["b7a34115","2026-08-17",1235,30,147],["b7a34115","2026-08-24",1041,30,116]];
+const PARTIAL_WEEK = '2026-08-24';
+
+const custById = () => { const m={}; CUSTOMER_ACCOUNTS.forEach(c => m[c.id.slice(0,8)] = c); return m; };
+
+function classifyWeek(week, cust) {
+  if (!cust || !cust.ttEnabledDate) return 'unknown';
+  return week >= cust.ttEnabledDate ? 'on2' : 'pre';
+}
+
+function weeklyRollup() {
+  const M = custById(), by = {};
+  WEEKLY.forEach(([id, wk, hrs, emps, days]) => {
+    const c = M[id], k = classifyWeek(wk, c);
+    by[wk] = by[wk] || { wk, on2:0, pre:0, unknown:0, on2Emps:0, on2Days:0, preDays:0, preHrs:0 };
+    by[wk][k] += hrs;
+    if (k === 'on2') { by[wk].on2Emps += emps; by[wk].on2Days += days; }
+    if (k === 'pre') { by[wk].preDays += days; by[wk].preHrs += hrs; }
+  });
+  return Object.values(by).sort((a,b) => a.wk.localeCompare(b.wk));
+}
+
+const SVGNS = 'http://www.w3.org/2000/svg';
+function el(n, attrs, txt) {
+  const e = document.createElementNS(SVGNS, n);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (txt !== undefined) e.textContent = txt;
+  return e;
+}
+function fmtWk(w) {
+  const d = new Date(w + 'T00:00:00Z');
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', timeZone:'UTC' });
+}
+
+function drawStack() {
+  const svg = document.getElementById('chart-stack'); if (!svg) return;
+  svg.innerHTML = '';
+  const rows = weeklyRollup();
+  const W_ = 1080, H = 300, L = 58, R = 14, T = 14, B = 42;
+  const iw = W_ - L - R, ih = H - T - B;
+  const max = Math.max(...rows.map(r => r.on2 + r.pre + r.unknown)) * 1.08 || 1;
+  const bw = Math.max(4, iw / rows.length - 3);
+  const y = v => T + ih - (v / max) * ih;
+
+  for (let i = 0; i <= 4; i++) {
+    const v = max * i / 4;
+    svg.appendChild(el('line', { class:'grid', x1:L, x2:L+iw, y1:y(v), y2:y(v) }));
+    svg.appendChild(el('text', { class:'tick', x:L-8, y:y(v)+3, 'text-anchor':'end' }, Math.round(v).toLocaleString()));
+  }
+  rows.forEach((r, i) => {
+    const x = L + i * (iw / rows.length) + 1.5;
+    const partial = r.wk === PARTIAL_WEEK;
+    let acc = 0;
+    [['unknown','#f0c674'],['pre','#c9cad0'],['on2','#2f9e5f']].forEach(([k, col]) => {
+      if (r[k] <= 0) return;
+      const h = (r[k] / max) * ih;
+      const rect = el('rect', { x, y: y(acc + r[k]), width: bw, height: h, fill: col });
+      if (partial) { rect.setAttribute('opacity', .45); rect.setAttribute('stroke', col); rect.setAttribute('stroke-dasharray','3 2'); }
+      rect.appendChild(el('title', {}, r.wk + ' — ' + k + ': ' + Math.round(r[k]).toLocaleString() + ' h' + (partial ? ' (partial week)' : '')));
+      svg.appendChild(rect); acc += r[k];
+    });
+    if (i % 4 === 0 || i === rows.length - 1)
+      svg.appendChild(el('text', { class:'tick', x: x + bw/2, y: H - B + 16, 'text-anchor':'middle' }, fmtWk(r.wk)));
+  });
+  svg.appendChild(el('line', { class:'axis', x1:L, x2:L+iw, y1:T+ih, y2:T+ih }));
+  svg.appendChild(el('text', { class:'lbl', x:L, y:H-8 }, 'Week beginning'));
+
+  const first2 = rows.find(r => r.on2 > 0);
+  const tot2 = rows.reduce((a,r) => a + r.on2, 0);
+  document.getElementById('note-stack').textContent =
+    'First 2.0 hours land the week of ' + (first2 ? fmtWk(first2.wk) : 'n/a') +
+    '. Total on 2.0 across all weeks shown: ' + Math.round(tot2).toLocaleString() + ' h.';
+}
+
+function drawHpd() {
+  const svg = document.getElementById('chart-hpd'); if (!svg) return;
+  svg.innerHTML = '';
+  const rows = weeklyRollup().filter(r => r.on2Days + r.preDays > 0);
+  const W_ = 1080, H = 260, L = 58, R = 14, T = 14, B = 42;
+  const iw = W_ - L - R, ih = H - T - B, max = 16;
+  const y = v => T + ih - (Math.min(v,max) / max) * ih;
+  const x = i => L + (i / Math.max(1, rows.length - 1)) * iw;
+
+  svg.appendChild(el('rect', { x:L, y:y(10), width:iw, height:y(6)-y(10), fill:'#eef3ee', stroke:'#cfe0d4' }));
+  for (let v = 0; v <= max; v += 4) {
+    svg.appendChild(el('line', { class:'grid', x1:L, x2:L+iw, y1:y(v), y2:y(v) }));
+    svg.appendChild(el('text', { class:'tick', x:L-8, y:y(v)+3, 'text-anchor':'end' }, v + 'h'));
+  }
+  const series = (key, dkey, col) => {
+    let d = '', started = false;
+    rows.forEach((r, i) => {
+      if (!r[dkey]) { started = false; return; }
+      const v = r[key] / r[dkey];
+      d += (started ? ' L' : ' M') + x(i) + ' ' + y(v); started = true;
+    });
+    if (d) svg.appendChild(el('path', { d: d.trim(), fill:'none', stroke:col, 'stroke-width':2 }));
+    rows.forEach((r, i) => {
+      if (!r[dkey]) return;
+      const v = r[key] / r[dkey];
+      const c = el('circle', { cx:x(i), cy:y(v), r:2.5, fill:col });
+      c.appendChild(el('title', {}, r.wk + ' — ' + v.toFixed(1) + ' h/employee-day'));
+      svg.appendChild(c);
+    });
+  };
+  series('pre','preDays','#c9cad0');
+  series('on2','on2Days','#2f9e5f');
+  rows.forEach((r, i) => { if (i % 4 === 0 || i === rows.length-1)
+    svg.appendChild(el('text', { class:'tick', x:x(i), y:H-B+16, 'text-anchor':'middle' }, fmtWk(r.wk))); });
+  svg.appendChild(el('line', { class:'axis', x1:L, x2:L+iw, y1:T+ih, y2:T+ih }));
+}
+
+function drawEmps() {
+  const svg = document.getElementById('chart-emps'); if (!svg) return;
+  svg.innerHTML = '';
+  const rows = weeklyRollup().filter(r => r.on2Emps > 0);
+  if (!rows.length) { document.getElementById('note-emps').textContent = 'No 2.0 activity yet.'; return; }
+  const W_ = 1080, H = 240, L = 58, R = 14, T = 14, B = 42;
+  const iw = W_ - L - R, ih = H - T - B;
+  const max = Math.max(...rows.map(r => r.on2Emps)) * 1.15 || 1;
+  const y = v => T + ih - (v / max) * ih;
+  const x = i => L + (i / Math.max(1, rows.length - 1)) * iw;
+  for (let i = 0; i <= 4; i++) {
+    const v = max * i / 4;
+    svg.appendChild(el('line', { class:'grid', x1:L, x2:L+iw, y1:y(v), y2:y(v) }));
+    svg.appendChild(el('text', { class:'tick', x:L-8, y:y(v)+3, 'text-anchor':'end' }, Math.round(v)));
+  }
+  let d = '';
+  rows.forEach((r,i) => { d += (i ? ' L' : 'M') + x(i) + ' ' + y(r.on2Emps); });
+  svg.appendChild(el('path', { d, fill:'none', stroke:'#2f9e5f', 'stroke-width':2.5 }));
+  rows.forEach((r,i) => {
+    const c = el('circle', { cx:x(i), cy:y(r.on2Emps), r:3, fill:'#2f9e5f' });
+    c.appendChild(el('title', {}, r.wk + ' — ' + r.on2Emps + ' employees'));
+    svg.appendChild(c);
+    if (i % 3 === 0 || i === rows.length-1)
+      svg.appendChild(el('text', { class:'tick', x:x(i), y:H-B+16, 'text-anchor':'middle' }, fmtWk(r.wk)));
+  });
+  svg.appendChild(el('line', { class:'axis', x1:L, x2:L+iw, y1:T+ih, y2:T+ih }));
+  const peak = rows.reduce((a,r) => r.on2Emps > a.on2Emps ? r : a);
+  document.getElementById('note-emps').textContent =
+    'Peak so far: ' + peak.on2Emps + ' employees, week of ' + fmtWk(peak.wk) + '.';
+}
+
+// Exact-date before/after, computed in Snowflake with the same 24h/employee-day cap.
+// NOT derived from WEEKLY: a mid-week cutover would misfile up to 6 days of post-2.0
+// hours into the pre bucket (it made TJW read 151 h/day instead of 371).
+const MIGRATION = [{"name":"TJW Industrial","before":520.8,"after":370.7,"days":9},{"name":"The Management Trust","before":416.5,"after":352.7,"days":38},{"name":"Calray / Omnia","before":14,"after":109.1,"days":38},{"name":"Empire Heating & Cooling","before":0.5,"after":16,"days":10},{"name":"Creative Cabling","before":0,"after":2,"days":28},{"name":"Cabworks","before":0,"after":1,"days":31}];
+
+function drawMigration() {
+  const svg = document.getElementById("chart-mig"); if (!svg) return;
+  svg.innerHTML = "";
+  const rows = MIGRATION.slice().sort((a,b) => b.after - a.after);
+  const W_ = 1080, H = 280, L = 58, R = 14, T = 20, B = 84;
+  const iw = W_ - L - R, ih = H - T - B;
+  const max = Math.max(...rows.flatMap(r => [r.before, r.after])) * 1.15 || 1;
+  const y = v => T + ih - (v / max) * ih;
+  const grp = iw / rows.length, bw = Math.min(34, grp/2 - 6);
+  for (let i = 0; i <= 4; i++) {
+    const v = max * i / 4;
+    svg.appendChild(el("line", { class:"grid", x1:L, x2:L+iw, y1:y(v), y2:y(v) }));
+    svg.appendChild(el("text", { class:"tick", x:L-8, y:y(v)+3, "text-anchor":"end" }, Math.round(v).toLocaleString()));
+  }
+  rows.forEach((r, i) => {
+    const cx = L + grp*i + grp/2;
+    [[r.before,"#c9cad0",-bw-3,"60 days before"],[r.after,"#2f9e5f",3,"since cutover"]].forEach(([v,col,off,lab]) => {
+      const rect = el("rect", { x:cx+off, y:y(v), width:bw, height:Math.max(0,T+ih-y(v)), fill:col });
+      rect.appendChild(el("title", {}, r.name + " — " + v.toFixed(1) + " h/day (" + lab + ")"));
+      svg.appendChild(rect);
+    });
+    const nm = r.name.length > 22 ? r.name.slice(0,21) + "\u2026" : r.name;
+    const t = el("text", { class:"tick", x:cx, y:H-B+14, "text-anchor":"end",
+      transform:"rotate(-30 " + cx + " " + (H-B+14) + ")" }, nm);
+    t.appendChild(el("title", {}, r.name + " — " + r.days + " days since cutover"));
+    svg.appendChild(t);
+    if (r.days < 14) svg.appendChild(el("text", { class:"tick", x:cx, y:T-6, "text-anchor":"middle", fill:"#c9463c" }, r.days + "d"));
+  });
+  svg.appendChild(el("line", { class:"axis", x1:L, x2:L+iw, y1:T+ih, y2:T+ih }));
+  svg.appendChild(el("text", { class:"lbl", x:L, y:14 }, "Hours per calendar day"));
+}
+function drawCumulative() {
+  const svg = document.getElementById('chart-cum'); if (!svg) return;
+  svg.innerHTML = '';
+  const dated = CUSTOMER_ACCOUNTS.filter(c => c.ttEnabledDate).map(c => c.ttEnabledDate).sort();
+  const undated = CUSTOMER_ACCOUNTS.filter(c => !c.ttEnabledDate).length;
+  if (!dated.length) return;
+  const W_ = 1080, H = 230, L = 58, R = 14, T = 18, B = 42;
+  const iw = W_ - L - R, ih = H - T - B;
+  const t0 = new Date(dated[0] + 'T00:00:00Z').getTime();
+  const t1 = new Date(SNAPSHOT_DATE + 'T00:00:00Z').getTime();
+  const max = (dated.length + undated) * 1.15;
+  const x = t => L + ((t - t0) / Math.max(1, t1 - t0)) * iw;
+  const y = v => T + ih - (v / max) * ih;
+  for (let i = 0; i <= 4; i++) {
+    const v = max * i / 4;
+    svg.appendChild(el('line', { class:'grid', x1:L, x2:L+iw, y1:y(v), y2:y(v) }));
+    svg.appendChild(el('text', { class:'tick', x:L-8, y:y(v)+3, 'text-anchor':'end' }, Math.round(v)));
+  }
+  svg.appendChild(el('line', { class:'cut', x1:L, x2:L+iw, y1:y(undated), y2:y(undated) }));
+  svg.appendChild(el('text', { class:'tick', x:L+4, y:y(undated)-5 }, undated + ' already on 2.0, enable date unrecoverable'));
+  let d = 'M' + L + ' ' + y(undated), n = undated;
+  dated.forEach(dt => {
+    const px = x(new Date(dt + 'T00:00:00Z').getTime());
+    d += ' L' + px + ' ' + y(n); n++; d += ' L' + px + ' ' + y(n);
+  });
+  d += ' L' + (L+iw) + ' ' + y(n);
+  svg.appendChild(el('path', { d, fill:'none', stroke:'#2f9e5f', 'stroke-width':2.5 }));
+  [0, .25, .5, .75, 1].forEach(f => {
+    const t = t0 + (t1-t0)*f;
+    svg.appendChild(el('text', { class:'tick', x:x(t), y:H-B+16, 'text-anchor':'middle' },
+      new Date(t).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'})));
+  });
+  svg.appendChild(el('line', { class:'axis', x1:L, x2:L+iw, y1:T+ih, y2:T+ih }));
+}
+
+function drawAnalyticsStats() {
+  const box = document.getElementById('analytics-stats'); if (!box) return;
+  const rows = weeklyRollup();
+  const tot2 = rows.reduce((a,r) => a + r.on2, 0);
+  const days2 = rows.reduce((a,r) => a + r.on2Days, 0);
+  const live = rows.filter(r => r.on2Emps > 0).slice(-1)[0];
+  const onFlag = CUSTOMER_ACCOUNTS.filter(c => (c.hoursOn20 || 0) > 0).length;
+  const card = (label, value, sub) =>
+    '<div class="stat-card"><div class="label">' + label + '</div><div class="value">' + value +
+    '</div><div class="sub">' + sub + '</div></div>';
+  box.innerHTML =
+    card('Hours on TT 2.0', Math.round(tot2).toLocaleString(), 'Since each tenant\'s own enable date') +
+    card('Customers producing 2.0 hours', onFlag, 'Of ' + CUSTOMER_ACCOUNTS.length + ' with the flag on') +
+    card('Employees, latest week', live ? live.on2Emps : 0, 'Distinct, on 2.0 tenants only') +
+    card('Hours per employee-day', days2 ? (tot2/days2).toFixed(1) : '—', 'On 2.0. Normal is 6–10');
+}
+
+function renderAnalytics() {
+  drawAnalyticsStats(); drawStack(); drawHpd(); drawEmps(); drawMigration(); drawCumulative();
+}
+
+(function initTabs(){
+  let drawn = false;
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      ['panel-tenants','panel-analytics'].forEach(id => {
+        const p = document.getElementById(id);
+        if (p) p.hidden = (id !== btn.dataset.panel);
+      });
+      if (btn.dataset.panel === 'panel-analytics' && !drawn) { renderAnalytics(); drawn = true; }
+    });
+  });
+})();
+
 </script>
 </body>
 </html>
