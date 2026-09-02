@@ -52,22 +52,31 @@ async function findEnabledDate(tenantId) {
 
 function loadArrays(html) {
   const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
-  const stub = `
-    const document = { getElementById: () => ({ textContent: '', classList: { remove(){} } }) };
-  `;
-  const body = script.replace(/document\.getElementById\('refreshed-at'\)[\s\S]*?checkStaleness\(\);/, '');
-  const fn = new Function(stub + body + '; return { CUSTOMER_ACCOUNTS, SNAPSHOT_TENANTS, SNAPSHOT_DATE };');
-  return fn();
+  // The page's script calls arbitrary DOM APIs at the bottom (getElementById,
+  // querySelectorAll, SVG chart rendering, ...). Rather than stubbing each one by
+  // hand and re-breaking every time the page gains a new render call — which is
+  // exactly how this job broke with "document.querySelectorAll is not a function"
+  // — hand it a Proxy that absorbs any property access, call, or construction.
+  const stub = new Proxy(function () {}, {
+    get: () => stub, set: () => true, apply: () => stub,
+    construct: () => stub, has: () => true,
+  });
+  const fn = new Function(
+    'document', 'window', 'console',
+    script + '; return { CUSTOMER_ACCOUNTS, SNAPSHOT_TENANTS, SNAPSHOT_DATE };'
+  );
+  return fn(stub, stub, { log() {}, warn() {}, error() {} });
 }
 
-function serializeCustomer(c) {
-  return `  { id: '${c.id}', name: ${JSON.stringify(c.name)},\n` +
-    `    industry: ${JSON.stringify(c.industry)}, segment: ${JSON.stringify(c.segment)}, isLive: ${c.isLive},\n` +
-    `    ttEnabledDate: ${JSON.stringify(c.ttEnabledDate)}, webViews: ${c.webViews || 0}, mobileEvents: ${c.mobileEvents || 0} },`;
-}
-
-function serializeTenant(t) {
-  return `  { id: '${t.id}', name: ${JSON.stringify(t.name)}, enabledDate: ${JSON.stringify(t.enabledDate)}, webViews: ${t.webViews || 0}, mobileEvents: ${t.mobileEvents || 0} },`;
+// This job owns ONLY the tenant ID list — which tenants are present. Every other
+// field (goLiveDate, hours30d, employees30d, hoursOn20, employeesOn20, usage
+// counts) is written by the Snowflake enrichment job and must survive untouched.
+// Do NOT go back to a hardcoded field list: the previous version enumerated fields
+// by hand, so it silently erased every column added after it was written and
+// re-emitted `isLive`, a field removed on 2026-08-11. Serializing the whole object
+// keeps this job forward-compatible with columns it has never heard of.
+function serializeEntry(o) {
+  return `  ${JSON.stringify(o)},`;
 }
 
 async function main() {
@@ -85,7 +94,11 @@ async function main() {
 
   for (const id of newIds) {
     const enabledDate = await findEnabledDate(id);
-    keptTenants.push({ id, name: null, enabledDate, webViews: 0, mobileEvents: 0 });
+    keptTenants.push({
+      id, name: null, enabledDate,
+      webViews: 0, mobileEvents: 0,
+      hours30d: 0, employees30d: 0, hoursOn20: 0, employeesOn20: 0,
+    });
   }
 
   if (newIds.length === 0 && removedCount === 0) {
@@ -102,11 +115,11 @@ async function main() {
   );
   out = out.replace(
     /const CUSTOMER_ACCOUNTS = \[[\s\S]*?\n\];/,
-    `const CUSTOMER_ACCOUNTS = [\n${keptCustomers.map(serializeCustomer).join('\n')}\n];`
+    `const CUSTOMER_ACCOUNTS = [\n${keptCustomers.map(serializeEntry).join('\n')}\n];`
   );
   out = out.replace(
     /const SNAPSHOT_TENANTS = \[[\s\S]*?\n\];/,
-    `const SNAPSHOT_TENANTS = [\n${keptTenants.map(serializeTenant).join('\n')}\n];`
+    `const SNAPSHOT_TENANTS = [\n${keptTenants.map(serializeEntry).join('\n')}\n];`
   );
 
   // Sanity check before writing: must still parse, and never contain forbidden fields.
