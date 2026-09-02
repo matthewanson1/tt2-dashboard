@@ -133,6 +133,17 @@ async function main() {
     const re = new RegExp(`"${f}"\\s*:|\\b${f}\\b\\s*[:=]`);
     if (re.test(out)) throw new Error(`Sanity check failed: forbidden field "${f}" present`);
   }
+  // This job must NEVER touch LAST_ENRICHED_DATE. It syncs the tenant ID list only;
+  // names, hours and usage come from the Snowflake job. If this job bumped that date,
+  // the staleness banner would go straight back to being decorative — the page would
+  // claim fresh data every morning while the numbers behind it aged for weeks, which
+  // is exactly the failure the two-date split was introduced to end on 2026-09-02.
+  const enrichedBefore = html.match(/const LAST_ENRICHED_DATE = '([^']*)';/);
+  const enrichedAfter = out.match(/const LAST_ENRICHED_DATE = '([^']*)';/);
+  if (enrichedBefore && (!enrichedAfter || enrichedAfter[1] !== enrichedBefore[1])) {
+    throw new Error('Sanity check failed: LAST_ENRICHED_DATE was modified — only the Snowflake enrichment job may change it');
+  }
+
   loadArrays(out); // throws if it doesn't parse
 
   fs.writeFileSync(INDEX_PATH, out);
