@@ -302,10 +302,23 @@
 
 
 <script>
-// ── Snapshot date ────────────────────────────────────────────────────────────────
-// Single source of truth for "when was this last refreshed" — the daily job bumps
-// only this constant. Header text and staleness banner both derive from it.
+// ── Dates ────────────────────────────────────────────────────────────────────────
+// TWO dates, deliberately separate. Do not collapse them into one, and do not
+// point the staleness banner back at SNAPSHOT_DATE.
+//
+// SNAPSHOT_DATE — bumped by the unattended GitHub Actions job, which syncs ONLY
+// the tenant ID list from LaunchDarkly. Cheap and reliable; runs every day.
 const SNAPSHOT_DATE = '2026-09-02';
+
+// LAST_ENRICHED_DATE — bumped ONLY by the Snowflake enrichment job, which is the
+// sole source of names, industry, segment, hours and usage. It needs an
+// interactive Okta session, so in practice it often does not run. This is the
+// date that says whether the numbers on this page can be trusted.
+const LAST_ENRICHED_DATE = '2026-09-02';
+
+// Days without enrichment before the page warns. The enrichment job is scheduled
+// daily, so 3 leaves slack for one missed run without hiding a real stall.
+const STALE_AFTER_DAYS = 3;
 
 // ── Embedded customer data ──────────────────────────────────────────────────────
 // Real Salesforce accounts (account_status = Customer) that currently have the
@@ -333,7 +346,7 @@ const CUSTOMER_ACCOUNTS = [
   {"id":"2b2d6915-e8e6-41d0-83c9-21a1d4288ff4","name":"PPC Partners - Pieper Power","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-09-14","ttEnabledDate":"2026-08-13","webViews":4,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"3b008a2d-b0ea-4e88-9b19-a3b37c83f5c6","name":"The Management Trust","industry":null,"segment":"Strategic","goLiveDate":"2025-08-29","ttEnabledDate":"2026-07-21","webViews":82796,"mobileEvents":1262,"hours30d":10337,"employees30d":65,"hoursOn20":16592,"employeesOn20":69},
   {"id":"8d38df5b-8946-4763-ac2d-b43f82806d49","name":"TJW Industrial, Inc.","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-02-23","ttEnabledDate":"2026-08-19","webViews":10053,"mobileEvents":4326,"hours30d":14968,"employees30d":85,"hoursOn20":5572,"employeesOn20":80},
-  {"id":"2eb374f1-8cb6-467c-8d7d-6e720eabad1f","name":"Trinity Southern","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":null,"webViews":2,"mobileEvents":0,"hours30d":64,"employees30d":4,"hoursOn20":null,"employeesOn20":null},
+  {"id":"2eb374f1-8cb6-467c-8d7d-6e720eabad1f","name":"Trinity Southern","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":null,"webViews":2,"mobileEvents":0,"hours30d":64,"employees30d":4,"hoursOn20":null,"employeesOn20":null}
 ];
 
 // ── "Next Up for TT 2.0" ─────────────────────────────────────────────────────────
@@ -449,7 +462,7 @@ const SNAPSHOT_TENANTS = [
   {"id":"02cde03f-4032-479d-bae6-8de4cd9a54f4","name":"Vanco Commercial Service Training","enabledDate":"2026-05-05","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":27,"employeesOn20":4},
   {"id":"c77a608e-2fd3-4d21-b6e8-66b942a4e3a0","name":"Variable Speed Solutions Training","enabledDate":"2026-08-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"5d23103d-98fe-44f7-9bb3-591fb63af2af","name":"Vital Mechanical Service Training","enabledDate":"2026-07-28","webViews":63,"mobileEvents":0,"hours30d":2,"employees30d":1,"hoursOn20":2,"employeesOn20":1},
-  {"id":"f63f7159-7079-4f8e-b526-95f5e4b3e6be","name":"Westcoast Mechanical Contractors Training","enabledDate":null,"webViews":9,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
+  {"id":"f63f7159-7079-4f8e-b526-95f5e4b3e6be","name":"Westcoast Mechanical Contractors Training","enabledDate":null,"webViews":9,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null}
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -622,24 +635,55 @@ function filterTable(q) {
   });
 }
 
-// Warns if the daily publish job has stalled — this page is a static snapshot
-// republished once a day, so there's no other way to notice it silently broke
-// (this is exactly how it went 20 days stale on 2026-07-08 without anyone seeing).
+// Warns when the data on this page is not actually current. This page is a static
+// snapshot republished by two different jobs, so there is no other way to notice it
+// silently broke (it has gone stale for 5, 10, 20 and 22 days on separate occasions).
+//
+// This watches LAST_ENRICHED_DATE, never SNAPSHOT_DATE. Until 2026-09-02 it watched
+// SNAPSHOT_DATE, which made it decorative: the Actions job stamps today's date every
+// morning whether or not the underlying numbers were ever refreshed, so the page
+// looked healthy while showing weeks-old usage against a current-looking date.
 function checkStaleness() {
-  const snap = new Date(SNAPSHOT_DATE + 'T00:00:00Z');
-  const daysOld = Math.floor((Date.now() - snap.getTime()) / 86400000);
-  if (daysOld >= 2) {
-    const bar = document.getElementById('error-bar');
-    bar.textContent = `⚠ This snapshot is ${daysOld} days old (last refreshed ${formatDate(SNAPSHOT_DATE)}). The daily refresh job may be stalled.`;
-    bar.classList.remove('hidden');
+  const msgs = [];
+
+  const enriched = new Date(LAST_ENRICHED_DATE + 'T00:00:00Z');
+  const daysOld = Math.floor((Date.now() - enriched.getTime()) / 86400000);
+  if (daysOld >= STALE_AFTER_DAYS) {
+    msgs.push(`⚠ Usage figures are ${daysOld} days old — last enriched ${formatDate(LAST_ENRICHED_DATE)}. `
+      + `The tenant list below may be current, but the hours, names and usage are not: `
+      + `the Snowflake refresh needs an interactive login and has not run since.`);
   }
+
+  // A half-finished refresh shows up as tenants with no name. Surface the count —
+  // it is the other symptom of enrichment having been skipped, and it is otherwise
+  // only visible by scrolling the tables for "Unknown (…)" rows.
+  const unnamed = [...CUSTOMER_ACCOUNTS, ...NEXT_UP_TENANTS, ...SNAPSHOT_TENANTS]
+    .filter(t => !t.name).length;
+  if (unnamed) {
+    msgs.push(`⚠ ${unnamed} tenant${unnamed === 1 ? '' : 's'} still showing as "Unknown" — `
+      + `added to the flag since the last enrichment run.`);
+  }
+
+  if (!msgs.length) return;
+  const bar = document.getElementById('error-bar');
+  bar.textContent = '';
+  for (const m of msgs) {
+    const line = document.createElement('div');
+    line.textContent = m;
+    bar.appendChild(line);
+  }
+  bar.classList.remove('hidden');
 }
 
 // ── Init: render embedded snapshot data ───────────────────────────────────────
 // No client-side LaunchDarkly fetch here on purpose — an API token can't be
 // shipped in public client-side JS. The daily scheduled refresh job fetches
 // LD/Salesforce/Heap data server-side and republishes this file with fresh data.
-document.getElementById('refreshed-at').textContent = 'Snapshot: ' + formatDate(SNAPSHOT_DATE);
+// Lead with the enrichment date — that is the one that describes the numbers. Show
+// the tenant-list date only when they diverge, which is itself the signal that the
+// unattended job is running but the Snowflake one is not.
+document.getElementById('refreshed-at').textContent = 'Data: ' + formatDate(LAST_ENRICHED_DATE)
+  + (SNAPSHOT_DATE !== LAST_ENRICHED_DATE ? ' · tenant list: ' + formatDate(SNAPSHOT_DATE) : '');
 renderCustomerTable(CUSTOMER_ACCOUNTS);
 renderNextUpTable(NEXT_UP_TENANTS);
 renderTable(SNAPSHOT_TENANTS);
