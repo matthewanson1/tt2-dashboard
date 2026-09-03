@@ -308,7 +308,7 @@
 //
 // SNAPSHOT_DATE — bumped by the unattended GitHub Actions job, which syncs ONLY
 // the tenant ID list from LaunchDarkly. Cheap and reliable; runs every day.
-const SNAPSHOT_DATE = '2026-09-02';
+const SNAPSHOT_DATE = '2026-09-03';
 
 // LAST_ENRICHED_DATE — bumped ONLY by the Snowflake enrichment job, which is the
 // sole source of names, industry, segment, hours and usage. It needs an
@@ -346,7 +346,7 @@ const CUSTOMER_ACCOUNTS = [
   {"id":"2b2d6915-e8e6-41d0-83c9-21a1d4288ff4","name":"PPC Partners - Pieper Power","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-09-14","ttEnabledDate":"2026-08-13","webViews":4,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"3b008a2d-b0ea-4e88-9b19-a3b37c83f5c6","name":"The Management Trust","industry":null,"segment":"Strategic","goLiveDate":"2025-08-29","ttEnabledDate":"2026-07-21","webViews":82796,"mobileEvents":1262,"hours30d":10337,"employees30d":65,"hoursOn20":16592,"employeesOn20":69},
   {"id":"8d38df5b-8946-4763-ac2d-b43f82806d49","name":"TJW Industrial, Inc.","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-02-23","ttEnabledDate":"2026-08-19","webViews":10053,"mobileEvents":4326,"hours30d":14968,"employees30d":85,"hoursOn20":5572,"employeesOn20":80},
-  {"id":"2eb374f1-8cb6-467c-8d7d-6e720eabad1f","name":"Trinity Southern","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":null,"webViews":2,"mobileEvents":0,"hours30d":64,"employees30d":4,"hoursOn20":null,"employeesOn20":null}
+  {"id":"2eb374f1-8cb6-467c-8d7d-6e720eabad1f","name":"Trinity Southern","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":null,"webViews":2,"mobileEvents":0,"hours30d":64,"employees30d":4,"hoursOn20":null,"employeesOn20":null},
 ];
 
 // ── "Next Up for TT 2.0" ─────────────────────────────────────────────────────────
@@ -462,7 +462,10 @@ const SNAPSHOT_TENANTS = [
   {"id":"02cde03f-4032-479d-bae6-8de4cd9a54f4","name":"Vanco Commercial Service Training","enabledDate":"2026-05-05","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":27,"employeesOn20":4},
   {"id":"c77a608e-2fd3-4d21-b6e8-66b942a4e3a0","name":"Variable Speed Solutions Training","enabledDate":"2026-08-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"5d23103d-98fe-44f7-9bb3-591fb63af2af","name":"Vital Mechanical Service Training","enabledDate":"2026-07-28","webViews":63,"mobileEvents":0,"hours30d":2,"employees30d":1,"hoursOn20":2,"employeesOn20":1},
-  {"id":"f63f7159-7079-4f8e-b526-95f5e4b3e6be","name":"Westcoast Mechanical Contractors Training","enabledDate":null,"webViews":9,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null}
+  {"id":"f63f7159-7079-4f8e-b526-95f5e4b3e6be","name":"Westcoast Mechanical Contractors Training","enabledDate":null,"webViews":9,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
+  {"id":"8afb64ac-12a2-4cc5-8b4b-00a8759d3492","name":null,"enabledDate":"2026-09-03","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"ce0ceb80-7ba7-424b-8aaf-1a12182cbfb4","name":null,"enabledDate":"2026-09-02","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"3a9ec999-c8c0-4eb1-8a52-c4cf334b1fe4","name":null,"enabledDate":"2026-09-02","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
