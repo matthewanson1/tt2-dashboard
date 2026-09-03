@@ -15,10 +15,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Step 1 needs only LaunchDarkly, so it has always been able to run unattended.
+      # It syncs WHICH tenants are on the flag and bumps SNAPSHOT_DATE.
       - name: Sync tenant list from LaunchDarkly
         env:
           LD_API_TOKEN: ${{ secrets.LD_API_TOKEN }}
         run: node scripts/refresh-tenants.js
+
+      # Step 2 is everything the first one cannot do: names, usage, hours, and the
+      # Analytics tab's datasets. It needs Snowflake, which until 2026-09-02 meant an
+      # interactive Okta session and therefore a human — which is why the numbers went
+      # stale for weeks at a time while the page looked current. Key-pair JWT removes
+      # the human. continue-on-error so a Snowflake outage still lets step 1's work
+      # commit; the job is failed explicitly further down so the alert still fires.
+      - name: Enrich from Snowflake
+        id: enrich
+        continue-on-error: true
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+        run: node scripts/enrich.js
 
       - name: Commit and push if changed
         run: |
@@ -29,8 +48,18 @@ jobs:
           git config user.name "tt2-dashboard-bot"
           git config user.email "actions@github.com"
           git add index.html
-          git commit -m "Automated tenant list refresh — $(date -u +%Y-%m-%d)"
+          git commit -m "Automated refresh — $(date -u +%Y-%m-%d)"
           git push
+
+      # A partial refresh is a real problem even though it commits cleanly: the tenant
+      # list moves while the numbers do not, and LAST_ENRICHED_DATE deliberately stays
+      # behind so the page's banner reports it. Fail the job so the alert below fires
+      # too — the banner only helps someone who happens to load the page.
+      - name: Fail if enrichment was skipped
+        if: steps.enrich.outcome == 'failure'
+        run: |
+          echo "::error::Snowflake enrichment failed — tenant IDs synced but names, usage, hours and the Analytics tab are stale."
+          exit 1
 
       # A failing scheduled workflow notifies nobody by default, which is how this job
       # stayed broken for 10 days (2026-08-11 to 2026-08-20) without anyone noticing.
