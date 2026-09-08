@@ -125,6 +125,7 @@
   <div class="tabs">
     <button class="tab-btn active" data-panel="panel-tenants">Tenants</button>
     <button class="tab-btn" data-panel="panel-analytics">Analytics</button>
+    <button class="tab-btn" data-panel="panel-plan">Plan vs Actual</button>
     <button class="tab-btn" data-panel="panel-runway">Runway</button>
   </div>
 
@@ -302,6 +303,98 @@
 </div>
 
 
+<div id="panel-plan" hidden>
+
+  <div class="chart-card" style="border-left:3px solid #a32b2b">
+    <h3>Where the rollout stands against the committed schedule</h3>
+    <p class="chart-sub" style="margin-bottom:14px">
+      Measured against the <a id="plan-src" href="#" target="_blank" rel="noopener">Migration Plan (Rollout Schedule)</a>,
+      revised <span id="plan-asof">&mdash;</span>. That plan sequences <b id="plan-total">&mdash;</b> tenants into weekly
+      tranches &mdash; double-writes on Monday, migrate on Saturday &mdash; finishing
+      <span id="plan-sunset">&mdash;</span>, the TT 1.0 sunset date.
+    </p>
+    <div class="stats" style="margin-bottom:0">
+      <div class="stat-card">
+        <div class="label">Migrated since plan start</div>
+        <div class="value" id="pl-actual">&mdash;</div>
+        <div class="sub" id="pl-actual-sub">&mdash;</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Plan says by now</div>
+        <div class="value" id="pl-planned">&mdash;</div>
+        <div class="sub" id="pl-planned-sub">&mdash;</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Attainment vs plan</div>
+        <div class="value" id="pl-ratio">&mdash;</div>
+        <div class="sub">Migrated &divide; plan-to-date</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Pace grade</div>
+        <div class="value" id="pl-grade">&mdash;</div>
+        <div class="sub" id="pl-grade-sub">&mdash;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="caveat" id="plan-caveat">
+    <b>What counts as &ldquo;migrated&rdquo; here.</b> The numerator is production Salesforce customer tenants
+    carrying the <code>time-tracking-redesign</code> flag &mdash; the same set the Tenants tab lists &mdash;
+    counted <b>from the plan's own start date</b>. <span id="cav-baseline">&mdash;</span> tenants were already on 2.0 before
+    then (the original reference cohort, which sits outside the <span id="cav-total">&mdash;</span> population); counting
+    them would show the pilot weeks running ahead of a schedule that never claimed them.
+    Also excluded: the <span id="cav-training">&mdash;</span> internal training/demo tenants on the flag, which are
+    sandboxes belonging to customers scheduled later, not migrations.
+    <br><br>
+    Two things cut the other way, and neither rescues the number. The plan's first 15 pilot
+    entries include DNU/QA tenants with no Salesforce account, so they are invisible here &mdash;
+    worth up to ~15. And a stricter reading, tenants actually logging hours on 2.0, gives
+    <b><span id="cav-producing">&mdash;</span></b> rather than <span id="cav-flagon">&mdash;</span> on the flag. The shortfall is an order of
+    magnitude larger than either adjustment.
+  </div>
+
+  <div class="chart-card">
+    <h3>Burn-down &mdash; tenants still on TT 1.0</h3>
+    <p class="chart-sub">
+      The plan line has to reach zero on the sunset date. The projection continues the trailing
+      eight-week rate; where it lands on that date is the size of the problem.
+    </p>
+    <svg id="chart-burn" viewBox="0 0 1080 320" style="width:100%;height:auto"></svg>
+    <p class="chart-sub" id="note-burn" style="margin:10px 0 0"></p>
+  </div>
+
+  <div class="chart-card">
+    <h3>Weekly pace &mdash; planned vs achieved</h3>
+    <p class="chart-sub">
+      The plan steps from 5 tenants a week during the pilot to 66 from the week of Aug 31. That
+      step-change is the whole schedule; every downstream date depends on it holding.
+    </p>
+    <svg id="chart-pace" viewBox="0 0 1080 260" style="width:100%;height:auto"></svg>
+    <p class="chart-sub" id="note-pace" style="margin:10px 0 0"></p>
+  </div>
+
+  <div class="chart-card">
+    <h3>Tranche ledger</h3>
+    <p class="chart-sub">
+      Plan cumulative is the schedule's own published column. Actual cumulative counts customer
+      tenants migrated since the plan began, excluding the <span id="pl-baseline">&mdash;</span>-tenant pre-plan cohort
+      (<span id="pl-undated">&mdash;</span> of which have no recoverable enable date and are treated as present throughout).
+    </p>
+    <div class="table-scroll">
+      <table id="plan-table"></table>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <h3>How the grade is calculated</h3>
+    <p class="chart-sub" id="grade-explain" style="margin-bottom:10px"></p>
+    <div class="table-scroll">
+      <table id="grade-table"></table>
+    </div>
+  </div>
+
+</div>
+
 <div id="panel-runway" hidden>
 
   <div class="chart-card" style="border-left:3px solid #1a1a2e">
@@ -428,6 +521,57 @@ const RUNWAY = {
      + 'it is not expected to misbehave — but the first migration that needs it will be exercising it on 2.0 for '
      + 'the first time. Worth sequencing one of those deliberately rather than discovering it mid-rollout.',
 };
+
+// ── Migration plan (imported schedule) ──────────────────────────────────────────
+// The committed rollout schedule from "Time Tracking 2.0 Migration Plan (Rollout
+// Schedule)" (Confluence BPD/4851826814). Hand-imported point-in-time, like RUNWAY
+// — the enrichment job cannot regenerate it. If the plan is revised, re-import the
+// tranche table and set PLAN_AS_OF to the new revision date in the same edit.
+//
+// `cum` is the plan's own cumulative column, NOT a running total of `n` computed
+// here — keep them as published so a transcription error shows up as a mismatch
+// rather than being silently smoothed over.
+const PLAN_AS_OF = '2026-09-02';
+const PLAN_SRC = 'https://buildops.atlassian.net/wiki/spaces/BPD/pages/4851826814';
+const SUNSET_DATE = '2026-12-19';   // last migrate date; TT 1.0 sunset target
+const PLAN_TOTAL = 982;             // 967 live 1.0 tenants + 15 pilot
+const PLAN_GROUPS = [
+  { label: 'Clear to schedule', n: 716 },
+  { label: 'Clear — needs LE-2024 shipped', n: 142 },
+  { label: 'Blocked — public API', n: 73 },
+  { label: 'Blocked — scale / prior rollback', n: 36 },
+];
+const PLAN = [
+  { week: '2026-08-10', migrate: '2026-08-15', group: 'Initial pilot', n: 5,  cum: 5   },
+  { week: '2026-08-17', migrate: '2026-08-22', group: 'Initial pilot', n: 5,  cum: 10  },
+  { week: '2026-08-24', migrate: '2026-08-29', group: 'Initial pilot', n: 5,  cum: 15  },
+  { week: '2026-08-31', migrate: '2026-09-05', group: 'Clear',         n: 66, cum: 81  },
+  { week: '2026-09-07', migrate: '2026-09-12', group: 'Clear',         n: 65, cum: 146 },
+  { week: '2026-09-14', migrate: '2026-09-19', group: 'Clear',         n: 65, cum: 211 },
+  { week: '2026-09-21', migrate: '2026-09-26', group: 'Clear',         n: 65, cum: 276 },
+  { week: '2026-09-28', migrate: '2026-10-03', group: 'Clear',         n: 65, cum: 341 },
+  { week: '2026-10-05', migrate: '2026-10-10', group: 'Clear',         n: 65, cum: 406 },
+  { week: '2026-10-12', migrate: '2026-10-17', group: 'Clear',         n: 65, cum: 471 },
+  { week: '2026-10-19', migrate: '2026-10-24', group: 'Clear',         n: 65, cum: 536 },
+  { week: '2026-10-26', migrate: '2026-10-31', group: 'Clear',         n: 65, cum: 601 },
+  { week: '2026-11-02', migrate: '2026-11-07', group: 'Clear',         n: 65, cum: 666 },
+  { week: '2026-11-09', migrate: '2026-11-14', group: 'Clear',         n: 65, cum: 731 },
+  { week: '2026-11-16', migrate: '2026-11-21', group: 'LE-2024',       n: 71, cum: 802 },
+  { week: '2026-11-23', migrate: null,         group: 'Thanksgiving — skipped', n: 0, cum: 802 },
+  { week: '2026-11-30', migrate: '2026-12-05', group: 'LE-2024',       n: 71, cum: 873 },
+  { week: '2026-12-07', migrate: '2026-12-12', group: 'Public API',    n: 73, cum: 946 },
+  { week: '2026-12-14', migrate: '2026-12-19', group: 'Scale / rollback', n: 36, cum: 982 },
+];
+
+// Pace grade rubric. Deliberately explicit and rendered on the page next to the
+// grade — a letter nobody can audit is worse than no letter at all.
+const GRADE_BANDS = [
+  { min: 0.90, g: 'A', tone: 'good', say: 'on or ahead of plan' },
+  { min: 0.75, g: 'B', tone: 'good', say: 'slightly behind plan' },
+  { min: 0.60, g: 'C', tone: 'warn', say: 'materially behind plan' },
+  { min: 0.40, g: 'D', tone: 'warn', say: 'badly behind plan' },
+  { min: 0,    g: 'F', tone: 'bad',  say: 'not tracking to plan' },
+];
 
 // ── Embedded customer data ──────────────────────────────────────────────────────
 // Real Salesforce accounts (account_status = Customer) that currently have the
@@ -1073,19 +1217,280 @@ function renderAnalytics() {
 (function initTabs(){
   let drawn = false;
   let drawnRw = false;
+  let drawnPl = false;
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      ['panel-tenants','panel-analytics','panel-runway'].forEach(id => {
+      ['panel-tenants','panel-analytics','panel-plan','panel-runway'].forEach(id => {
         const p = document.getElementById(id);
         if (p) p.hidden = (id !== btn.dataset.panel);
       });
       if (btn.dataset.panel === 'panel-analytics' && !drawn) { renderAnalytics(); drawn = true; }
+      if (btn.dataset.panel === 'panel-plan' && !drawnPl) { renderPlan(); drawnPl = true; }
       if (btn.dataset.panel === 'panel-runway' && !drawnRw) { renderRunway(); drawnRw = true; }
     });
   });
 })();
+
+// ── Plan vs Actual tab ─────────────────────────────────────────────────────────
+// Everything here is derived at render time from PLAN + CUSTOMER_ACCOUNTS. Do not
+// hardcode a figure into the prose: the whole point of this tab is that it cannot
+// quietly disagree with the tenant data sitting next to it.
+
+const dayMs = 86400000;
+const asUTC = d => new Date(d + 'T00:00:00Z').getTime();
+
+// Cumulative customer tenants on 2.0 as at an arbitrary date. The tenants with no
+// recoverable ttEnabledDate were enabled before LaunchDarkly's audit window, so they
+// are a floor present from the beginning rather than an unknown to drop.
+function planActuals() {
+  const undated = CUSTOMER_ACCOUNTS.filter(c => !c.ttEnabledDate).length;
+  const dates = CUSTOMER_ACCOUNTS.filter(c => c.ttEnabledDate).map(c => c.ttEnabledDate).sort();
+  const at = iso => undated + dates.filter(d => d <= iso).length;
+  return { undated, dates, at, total: CUSTOMER_ACCOUNTS.length };
+}
+
+// Trailing-window rate in tenants/week, from dated enables only.
+function achievedRate(weeks) {
+  const { dates } = planActuals();
+  const cut = new Date(asUTC(SNAPSHOT_DATE) - weeks * 7 * dayMs).toISOString().slice(0, 10);
+  return dates.filter(d => d > cut).length / weeks;
+}
+
+function planSummary() {
+  const a = planActuals();
+  const done = PLAN.filter(p => p.migrate && p.migrate <= SNAPSHOT_DATE);
+  const plannedToDate = done.length ? done[done.length - 1].cum : 0;
+
+  // Like-for-like: the schedule's cumulative column starts at zero on its own start
+  // date and counts only tenants it sequences. Tenants already on 2.0 before then —
+  // the original reference cohort — are outside the 982 population entirely, so
+  // comparing the raw total against the plan would flatter the early weeks. Measure
+  // progress made *inside* the plan window instead.
+  const baseline = a.at(PLAN[0].week);
+  const inPlan = iso => Math.max(0, a.at(iso) - baseline);
+  const actual = inPlan(SNAPSHOT_DATE);
+  const ratio = plannedToDate ? actual / plannedToDate : 1;
+  const band = GRADE_BANDS.find(b => ratio >= b.min);
+  const future = PLAN.filter(p => p.migrate && p.migrate > SNAPSHOT_DATE);
+  const remaining = PLAN_TOTAL - actual;
+  const rate8 = achievedRate(8);
+  return {
+    ...a, plannedToDate, actual, ratio, band, remaining, baseline, inPlan,
+    onFlagTotal: a.total,
+    tranchesLeft: future.length,
+    required: future.length ? remaining / future.length : remaining,
+    rate8,
+    bestWeek: (() => {
+      const by = {};
+      a.dates.forEach(d => {
+        const t = new Date(asUTC(d)); t.setUTCDate(t.getUTCDate() - ((t.getUTCDay() + 6) % 7));
+        const k = t.toISOString().slice(0, 10); by[k] = (by[k] || 0) + 1;
+      });
+      return Math.max(0, ...Object.values(by));
+    })(),
+  };
+}
+
+function drawBurn() {
+  const svg = document.getElementById('chart-burn'); if (!svg) return;
+  svg.innerHTML = '';
+  const s = planSummary();
+  const W_ = 1080, H = 320, L = 62, R = 120, T = 16, B = 46;
+  const iw = W_ - L - R, ih = H - T - B;
+  const t0 = asUTC(PLAN[0].migrate), t1 = asUTC(SUNSET_DATE);
+  const x = t => L + ((t - t0) / (t1 - t0)) * iw;
+  const y = v => T + ih - (v / PLAN_TOTAL) * ih;
+
+  for (let i = 0; i <= 4; i++) {
+    const v = PLAN_TOTAL * i / 4;
+    svg.appendChild(el('line', { class: 'grid', x1: L, x2: L + iw, y1: y(v), y2: y(v) }));
+    svg.appendChild(el('text', { class: 'tick', x: L - 8, y: y(v) + 3, 'text-anchor': 'end' }, Math.round(v)));
+  }
+
+  // Planned remaining — steps down on each migrate date, reaching zero at sunset.
+  let pd = 'M' + x(t0) + ' ' + y(PLAN_TOTAL);
+  PLAN.filter(p => p.migrate).forEach(p => {
+    const px = x(asUTC(p.migrate));
+    pd += ' L' + px + ' ' + y(PLAN_TOTAL - (p.cum - p.n)) + ' L' + px + ' ' + y(PLAN_TOTAL - p.cum);
+  });
+  svg.appendChild(el('path', { d: pd, fill: 'none', stroke: '#1a1a2e', 'stroke-width': 2.2 }));
+
+  // Actual remaining, to today only — plan-window progress, so the pre-plan cohort
+  // does not show up as a head start the schedule never claimed.
+  const now = asUTC(SNAPSHOT_DATE);
+  let ad = 'M' + x(t0) + ' ' + y(PLAN_TOTAL - s.inPlan(PLAN[0].migrate));
+  s.dates.filter(d => asUTC(d) >= t0).forEach(d => {
+    const px = x(asUTC(d));
+    ad += ' L' + px + ' ' + y(PLAN_TOTAL - s.inPlan(d));
+  });
+  ad += ' L' + x(now) + ' ' + y(s.remaining);
+  svg.appendChild(el('path', { d: ad, fill: 'none', stroke: '#2f9e5f', 'stroke-width': 2.8 }));
+
+  // Projection at the trailing eight-week rate.
+  const projEnd = Math.max(0, s.remaining - s.rate8 * ((t1 - now) / (7 * dayMs)));
+  svg.appendChild(el('path', {
+    d: 'M' + x(now) + ' ' + y(s.remaining) + ' L' + x(t1) + ' ' + y(projEnd),
+    fill: 'none', stroke: '#c07a00', 'stroke-width': 2.2, 'stroke-dasharray': '6 4',
+  }));
+
+  svg.appendChild(el('line', { class: 'cut', x1: x(now), x2: x(now), y1: T, y2: T + ih }));
+  svg.appendChild(el('text', { class: 'tick', x: x(now) + 4, y: T + 10 }, 'today'));
+
+  // Anchor each key entry to where its line ends, then push apart any that would
+  // overlap — actual and the projection sit within a few tenants of each other.
+  const key = [
+    { col: '#2f9e5f', label: 'Actual', at: y(s.remaining) },
+    { col: '#c07a00', label: 'At current pace', at: y(projEnd) },
+    { col: '#1a1a2e', label: 'Plan', at: y(0) },
+  ].sort((a, b) => a.at - b.at);
+  const GAP = 15;
+  key.forEach((k, i) => { if (i && k.at - key[i - 1].at < GAP) k.at = key[i - 1].at + GAP; });
+  const over = key[key.length - 1].at - (T + ih);
+  if (over > 0) key.forEach(k => { k.at -= over; });
+  key.forEach(k => {
+    svg.appendChild(el('line', { x1: L + iw + 6, x2: L + iw + 20, y1: k.at, y2: k.at, stroke: k.col, 'stroke-width': 2.5 }));
+    svg.appendChild(el('text', { class: 'tick', x: L + iw + 24, y: k.at + 3.5 }, k.label));
+  });
+
+  [0, .25, .5, .75, 1].forEach(f => {
+    const t = t0 + (t1 - t0) * f;
+    svg.appendChild(el('text', { class: 'tick', x: x(t), y: H - B + 16, 'text-anchor': 'middle' },
+      new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })));
+  });
+  svg.appendChild(el('line', { class: 'axis', x1: L, x2: L + iw, y1: T + ih, y2: T + ih }));
+  svg.appendChild(el('text', { class: 'lbl', x: L, y: H - 8 }, 'Migrate date (Saturdays)'));
+
+  const n = v => Math.round(v).toLocaleString('en-US');
+  document.getElementById('note-burn').textContent =
+    'Plan reaches zero on ' + fmtWk(SUNSET_DATE) + '. At the trailing eight-week rate of ' +
+    s.rate8.toFixed(1) + ' tenants/week, ' + n(projEnd) + ' tenants would still be on TT 1.0 that day — ' +
+    'clearing them at that rate takes a further ' + n(projEnd / Math.max(0.1, s.rate8) / 52) + ' years.';
+}
+
+function drawPace() {
+  const svg = document.getElementById('chart-pace'); if (!svg) return;
+  svg.innerHTML = '';
+  const s = planActuals();
+  const byWeek = {};
+  s.dates.forEach(d => {
+    const t = new Date(asUTC(d)); t.setUTCDate(t.getUTCDate() - ((t.getUTCDay() + 6) % 7));
+    const k = t.toISOString().slice(0, 10); byWeek[k] = (byWeek[k] || 0) + 1;
+  });
+  const rows = PLAN.map(p => ({ week: p.week, planned: p.n, actual: byWeek[p.week] || 0,
+                                future: !p.migrate || p.migrate > SNAPSHOT_DATE }));
+  const W_ = 1080, H = 260, L = 52, R = 14, T = 14, B = 46;
+  const iw = W_ - L - R, ih = H - T - B;
+  const max = Math.max(...rows.map(r => r.planned)) * 1.12 || 1;
+  const slot = iw / rows.length, bw = Math.max(3, slot / 2 - 2);
+  const y = v => T + ih - (v / max) * ih;
+
+  for (let i = 0; i <= 4; i++) {
+    const v = max * i / 4;
+    svg.appendChild(el('line', { class: 'grid', x1: L, x2: L + iw, y1: y(v), y2: y(v) }));
+    svg.appendChild(el('text', { class: 'tick', x: L - 8, y: y(v) + 3, 'text-anchor': 'end' }, Math.round(v)));
+  }
+  rows.forEach((r, i) => {
+    const x = L + i * slot + 1;
+    const p = el('rect', { x, y: y(r.planned), width: bw, height: Math.max(0, y(0) - y(r.planned)),
+                           fill: '#c9cad0', opacity: r.future ? .5 : 1 });
+    p.appendChild(el('title', {}, 'Week of ' + r.week + ' — planned ' + r.planned));
+    svg.appendChild(p);
+    if (!r.future) {
+      const a = el('rect', { x: x + bw + 2, y: y(r.actual), width: bw,
+                             height: Math.max(0, y(0) - y(r.actual)), fill: '#2f9e5f' });
+      a.appendChild(el('title', {}, 'Week of ' + r.week + ' — actual ' + r.actual));
+      svg.appendChild(a);
+    }
+    if (i % 2 === 0)
+      svg.appendChild(el('text', { class: 'tick', x: x + slot / 2 - 2, y: H - B + 16, 'text-anchor': 'middle' },
+        fmtWk(r.week)));
+  });
+  svg.appendChild(el('line', { class: 'axis', x1: L, x2: L + iw, y1: T + ih, y2: T + ih }));
+  svg.appendChild(el('text', { class: 'lbl', x: L, y: H - 8 }, 'Week beginning — grey planned, green actual (future weeks planned only)'));
+
+  const sum = planSummary();
+  document.getElementById('note-pace').textContent =
+    'Best week achieved so far: ' + sum.bestWeek + ' tenants. The plan has required 65–66 a week since Aug 31, ' +
+    'and to still finish on ' + fmtWk(SUNSET_DATE) + ' the remaining ' + sum.remaining.toLocaleString('en-US') +
+    ' would have to go at ' + Math.ceil(sum.required) + ' a week across the ' + sum.tranchesLeft +
+    ' migration Saturdays left — about ' + Math.round(sum.required / Math.max(0.1, sum.rate8)) +
+    '× the current rate.';
+}
+
+function renderPlanTable() {
+  const s = planSummary();
+  const t = document.getElementById('plan-table'); if (!t) return;
+  let h = '<thead><tr><th>Week of</th><th>Migrate (Sat)</th><th>Group</th>' +
+          '<th style="text-align:right">Planned</th><th style="text-align:right">Plan cum.</th>' +
+          '<th style="text-align:right">Actual cum.</th><th style="text-align:right">Variance</th></tr></thead><tbody>';
+  PLAN.forEach(p => {
+    const past = p.migrate && p.migrate <= SNAPSHOT_DATE;
+    const act = past ? s.inPlan(p.migrate) : null;
+    const v = past ? act - p.cum : null;
+    h += '<tr' + (past ? '' : ' style="opacity:.55"') + '>' +
+      '<td>' + fmtWk(p.week) + '</td>' +
+      '<td>' + (p.migrate ? fmtWk(p.migrate) : '—') + '</td>' +
+      '<td>' + p.group + '</td>' +
+      '<td style="text-align:right">' + (p.n || '—') + '</td>' +
+      '<td style="text-align:right">' + p.cum + '</td>' +
+      '<td style="text-align:right">' + (past ? act : '—') + '</td>' +
+      '<td style="text-align:right;color:' + (v === null ? '#bbb' : v < 0 ? '#a32b2b' : '#1a7f5a') + '">' +
+        (v === null ? '—' : (v > 0 ? '+' : '') + v) + '</td></tr>';
+  });
+  t.innerHTML = h + '</tbody>';
+}
+
+function renderGradeTable() {
+  const s = planSummary();
+  const t = document.getElementById('grade-table'); if (!t) return;
+  let h = '<thead><tr><th>Grade</th><th>Attainment vs plan-to-date</th><th>Reading</th></tr></thead><tbody>';
+  GRADE_BANDS.forEach((b, i) => {
+    const hi = i === 0 ? '' : ' – ' + Math.round(GRADE_BANDS[i - 1].min * 100 - 1) + '%';
+    const on = b.g === s.band.g;
+    h += '<tr' + (on ? ' style="background:#fff6f6;font-weight:600"' : '') + '>' +
+      '<td>' + b.g + (on ? ' &larr; current' : '') + '</td>' +
+      '<td>' + Math.round(b.min * 100) + '%' + (i === 0 ? ' and above' : hi) + '</td>' +
+      '<td>' + b.say + '</td></tr>';
+  });
+  t.innerHTML = h + '</tbody>';
+  document.getElementById('grade-explain').textContent =
+    'Attainment is migrated-to-date divided by what the schedule called for by the most recent migrate ' +
+    'date that has passed (' + s.actual + ' ÷ ' + s.plannedToDate + ' = ' + Math.round(s.ratio * 100) + '%). ' +
+    'It measures delivery against the committed schedule, not effort or difficulty — a plan that was ' +
+    'always going to be re-cut will grade badly here until it is re-cut.';
+}
+
+function renderPlan() {
+  const s = planSummary();
+  const put = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  const src = document.getElementById('plan-src'); if (src) src.href = PLAN_SRC;
+  put('plan-asof', fmtWk(PLAN_AS_OF));
+  put('plan-total', PLAN_TOTAL.toLocaleString('en-US'));
+  put('plan-sunset', fmtWk(SUNSET_DATE));
+  put('pl-actual', s.actual);
+  put('pl-actual-sub', s.actual + ' of ' + PLAN_TOTAL.toLocaleString('en-US') + ' (' +
+    (s.actual / PLAN_TOTAL * 100).toFixed(1) + '%). ' + s.onFlagTotal +
+    ' on 2.0 in total, incl. ' + s.baseline + ' from before the plan began');
+  put('pl-planned', s.plannedToDate);
+  put('pl-planned-sub', 'Cumulative through ' + fmtWk(PLAN.filter(p => p.migrate && p.migrate <= SNAPSHOT_DATE).slice(-1)[0].migrate));
+  put('pl-ratio', Math.round(s.ratio * 100) + '%');
+  put('pl-grade', s.band.g);
+  put('pl-grade-sub', s.band.say);
+  put('pl-undated', s.undated);
+  put('pl-baseline', s.baseline);
+  put('cav-training', SNAPSHOT_TENANTS.length);
+  put('cav-baseline', s.baseline);
+  put('cav-total', PLAN_TOTAL.toLocaleString('en-US'));
+  put('cav-producing', CUSTOMER_ACCOUNTS.filter(c => (c.hoursOn20 || 0) > 0).length + ' tenants');
+  put('cav-flagon', s.onFlagTotal);
+  const g = document.getElementById('pl-grade');
+  if (g) g.style.color = s.band.tone === 'bad' ? '#a32b2b' : s.band.tone === 'warn' ? '#c07a00' : '#1a7f5a';
+  const r = document.getElementById('pl-ratio');
+  if (r) r.style.color = s.band.tone === 'bad' ? '#a32b2b' : s.band.tone === 'warn' ? '#c07a00' : '#1a7f5a';
+  drawBurn(); drawPace(); renderPlanTable(); renderGradeTable();
+}
 
 // ── Runway tab ─────────────────────────────────────────────────────────────────
 function renderRunway() {
