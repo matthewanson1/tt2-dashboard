@@ -365,9 +365,9 @@
 
   <div class="chart-card">
     <h3>Weekly pace &mdash; planned vs achieved</h3>
-    <p class="chart-sub">
-      The plan steps from 5 tenants a week during the pilot to 66 from the week of Aug 31. That
-      step-change is the whole schedule; every downstream date depends on it holding.
+    <p class="chart-sub" id="pace-sub">
+      The schedule ramps out of the pilot rather than stepping straight to full rate. Reaching
+      and holding that rate is the whole plan; every downstream date depends on it.
     </p>
     <svg id="chart-pace" viewBox="0 0 1080 260" style="width:100%;height:auto"></svg>
     <p class="chart-sub" id="note-pace" style="margin:10px 0 0"></p>
@@ -531,9 +531,9 @@ const RUNWAY = {
 // `cum` is the plan's own cumulative column, NOT a running total of `n` computed
 // here — keep them as published so a transcription error shows up as a mismatch
 // rather than being silently smoothed over.
-const PLAN_AS_OF = '2026-09-02';
+const PLAN_AS_OF = '2026-09-08';
 const PLAN_SRC = 'https://buildops.atlassian.net/wiki/spaces/BPD/pages/4851826814';
-const SUNSET_DATE = '2026-12-19';   // last migrate date; TT 1.0 sunset target
+const SUNSET_DATE = '2027-02-27';   // last migrate date; TT 1.0 sunset target
 const PLAN_TOTAL = 982;             // 967 live 1.0 tenants + 15 pilot
 const PLAN_GROUPS = [
   { label: 'Clear to schedule', n: 716 },
@@ -542,25 +542,34 @@ const PLAN_GROUPS = [
   { label: 'Blocked — scale / prior rollback', n: 36 },
 ];
 const PLAN = [
-  { week: '2026-08-10', migrate: '2026-08-15', group: 'Initial pilot', n: 5,  cum: 5   },
-  { week: '2026-08-17', migrate: '2026-08-22', group: 'Initial pilot', n: 5,  cum: 10  },
-  { week: '2026-08-24', migrate: '2026-08-29', group: 'Initial pilot', n: 5,  cum: 15  },
-  { week: '2026-08-31', migrate: '2026-09-05', group: 'Clear',         n: 66, cum: 81  },
-  { week: '2026-09-07', migrate: '2026-09-12', group: 'Clear',         n: 65, cum: 146 },
-  { week: '2026-09-14', migrate: '2026-09-19', group: 'Clear',         n: 65, cum: 211 },
-  { week: '2026-09-21', migrate: '2026-09-26', group: 'Clear',         n: 65, cum: 276 },
-  { week: '2026-09-28', migrate: '2026-10-03', group: 'Clear',         n: 65, cum: 341 },
-  { week: '2026-10-05', migrate: '2026-10-10', group: 'Clear',         n: 65, cum: 406 },
-  { week: '2026-10-12', migrate: '2026-10-17', group: 'Clear',         n: 65, cum: 471 },
-  { week: '2026-10-19', migrate: '2026-10-24', group: 'Clear',         n: 65, cum: 536 },
-  { week: '2026-10-26', migrate: '2026-10-31', group: 'Clear',         n: 65, cum: 601 },
-  { week: '2026-11-02', migrate: '2026-11-07', group: 'Clear',         n: 65, cum: 666 },
-  { week: '2026-11-09', migrate: '2026-11-14', group: 'Clear',         n: 65, cum: 731 },
-  { week: '2026-11-16', migrate: '2026-11-21', group: 'LE-2024',       n: 71, cum: 802 },
-  { week: '2026-11-23', migrate: null,         group: 'Thanksgiving — skipped', n: 0, cum: 802 },
-  { week: '2026-11-30', migrate: '2026-12-05', group: 'LE-2024',       n: 71, cum: 873 },
-  { week: '2026-12-07', migrate: '2026-12-12', group: 'Public API',    n: 73, cum: 946 },
-  { week: '2026-12-14', migrate: '2026-12-19', group: 'Scale / rollback', n: 36, cum: 982 },
+  { week: '2026-08-10', migrate: '2026-08-15', group: 'Initial pilot', n: 5, cum: 5 },
+  { week: '2026-08-17', migrate: '2026-08-22', group: 'Initial pilot', n: 5, cum: 10 },
+  { week: '2026-08-24', migrate: '2026-08-29', group: 'Initial pilot', n: 5, cum: 15 },
+  { week: '2026-09-07', migrate: '2026-09-12', group: 'Clear to schedule', n: 10, cum: 25 },
+  { week: '2026-09-14', migrate: '2026-09-19', group: 'Clear to schedule', n: 15, cum: 40 },
+  { week: '2026-09-21', migrate: '2026-09-26', group: 'Clear to schedule', n: 20, cum: 60 },
+  { week: '2026-09-28', migrate: '2026-10-03', group: 'Clear to schedule', n: 30, cum: 90 },
+  { week: '2026-10-05', migrate: '2026-10-10', group: 'Clear to schedule', n: 40, cum: 130 },
+  { week: '2026-10-12', migrate: '2026-10-17', group: 'Clear to schedule', n: 47, cum: 177 },
+  { week: '2026-10-19', migrate: '2026-10-24', group: 'Clear to schedule', n: 47, cum: 224 },
+  { week: '2026-10-26', migrate: '2026-10-31', group: 'Clear to schedule', n: 47, cum: 271 },
+  { week: '2026-11-02', migrate: '2026-11-07', group: 'Clear to schedule', n: 46, cum: 317 },
+  { week: '2026-11-09', migrate: '2026-11-14', group: 'Clear to schedule', n: 46, cum: 363 },
+  { week: '2026-11-16', migrate: '2026-11-21', group: 'Clear to schedule', n: 46, cum: 409 },
+  { week: '2026-11-23', migrate: null, group: 'Thanksgiving — skipped', n: 0, cum: 409 },
+  { week: '2026-11-30', migrate: '2026-12-05', group: 'Clear to schedule', n: 46, cum: 455 },
+  { week: '2026-12-07', migrate: '2026-12-12', group: 'Clear to schedule', n: 46, cum: 501 },
+  { week: '2026-12-14', migrate: '2026-12-19', group: 'Clear to schedule', n: 46, cum: 547 },
+  { week: '2026-12-21', migrate: null, group: 'Christmas — skipped', n: 0, cum: 547 },
+  { week: '2026-12-28', migrate: null, group: 'New Year — skipped', n: 0, cum: 547 },
+  { week: '2027-01-04', migrate: '2027-01-09', group: 'Clear to schedule', n: 46, cum: 593 },
+  { week: '2027-01-11', migrate: '2027-01-16', group: 'Clear to schedule', n: 46, cum: 639 },
+  { week: '2027-01-18', migrate: '2027-01-23', group: 'Clear to schedule', n: 46, cum: 685 },
+  { week: '2027-01-25', migrate: '2027-01-30', group: 'Clear to schedule', n: 46, cum: 731 },
+  { week: '2027-02-01', migrate: '2027-02-06', group: 'Clear — needs LE-2024 shipped', n: 71, cum: 802 },
+  { week: '2027-02-08', migrate: '2027-02-13', group: 'Clear — needs LE-2024 shipped', n: 71, cum: 873 },
+  { week: '2027-02-15', migrate: '2027-02-20', group: 'Blocked — public API', n: 73, cum: 946 },
+  { week: '2027-02-22', migrate: '2027-02-27', group: 'Blocked — scale / prior rollback', n: 36, cum: 982 },
 ];
 
 // Pace grade rubric. Deliberately explicit and rendered on the page next to the
@@ -1357,7 +1366,7 @@ function drawBurn() {
   [0, .25, .5, .75, 1].forEach(f => {
     const t = t0 + (t1 - t0) * f;
     svg.appendChild(el('text', { class: 'tick', x: x(t), y: H - B + 16, 'text-anchor': 'middle' },
-      new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })));
+      new Date(t).toLocaleDateString('en-US', { month: 'short', year: '2-digit', timeZone: 'UTC' })));
   });
   svg.appendChild(el('line', { class: 'axis', x1: L, x2: L + iw, y1: T + ih, y2: T + ih }));
   svg.appendChild(el('text', { class: 'lbl', x: L, y: H - 8 }, 'Migrate date (Saturdays)'));
@@ -1410,11 +1419,18 @@ function drawPace() {
   svg.appendChild(el('line', { class: 'axis', x1: L, x2: L + iw, y1: T + ih, y2: T + ih }));
   svg.appendChild(el('text', { class: 'lbl', x: L, y: H - 8 }, 'Week beginning — grey planned, green actual (future weeks planned only)'));
 
+  // Describe the ramp from the schedule itself, so re-cutting the plan cannot leave
+  // a stale rate quoted in the prose underneath the chart.
   const sum = planSummary();
+  const fut = PLAN.filter(p => p.migrate && p.migrate > SNAPSHOT_DATE);
+  const peak = Math.max(...PLAN.filter(p => p.group === 'Clear to schedule').map(p => p.n));
+  const firstFull = PLAN.find(p => p.group === 'Clear to schedule' && p.n === peak);
   document.getElementById('note-pace').textContent =
-    'Best week achieved so far: ' + sum.bestWeek + ' tenants. The plan has required 65–66 a week since Aug 31, ' +
-    'and to still finish on ' + fmtWk(SUNSET_DATE) + ' the remaining ' + sum.remaining.toLocaleString('en-US') +
-    ' would have to go at ' + Math.ceil(sum.required) + ' a week across the ' + sum.tranchesLeft +
+    'Best week achieved so far: ' + sum.bestWeek + ' tenants. The schedule opens at ' +
+    (fut[0] ? fut[0].n : 0) + ' a week and reaches its full rate of ' + peak +
+    ' by ' + (firstFull ? fmtWk(firstFull.migrate) : 'n/a') + '. To finish on ' + fmtWk(SUNSET_DATE) +
+    ', the remaining ' + sum.remaining.toLocaleString('en-US') + ' have to go at an average of ' +
+    Math.ceil(sum.required) + ' a week across the ' + sum.tranchesLeft +
     ' migration Saturdays left — about ' + Math.round(sum.required / Math.max(0.1, sum.rate8)) +
     '× the current rate.';
 }
