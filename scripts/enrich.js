@@ -102,6 +102,23 @@ function buildQueries(model) {
       WHERE se.IS_DELETED = FALSE AND se.WORK_DATE >= d.enabled AND se.WORK_DATE < CURRENT_DATE()
       GROUP BY 1` : null,
 
+    // Technician headcount and the payroll settings that shape how a tenant records
+    // time. COMPANY_SETTING is a key/value store; technicianTimecardAttestation holds
+    // the attestation TEXT, not a boolean, so "on" means a non-empty policy is set.
+    // A tenant with no PAYROLL rows at all yields NULL, which the page renders as
+    // "not set" — distinct from an explicit false.
+    config: `WITH ids AS (SELECT column1 AS tid FROM VALUES ${custIds.size ? [...custIds].map(id => `(${q(id)})`).join(',') : "('')"}),
+      s AS (SELECT TENANT_ID, SETTING_KEY, SETTING_VALUE FROM PROD.APP_REDACTED.COMPANY_SETTING
+            WHERE IS_DELETED = FALSE AND SETTING_TYPE = 'PAYROLL' AND TENANT_ID IN (SELECT tid FROM ids)),
+      e AS (SELECT TENANT_ID, COUNT_IF(IS_TECH AND IS_ACTIVE) AS active_techs, COUNT_IF(IS_TECH) AS techs_all
+            FROM PROD.APP_REDACTED.EMPLOYEE WHERE IS_DELETED = FALSE AND TENANT_ID IN (SELECT tid FROM ids) GROUP BY 1)
+      SELECT ids.tid, COALESCE(e.active_techs,0) AS active_techs, COALESCE(e.techs_all,0) AS techs_all,
+        MAX(CASE WHEN s.SETTING_KEY='technicianTimecardAttestation' AND NULLIF(TRIM(s.SETTING_VALUE),'') IS NOT NULL THEN 1 ELSE 0 END) AS attestation,
+        MAX(CASE WHEN s.SETTING_KEY='autoGenerateTimeEntriesEnabled' THEN s.SETTING_VALUE END) AS auto_generate,
+        MAX(CASE WHEN s.SETTING_KEY='requireStartAndEndTimesEnabled' THEN s.SETTING_VALUE END) AS require_start_end
+      FROM ids LEFT JOIN e ON e.TENANT_ID = ids.tid LEFT JOIN s ON s.TENANT_ID = ids.tid
+      GROUP BY 1,2,3 ORDER BY 1`,
+
     // Analytics tab. Hours capped at 24h/employee-day AT SOURCE — this removes TJW's
     // corrupt Feb–Jun spikes. ISO Monday buckets: DATE_TRUNC('week') depends on the
     // WEEK_START session parameter, DAYOFWEEKISO does not.
@@ -249,6 +266,20 @@ function applyResults(model, r) {
     const dated = custIds.has(t.id) ? t.ttEnabledDate : t.enabledDate;
     t.employeesOn20 = dated ? (hOn[t.id] ? hOn[t.id][0] : 0) : null;
     t.hoursOn20 = dated ? (hOn[t.id] ? hOn[t.id][1] : 0) : null;
+  }
+
+  // Config/headcount, customers only. tri() keeps "not set" distinct from false:
+  // three customers have autoGenerate explicitly off, which is a real migration
+  // signal, and conflating that with a missing row would hide it.
+  const tri = v => (v === null || v === undefined ? null : String(v) === 'true');
+  const cfg = Object.fromEntries((r.config || []).map(row => [row[0], row]));
+  for (const c of customers) {
+    const row = cfg[c.id];
+    c.activeTechs = row ? num(row[1]) : 0;
+    c.techsTotal = row ? num(row[2]) : 0;
+    c.attestation = row ? num(row[3]) === 1 : false;
+    c.autoGenerateTimeEntries = row ? tri(row[4]) : null;
+    c.requireStartEndTimes = row ? tri(row[5]) : null;
   }
 
   const weekly = r.weekly.map(([id, wk, hrs, emps, days]) => [id, wk, num(hrs), num(emps), num(days)]);

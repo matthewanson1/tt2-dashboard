@@ -55,6 +55,18 @@
     .tenant-id { font-family: monospace; font-size: 9.5px; color: #c4c4c4; margin-top: 0; }
     .tenant-sub { font-size: 10px; color: #999; margin-top: 0; }
 
+    /* Payroll config flags. Three settings in one column instead of three: filled =
+       on, outlined = explicitly off, dashed = no setting row at all. Keeping "off"
+       and "not set" visually distinct matters — an explicit false is a deliberate
+       choice, a missing row usually means the tenant was never configured. */
+    .flags { display: flex; gap: 3px; }
+    .flag { display: inline-flex; align-items: center; justify-content: center;
+            width: 19px; height: 19px; border-radius: 5px; font-size: 10px; font-weight: 700;
+            cursor: default; }
+    .flag-on    { background: #e6f9ee; color: #1a8c45; border: 1px solid #b7e6cb; }
+    .flag-off   { background: #fff; color: #c9463c; border: 1px solid #f0c4c0; }
+    .flag-unset { background: #fafafa; color: #ccc; border: 1px dashed #e0e0e0; }
+
     /* Click-to-sort, Customer Accounts table only. */
     th.sortable { cursor: pointer; user-select: none; }
     th.sortable:hover { color: #4f8ef7; }
@@ -173,6 +185,11 @@
       <div class="sub" id="stat-hourson20-sub">&nbsp;</div>
     </div>
     <div class="stat-card">
+      <div class="label">Technicians</div>
+      <div class="value" id="stat-techs">—</div>
+      <div class="sub" id="stat-techs-sub">&nbsp;</div>
+    </div>
+    <div class="stat-card">
       <div class="label">Training &amp; Test</div>
       <div class="value" id="stat-training">68</div>
       <div class="sub">No Salesforce account</div>
@@ -202,6 +219,8 @@
             <th style="width:100px" class="sortable" data-sort="segment">Segment</th>
             <th style="width:100px" class="th-tip sortable" data-sort="goLiveDate">Go-Live<span class="tip-icon">?</span><span class="tip-box">buildops_core_go_live_date<br>from Salesforce. Not set = blank.<br>NOT the same as TT 2.0 Enabled →</span></th>
             <th style="width:108px" class="th-tip sortable" data-sort="ttEnabledDate">TT 2.0 Enabled<span class="tip-icon">?</span><span class="tip-box">When the time-tracking-redesign<br>flag was turned on for this tenant.<br>Source: LD audit log. — = older than<br>the audit log's retention window.</span></th>
+            <th style="width:64px" class="th-tip sortable" data-sort="activeTechs">Techs<span class="tip-icon">?</span><span class="tip-box">Active employees flagged as technicians.<br>Source: EMPLOYEE (IS_TECH AND IS_ACTIVE).<br>Sub-line shows the total including<br>deactivated techs, when it differs.</span></th>
+            <th style="width:92px" class="th-tip">Payroll config<span class="tip-icon">?</span><span class="tip-box"><b>A</b> Technician timecard attestation<br><b>G</b> Auto-generate time entries<br><b>S</b> Require start &amp; end times<br><br>Filled = on · outlined = off<br>dashed = no setting saved<br>Source: COMPANY_SETTING (PAYROLL)</span></th>
             <th style="width:88px" class="th-tip sortable" data-sort="hours30d">Hours 30d<span class="tip-icon">?</span><span class="tip-box">Labor hours recorded in the last<br>30 days (employees &times; duration).<br>Source: EMPLOYEE_TIMESHEET_SHIFT_ENTRY.<br>Counts ALL time tracking, 1.0 and 2.0 —<br>the tables do not record which UI<br>an entry came through.</span></th>
             <th style="width:100px" class="th-tip sortable" data-sort="hoursOn20">Hours on 2.0<span class="tip-icon">?</span><span class="tip-box">Labor hours recorded since this tenant's<br>TT 2.0 Enabled date. Blank where that<br>date predates LD's audit-log retention<br>(~mid-Apr 2026), so it cannot be computed.<br>Time-scoped to the 2.0 period, but still<br>not UI-attributed — see Hours 30d.</span></th>
           </tr>
@@ -615,32 +634,32 @@ const GRADE_BANDS = [
 // isLive is a precomputed snapshot (not the exact go-live date, which is kept
 // private) of whether the account has passed go-live as of the snapshot date.
 const CUSTOMER_ACCOUNTS = [
-  {"id":"81b1ce95-a290-491a-a6dd-0e8b8dfbc9c5","name":"American Roofing & Metal","industry":"Roofing","segment":"Enterprise","goLiveDate":"2026-10-01","ttEnabledDate":"2026-09-10","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"05e80590-d03f-4ef2-b1e5-26e8e0d48ff5","name":"Anderson Systems, Inc.","industry":"HVAC/Mechanical","segment":"Commercial","goLiveDate":"2027-02-01","ttEnabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
-  {"id":"3d2e0c95-766e-4b8d-93a0-ca8bf33d0383","name":"Best Mechanical","industry":"HVAC/Mechanical","segment":"Strategic","goLiveDate":"2026-09-30","ttEnabledDate":null,"webViews":7,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
-  {"id":"8e59a0b5-8036-4c7a-8677-e182774b33ff","name":"Cabworks Custom Elevators","industry":null,"segment":"Commercial","goLiveDate":"2026-06-30","ttEnabledDate":"2026-07-28","webViews":85,"mobileEvents":0,"hours30d":26,"employees30d":4,"hoursOn20":35,"employeesOn20":6},
-  {"id":"7930c279-882d-4a40-b303-360d9d546799","name":"Calray Gas Heat Corp. dba Omnia Mechanical Group","industry":"HVAC/Mechanical","segment":"Commercial","goLiveDate":"2022-07-27","ttEnabledDate":"2026-07-21","webViews":49662,"mobileEvents":23475,"hours30d":3309,"employees30d":33,"hoursOn20":5834,"employeesOn20":34},
-  {"id":"29ebabdf-323d-4f1b-8779-874aa9ee509a","name":"Creative Cabling Solutions","industry":"Electrical","segment":"Commercial","goLiveDate":"2026-07-31","ttEnabledDate":"2026-07-31","webViews":236,"mobileEvents":0,"hours30d":463,"employees30d":6,"hoursOn20":504,"employeesOn20":6},
-  {"id":"23ea1210-d32e-4179-b317-bdb43c1f03fe","name":"Dual Fuel","industry":"Plumbing","segment":"Commercial","goLiveDate":"2024-03-30","ttEnabledDate":"2026-06-15","webViews":113342,"mobileEvents":5334,"hours30d":13653,"employees30d":73,"hoursOn20":39408,"employeesOn20":80},
-  {"id":"b7a34115-63d2-4d2f-b8af-13519d4dac83","name":"Eagle Controls","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-08-17","ttEnabledDate":"2026-08-10","webViews":2274,"mobileEvents":0,"hours30d":4582,"employees30d":32,"hoursOn20":4600,"employeesOn20":32},
-  {"id":"9fb56059-bcbf-4141-a0d8-084065821918","name":"Elkhorn Mechanical","industry":null,"segment":"1-10","goLiveDate":"2026-08-25","ttEnabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":1805,"employees30d":12,"hoursOn20":197,"employeesOn20":11},
-  {"id":"a76d247e-8308-478c-9ab1-65aacccfab68","name":"Empire Heating & Cooling","industry":"HVAC/Mechanical","segment":"Commercial","goLiveDate":"2026-09-08","ttEnabledDate":"2026-08-18","webViews":158,"mobileEvents":0,"hours30d":297,"employees30d":4,"hoursOn20":265,"employeesOn20":4},
-  {"id":"e3385ec7-f055-40f7-93b6-373a5e81688c","name":"Entry Solutions Inc.","industry":null,"segment":"1-10","goLiveDate":"2027-01-01","ttEnabledDate":"2026-09-01","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"4592bc69-bf6b-42db-b6c8-61f2fe5ba116","name":"Fleming Network & Security Services","industry":null,"segment":"Enterprise","goLiveDate":null,"ttEnabledDate":null,"webViews":947,"mobileEvents":6,"hours30d":1488,"employees30d":15,"hoursOn20":null,"employeesOn20":null},
-  {"id":"28d03ff8-1be3-4db8-b83c-9b3f080402f9","name":"Genset Holdings","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-11-02","ttEnabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
-  {"id":"a5a52fd9-8505-48ee-959f-a0089069694c","name":"Gunnar Electric","industry":"Electrical","segment":"Commercial","goLiveDate":"2026-09-01","ttEnabledDate":"2026-08-28","webViews":213,"mobileEvents":0,"hours30d":2605,"employees30d":50,"hoursOn20":2605,"employeesOn20":50},
-  {"id":"bf60c3b4-72a8-44e0-8c93-763c3e7ebaf8","name":"Harvard NDE","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":"2026-08-20","webViews":8,"mobileEvents":0,"hours30d":18,"employees30d":2,"hoursOn20":18,"employeesOn20":2},
-  {"id":"a46f9a1c-e00a-4ac6-bc08-cad4ab59d83a","name":"LVC Companies","industry":"Fire Life Safety","segment":"Enterprise","goLiveDate":"2026-09-21","ttEnabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"faf522eb-956f-4c62-91cb-e12728ddc579","name":"MK Plumbing","industry":"Plumbing","segment":"1-10","goLiveDate":"2026-10-12","ttEnabledDate":"2026-09-01","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"abb0133a-e0f6-4787-b624-547857329b0d","name":"New England Mechanical Overlay, Inc.","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-09-02","ttEnabledDate":"2026-07-28","webViews":145,"mobileEvents":0,"hours30d":767,"employees30d":24,"hoursOn20":767,"employeesOn20":24},
-  {"id":"42e28501-6257-4092-902a-2838a7a780d3","name":"PPC Partners - Carolina Power","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-09-14","ttEnabledDate":"2026-08-13","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"b8b5ef57-e0ad-41d3-bddb-f5cd15e95c5c","name":"PPC Partners - Metro Power","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-09-14","ttEnabledDate":"2026-08-13","webViews":1,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"2b2d6915-e8e6-41d0-83c9-21a1d4288ff4","name":"PPC Partners - Pieper Power","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-09-14","ttEnabledDate":"2026-08-13","webViews":4,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"307aed4b-3cc1-4d34-b2ba-2d77db8ac7c3","name":"Pro Services Inc","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-10-05","ttEnabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"e579cd7e-101d-4efd-9b13-2a05749a637a","name":"S.E. Mechanical Plumbing, Heating & Drain Cleaning","industry":"Plumbing","segment":"Commercial","goLiveDate":null,"ttEnabledDate":"2026-09-09","webViews":0,"mobileEvents":0,"hours30d":2121,"employees30d":37,"hoursOn20":62,"employeesOn20":11},
-  {"id":"3b008a2d-b0ea-4e88-9b19-a3b37c83f5c6","name":"The Management Trust","industry":null,"segment":"Strategic","goLiveDate":"2025-08-29","ttEnabledDate":"2026-07-21","webViews":85066,"mobileEvents":1262,"hours30d":10591,"employees30d":65,"hoursOn20":19747,"employeesOn20":70},
-  {"id":"8d38df5b-8946-4763-ac2d-b43f82806d49","name":"TJW Industrial, Inc.","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-02-23","ttEnabledDate":"2026-08-19","webViews":10245,"mobileEvents":4326,"hours30d":13515,"employees30d":81,"hoursOn20":8286,"employeesOn20":80},
-  {"id":"2eb374f1-8cb6-467c-8d7d-6e720eabad1f","name":"Trinity Southern","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":null,"webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null}
+  {"id":"81b1ce95-a290-491a-a6dd-0e8b8dfbc9c5","name":"American Roofing & Metal","industry":"Roofing","segment":"Enterprise","goLiveDate":"2026-10-01","ttEnabledDate":"2026-09-10","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"activeTechs":1,"techsTotal":1,"attestation":true,"autoGenerateTimeEntries":null,"requireStartEndTimes":null},
+  {"id":"05e80590-d03f-4ef2-b1e5-26e8e0d48ff5","name":"Anderson Systems, Inc.","industry":"HVAC/Mechanical","segment":"Commercial","goLiveDate":"2027-02-01","ttEnabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null,"activeTechs":0,"techsTotal":0,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"3d2e0c95-766e-4b8d-93a0-ca8bf33d0383","name":"Best Mechanical","industry":"HVAC/Mechanical","segment":"Strategic","goLiveDate":"2026-09-30","ttEnabledDate":null,"webViews":7,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null,"activeTechs":0,"techsTotal":0,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"8e59a0b5-8036-4c7a-8677-e182774b33ff","name":"Cabworks Custom Elevators","industry":null,"segment":"Commercial","goLiveDate":"2026-06-30","ttEnabledDate":"2026-07-28","webViews":85,"mobileEvents":0,"hours30d":26,"employees30d":4,"hoursOn20":35,"employeesOn20":6,"activeTechs":67,"techsTotal":72,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"7930c279-882d-4a40-b303-360d9d546799","name":"Calray Gas Heat Corp. dba Omnia Mechanical Group","industry":"HVAC/Mechanical","segment":"Commercial","goLiveDate":"2022-07-27","ttEnabledDate":"2026-07-21","webViews":49662,"mobileEvents":23475,"hours30d":3309,"employees30d":33,"hoursOn20":5834,"employeesOn20":34,"activeTechs":60,"techsTotal":91,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"29ebabdf-323d-4f1b-8779-874aa9ee509a","name":"Creative Cabling Solutions","industry":"Electrical","segment":"Commercial","goLiveDate":"2026-07-31","ttEnabledDate":"2026-07-31","webViews":236,"mobileEvents":0,"hours30d":463,"employees30d":6,"hoursOn20":504,"employeesOn20":6,"activeTechs":8,"techsTotal":8,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"23ea1210-d32e-4179-b317-bdb43c1f03fe","name":"Dual Fuel","industry":"Plumbing","segment":"Commercial","goLiveDate":"2024-03-30","ttEnabledDate":"2026-06-15","webViews":113342,"mobileEvents":5334,"hours30d":13653,"employees30d":73,"hoursOn20":39408,"employeesOn20":80,"activeTechs":97,"techsTotal":155,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"b7a34115-63d2-4d2f-b8af-13519d4dac83","name":"Eagle Controls","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-08-17","ttEnabledDate":"2026-08-10","webViews":2274,"mobileEvents":0,"hours30d":4582,"employees30d":32,"hoursOn20":4600,"employeesOn20":32,"activeTechs":34,"techsTotal":36,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"9fb56059-bcbf-4141-a0d8-084065821918","name":"Elkhorn Mechanical","industry":null,"segment":"1-10","goLiveDate":"2026-08-25","ttEnabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":1805,"employees30d":12,"hoursOn20":197,"employeesOn20":11,"activeTechs":12,"techsTotal":12,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"a76d247e-8308-478c-9ab1-65aacccfab68","name":"Empire Heating & Cooling","industry":"HVAC/Mechanical","segment":"Commercial","goLiveDate":"2026-09-08","ttEnabledDate":"2026-08-18","webViews":158,"mobileEvents":0,"hours30d":297,"employees30d":4,"hoursOn20":265,"employeesOn20":4,"activeTechs":9,"techsTotal":9,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"e3385ec7-f055-40f7-93b6-373a5e81688c","name":"Entry Solutions Inc.","industry":null,"segment":"1-10","goLiveDate":"2027-01-01","ttEnabledDate":"2026-09-01","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"activeTechs":3,"techsTotal":3,"attestation":false,"autoGenerateTimeEntries":false,"requireStartEndTimes":true},
+  {"id":"4592bc69-bf6b-42db-b6c8-61f2fe5ba116","name":"Fleming Network & Security Services","industry":null,"segment":"Enterprise","goLiveDate":null,"ttEnabledDate":null,"webViews":947,"mobileEvents":6,"hours30d":1488,"employees30d":15,"hoursOn20":null,"employeesOn20":null,"activeTechs":20,"techsTotal":22,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"28d03ff8-1be3-4db8-b83c-9b3f080402f9","name":"Genset Holdings","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-11-02","ttEnabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null,"activeTechs":0,"techsTotal":1,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"a5a52fd9-8505-48ee-959f-a0089069694c","name":"Gunnar Electric","industry":"Electrical","segment":"Commercial","goLiveDate":"2026-09-01","ttEnabledDate":"2026-08-28","webViews":213,"mobileEvents":0,"hours30d":2605,"employees30d":50,"hoursOn20":2605,"employeesOn20":50,"activeTechs":56,"techsTotal":57,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"bf60c3b4-72a8-44e0-8c93-763c3e7ebaf8","name":"Harvard NDE","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":"2026-08-20","webViews":8,"mobileEvents":0,"hours30d":18,"employees30d":2,"hoursOn20":18,"employeesOn20":2,"activeTechs":16,"techsTotal":17,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"a46f9a1c-e00a-4ac6-bc08-cad4ab59d83a","name":"LVC Companies","industry":"Fire Life Safety","segment":"Enterprise","goLiveDate":"2026-09-21","ttEnabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"activeTechs":0,"techsTotal":0,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"faf522eb-956f-4c62-91cb-e12728ddc579","name":"MK Plumbing","industry":"Plumbing","segment":"1-10","goLiveDate":"2026-10-12","ttEnabledDate":"2026-09-01","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"activeTechs":1,"techsTotal":1,"attestation":false,"autoGenerateTimeEntries":false,"requireStartEndTimes":true},
+  {"id":"abb0133a-e0f6-4787-b624-547857329b0d","name":"New England Mechanical Overlay, Inc.","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-09-02","ttEnabledDate":"2026-07-28","webViews":145,"mobileEvents":0,"hours30d":767,"employees30d":24,"hoursOn20":767,"employeesOn20":24,"activeTechs":117,"techsTotal":128,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":false},
+  {"id":"42e28501-6257-4092-902a-2838a7a780d3","name":"PPC Partners - Carolina Power","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-09-14","ttEnabledDate":"2026-08-13","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"activeTechs":15,"techsTotal":16,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"b8b5ef57-e0ad-41d3-bddb-f5cd15e95c5c","name":"PPC Partners - Metro Power","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-09-14","ttEnabledDate":"2026-08-13","webViews":1,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"activeTechs":14,"techsTotal":15,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"2b2d6915-e8e6-41d0-83c9-21a1d4288ff4","name":"PPC Partners - Pieper Power","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-09-14","ttEnabledDate":"2026-08-13","webViews":4,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"activeTechs":21,"techsTotal":21,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"307aed4b-3cc1-4d34-b2ba-2d77db8ac7c3","name":"Pro Services Inc","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-10-05","ttEnabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"activeTechs":1,"techsTotal":1,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"e579cd7e-101d-4efd-9b13-2a05749a637a","name":"S.E. Mechanical Plumbing, Heating & Drain Cleaning","industry":"Plumbing","segment":"Commercial","goLiveDate":null,"ttEnabledDate":"2026-09-09","webViews":0,"mobileEvents":0,"hours30d":2121,"employees30d":37,"hoursOn20":62,"employeesOn20":11,"activeTechs":57,"techsTotal":98,"attestation":true,"autoGenerateTimeEntries":false,"requireStartEndTimes":false},
+  {"id":"3b008a2d-b0ea-4e88-9b19-a3b37c83f5c6","name":"The Management Trust","industry":null,"segment":"Strategic","goLiveDate":"2025-08-29","ttEnabledDate":"2026-07-21","webViews":85066,"mobileEvents":1262,"hours30d":10591,"employees30d":65,"hoursOn20":19747,"employeesOn20":70,"activeTechs":89,"techsTotal":123,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"8d38df5b-8946-4763-ac2d-b43f82806d49","name":"TJW Industrial, Inc.","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-02-23","ttEnabledDate":"2026-08-19","webViews":10245,"mobileEvents":4326,"hours30d":13515,"employees30d":81,"hoursOn20":8286,"employeesOn20":80,"activeTechs":90,"techsTotal":107,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"2eb374f1-8cb6-467c-8d7d-6e720eabad1f","name":"Trinity Southern","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":null,"webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null,"activeTechs":5,"techsTotal":5,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true}
 ];
 
 // ── "Next Up for TT 2.0" ─────────────────────────────────────────────────────────
@@ -815,6 +834,7 @@ const CUST_SORT_KEYS = {
   segment:       c => (c.segment || '\uffff').toLowerCase(),
   goLiveDate:    c => c.goLiveDate || '9999-99-99',
   ttEnabledDate: c => c.ttEnabledDate || '9999-99-99',
+  activeTechs:   c => c.activeTechs || 0,
   hours30d:      c => c.hours30d || 0,
   // null means "cannot be computed" (enable date predates LD's retention), which is
   // distinct from zero; sort it below zero rather than treating it as 0.
@@ -852,6 +872,20 @@ function renderCustomerTable(customers) {
     const ttEnabled = c.ttEnabledDate
       ? `<span class="date-cell">${formatDate(c.ttEnabledDate)}</span>`
       : `<span class="date-cell date-unknown">—</span>`;
+    const techLabel = c.activeTechs > 0
+      ? `<span class="usage-cell">${c.activeTechs}</span>` +
+        (c.techsTotal > c.activeTechs ? `<div class="tenant-sub">${c.techsTotal} total</div>` : '')
+      : `<span class="usage-zero">—</span>`;
+    // null = no setting row saved, which is not the same as an explicit false.
+    const flag = (state, letter, label) => {
+      const cls = state === null || state === undefined ? 'flag-unset' : (state ? 'flag-on' : 'flag-off');
+      const word = state === null || state === undefined ? 'not set' : (state ? 'on' : 'off');
+      return `<span class="flag ${cls}" title="${label}: ${word}">${letter}</span>`;
+    };
+    const configLabel = `<div class="flags">${
+      flag(c.attestation, 'A', 'Technician timecard attestation')}${
+      flag(c.autoGenerateTimeEntries, 'G', 'Auto-generate time entries')}${
+      flag(c.requireStartEndTimes, 'S', 'Require start & end times')}</div>`;
     const hours30Label = c.hours30d > 0
       ? `<span class="usage-cell">${c.hours30d.toLocaleString()}</span><div class="tenant-sub">${c.employees30d} emp</div>`
       : `<span class="usage-zero">—</span>`;
@@ -868,6 +902,8 @@ function renderCustomerTable(customers) {
       <td>${segment}</td>
       <td>${goLive}</td>
       <td>${ttEnabled}</td>
+      <td>${techLabel}</td>
+      <td>${configLabel}</td>
       <td>${hours30Label}</td>
       <td>${hoursOn20Label}</td>
     </tr>`;
@@ -881,7 +917,7 @@ function renderCustomerTable(customers) {
 // Numeric columns open descending — "who logged the most hours" is the question being
 // asked of them; text and date columns open ascending.
 function sortCustomers(key) {
-  const numeric = ['hours30d', 'hoursOn20', 'status'].includes(key);
+  const numeric = ['hours30d', 'hoursOn20', 'activeTechs', 'status'].includes(key);
   CUST_SORT = CUST_SORT.key === key
     ? { key, dir: -CUST_SORT.dir }
     : { key, dir: numeric ? -1 : 1 };
@@ -1070,6 +1106,9 @@ renderTable(SNAPSHOT_TENANTS);
   set('stat-hours30-sub', sum(CUSTOMER_ACCOUNTS, 'employees30d').toLocaleString() + ' employees · 1.0 + 2.0');
   set('stat-hourson20', sum(CUSTOMER_ACCOUNTS, 'hoursOn20').toLocaleString());
   set('stat-hourson20-sub', 'Since enable date · ' + dated + ' of ' + CUSTOMER_ACCOUNTS.length + ' dated');
+  set('stat-techs', sum(CUSTOMER_ACCOUNTS, 'activeTechs').toLocaleString());
+  const noAuto = CUSTOMER_ACCOUNTS.filter(c => c.autoGenerateTimeEntries === false).length;
+  set('stat-techs-sub', 'Active, across all customers' + (noAuto ? ' · ' + noAuto + ' tenants without auto-generate' : ''));
 })();
 
 document.querySelectorAll('#customer-table thead th.sortable').forEach(th => {
