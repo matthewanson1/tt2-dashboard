@@ -8,8 +8,8 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #222; min-height: 100vh; }
 
-    header { background: #1a1a2e; color: white; padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; }
-    header h1 { font-size: 18px; font-weight: 600; }
+    header { background: #1a1a2e; color: white; padding: 11px 20px; display: flex; align-items: center; justify-content: space-between; }
+    header h1 { font-size: 16px; font-weight: 600; }
     header p { font-size: 12px; color: #aaa; margin-top: 3px; }
     .header-right { display: flex; align-items: center; gap: 10px; }
     .refreshed-at { font-size: 12px; color: #888; }
@@ -20,34 +20,49 @@
     .btn-ghost { background: rgba(255,255,255,0.1); color: white; }
     .btn-ghost:hover { background: rgba(255,255,255,0.2); }
 
-    .main { padding: 28px 32px; max-width: 1160px; margin: 0 auto; }
+    .main { padding: 14px 18px; max-width: 1560px; margin: 0 auto; }
 
-    .stats { display: flex; gap: 14px; margin-bottom: 22px; }
-    .stat-card { background: white; border-radius: 10px; padding: 16px 20px; border: 1px solid #e8e8e8; flex: 1; }
-    .stat-card .label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-    .stat-card .value { font-size: 30px; font-weight: 700; margin-top: 4px; color: #1a1a2e; }
-    .stat-card .sub { font-size: 11px; color: #bbb; margin-top: 2px; }
+    /* Auto-fit, so one class serves the 7-tile Tenants strip and the 4-tile
+       Analytics/Plan/Runway strips without a per-tab override. */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(146px, 1fr)); gap: 9px; margin-bottom: 12px; }
+    .stat-card { background: white; border-radius: 8px; padding: 9px 12px; border: 1px solid #e8e8e8; }
+    .stat-card .label { font-size: 9.5px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card .value { font-size: 23px; font-weight: 700; margin-top: 1px; color: #1a1a2e; line-height: 1.15; }
+    .stat-card .sub { font-size: 10px; color: #aaa; margin-top: 1px; line-height: 1.35; }
 
-    .card { background: white; border-radius: 10px; border: 1px solid #e8e8e8; overflow: hidden; margin-bottom: 22px; }
-    .card-header { padding: 14px 18px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
-    .card-header h2 { font-size: 13px; font-weight: 600; color: #555; }
-    .card-header p { font-size: 11px; color: #aaa; margin-top: 2px; }
+    .card { background: white; border-radius: 8px; border: 1px solid #e8e8e8; overflow: hidden; margin-bottom: 12px; }
+    .card-header { padding: 8px 13px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+    .card-header h2 { font-size: 12.5px; font-weight: 600; color: #555; }
+    .card-header p { font-size: 10.5px; color: #aaa; margin-top: 1px; }
     .search { padding: 6px 11px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; width: 200px; outline: none; }
     .search:focus { border-color: #4f8ef7; }
 
-    .table-scroll { overflow-x: auto; }
+    .table-scroll { overflow: auto; }
+    /* The training list runs to 110 rows. Capping it keeps the page's own scroll short
+       while leaving every row reachable. */
+    .table-scroll--cap { max-height: 434px; }
     table { width: 100%; border-collapse: collapse; }
     thead { background: #fafafa; }
-    th { padding: 9px 16px; text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: #999; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
-    td { padding: 11px 16px; font-size: 13px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
+    th { padding: 6px 10px; text-align: left; font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #999; border-bottom: 1px solid #f0f0f0; white-space: nowrap;
+         position: sticky; top: 0; background: #fafafa; z-index: 3; }
+    td { padding: 4px 10px; font-size: 12.5px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #fafcff; }
 
     .tenant-name { font-weight: 500; color: #1a1a2e; }
-    .tenant-id { font-family: monospace; font-size: 10px; color: #bbb; margin-top: 2px; }
-    .tenant-sub { font-size: 11px; color: #999; margin-top: 2px; }
+    /* Truncated to the 8-char prefix — the full UUID wrapped onto three lines and was
+       the single largest contributor to row height. Full value kept in the title attr. */
+    .tenant-id { font-family: monospace; font-size: 9.5px; color: #c4c4c4; margin-top: 0; }
+    .tenant-sub { font-size: 10px; color: #999; margin-top: 0; }
 
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; white-space: nowrap; }
+    /* Click-to-sort, Customer Accounts table only. */
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sortable:hover { color: #4f8ef7; }
+    th.sorted { color: #1a1a2e; }
+    th.sorted::after { content: ' \2191'; }
+    th.sorted[data-dir="desc"]::after { content: ' \2193'; }
+
+    .badge { display: inline-block; padding: 1px 7px; border-radius: 9px; font-size: 10.5px; font-weight: 500; white-space: nowrap; }
     .badge-training  { background: #e8f3ff; color: #2d6cc0; }
     .badge-sandbox   { background: #fff3e0; color: #c07a00; }
     .badge-demo      { background: #f3e8ff; color: #7a2dc0; }
@@ -84,19 +99,19 @@
     .hidden { display: none !important; }
 
   /* ── Analytics tab ─────────────────────────────────────────────────── */
-  .tabs { display:flex; gap:4px; margin:0 0 20px; border-bottom:1px solid #e3e3e6; }
-  .tab-btn { appearance:none; background:none; border:none; padding:10px 18px; font-size:14px;
+  .tabs { display:flex; gap:4px; margin:0 0 11px; border-bottom:1px solid #e3e3e6; }
+  .tab-btn { appearance:none; background:none; border:none; padding:7px 15px; font-size:13.5px;
     font-weight:600; color:#77787c; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
   .tab-btn:hover { color:#1b1b1f; }
   .tab-btn.active { color:#1b1b1f; border-bottom-color:#1b1b1f; }
-  .chart-card { background:#fff; border:1px solid #e6e6e9; border-radius:10px; padding:20px 22px; margin-bottom:18px; }
-  .chart-card h3 { margin:0 0 2px; font-size:15px; font-weight:650; color:#1b1b1f; }
-  .chart-card .chart-sub { margin:0 0 14px; font-size:12.5px; color:#77787c; line-height:1.5; }
+  .chart-card { background:#fff; border:1px solid #e6e6e9; border-radius:8px; padding:13px 15px; margin-bottom:11px; }
+  .chart-card h3 { margin:0 0 2px; font-size:14px; font-weight:650; color:#1b1b1f; }
+  .chart-card .chart-sub { margin:0 0 9px; font-size:12px; color:#77787c; line-height:1.45; }
   .chart-wrap { overflow-x:auto; }
   .legend { display:flex; flex-wrap:wrap; gap:14px; margin:10px 0 0; font-size:12px; color:#55565a; }
   .legend i { display:inline-block; width:11px; height:11px; border-radius:2px; margin-right:5px; vertical-align:-1px; }
-  .caveat { background:#fffaf0; border:1px solid #f0e0c0; border-radius:8px; padding:12px 14px;
-    font-size:12.5px; color:#6b5836; line-height:1.6; margin-bottom:18px; }
+  .caveat { background:#fffaf0; border:1px solid #f0e0c0; border-radius:8px; padding:10px 12px;
+    font-size:12px; color:#6b5836; line-height:1.5; margin-bottom:11px; }
   .caveat b { color:#4a3c22; }
   .chart-note { font-size:11.5px; color:#8a8b8f; margin-top:9px; line-height:1.5; }
   svg .grid { stroke:#eeeef1; stroke-width:1; }
@@ -133,9 +148,14 @@
 
   <div class="stats">
     <div class="stat-card">
+      <div class="label">Customers on 2.0</div>
+      <div class="value" id="stat-customers">—</div>
+      <div class="sub" id="stat-customers-sub">&nbsp;</div>
+    </div>
+    <div class="stat-card">
       <div class="label">Live Customers</div>
       <div class="value" id="stat-live">3</div>
-      <div class="sub">Real accounts past their go-live date</div>
+      <div class="sub">Past their go-live date</div>
     </div>
     <div class="stat-card">
       <div class="label">Pending Go-Live</div>
@@ -143,14 +163,24 @@
       <div class="sub">Real accounts, not live yet</div>
     </div>
     <div class="stat-card">
-      <div class="label">Training &amp; Test Tenants</div>
+      <div class="label">Customer Hours 30d</div>
+      <div class="value" id="stat-hours30">—</div>
+      <div class="sub" id="stat-hours30-sub">&nbsp;</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Hours on 2.0</div>
+      <div class="value" id="stat-hourson20">—</div>
+      <div class="sub" id="stat-hourson20-sub">&nbsp;</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Training &amp; Test</div>
       <div class="value" id="stat-training">68</div>
-      <div class="sub">No Salesforce account (internal/demo)</div>
+      <div class="sub">No Salesforce account</div>
     </div>
     <div class="stat-card">
       <div class="label">Next Up for TT 2.0</div>
       <div class="value" id="stat-next-up">0</div>
-      <div class="sub">Double-writes on, TT 2.0 still off</div>
+      <div class="sub">Double-writes on, 2.0 still off</div>
     </div>
   </div>
 
@@ -162,20 +192,18 @@
       </div>
     </div>
     <div class="table-scroll">
-      <table>
+      <table id="customer-table">
         <thead>
           <tr>
-            <th style="width:40px">#</th>
-            <th>Account</th>
-            <th style="width:90px">Status</th>
-            <th style="width:140px">Industry</th>
-            <th style="width:110px">Segment</th>
-            <th style="width:110px" class="th-tip">Go-Live<span class="tip-icon">?</span><span class="tip-box">buildops_core_go_live_date<br>from Salesforce. Not set = blank.<br>NOT the same as TT 2.0 Enabled →</span></th>
-            <th style="width:120px" class="th-tip">TT 2.0 Enabled<span class="tip-icon">?</span><span class="tip-box">When the time-tracking-redesign<br>flag was turned on for this tenant.<br>Source: LD audit log. — = older than<br>the audit log's retention window.</span></th>
-            <th style="width:95px" class="th-tip">Hours 30d<span class="tip-icon">?</span><span class="tip-box">Labor hours recorded in the last<br>30 days (employees &times; duration).<br>Source: EMPLOYEE_TIMESHEET_SHIFT_ENTRY.<br>Counts ALL time tracking, 1.0 and 2.0 —<br>the tables do not record which UI<br>an entry came through.</span></th>
-            <th style="width:110px" class="th-tip">Hours on 2.0<span class="tip-icon">?</span><span class="tip-box">Labor hours recorded since this tenant's<br>TT 2.0 Enabled date. Blank where that<br>date predates LD's audit-log retention<br>(~mid-Apr 2026), so it cannot be computed.<br>Time-scoped to the 2.0 period, but still<br>not UI-attributed — see Hours 30d.</span></th>
-            <th style="width:80px" class="th-tip">Web<span class="tip-icon">?</span><span class="tip-box">All-time TT 2.0 web page opens.<br>Source: Heap, snapshot Jul 7, 2026.</span></th>
-            <th style="width:80px" class="th-tip">Mobile<span class="tip-icon">?</span><span class="tip-box">All-time mobile timesheet events.<br>Source: Heap, snapshot Jul 7, 2026.</span></th>
+            <th style="width:32px">#</th>
+            <th style="min-width:250px" class="sortable" data-sort="name">Account</th>
+            <th style="width:78px" class="sortable" data-sort="status">Status</th>
+            <th style="width:130px" class="sortable" data-sort="industry">Industry</th>
+            <th style="width:100px" class="sortable" data-sort="segment">Segment</th>
+            <th style="width:100px" class="th-tip sortable" data-sort="goLiveDate">Go-Live<span class="tip-icon">?</span><span class="tip-box">buildops_core_go_live_date<br>from Salesforce. Not set = blank.<br>NOT the same as TT 2.0 Enabled →</span></th>
+            <th style="width:108px" class="th-tip sortable" data-sort="ttEnabledDate">TT 2.0 Enabled<span class="tip-icon">?</span><span class="tip-box">When the time-tracking-redesign<br>flag was turned on for this tenant.<br>Source: LD audit log. — = older than<br>the audit log's retention window.</span></th>
+            <th style="width:88px" class="th-tip sortable" data-sort="hours30d">Hours 30d<span class="tip-icon">?</span><span class="tip-box">Labor hours recorded in the last<br>30 days (employees &times; duration).<br>Source: EMPLOYEE_TIMESHEET_SHIFT_ENTRY.<br>Counts ALL time tracking, 1.0 and 2.0 —<br>the tables do not record which UI<br>an entry came through.</span></th>
+            <th style="width:100px" class="th-tip sortable" data-sort="hoursOn20">Hours on 2.0<span class="tip-icon">?</span><span class="tip-box">Labor hours recorded since this tenant's<br>TT 2.0 Enabled date. Blank where that<br>date predates LD's audit-log retention<br>(~mid-Apr 2026), so it cannot be computed.<br>Time-scoped to the 2.0 period, but still<br>not UI-attributed — see Hours 30d.</span></th>
           </tr>
         </thead>
         <tbody id="customer-table-body"></tbody>
@@ -194,11 +222,11 @@
       <table>
         <thead>
           <tr>
-            <th style="width:40px">#</th>
-            <th>Account</th>
-            <th style="width:140px">Industry</th>
-            <th style="width:110px">Segment</th>
-            <th style="width:110px" class="th-tip">Core Go-Live<span class="tip-icon">?</span><span class="tip-box">buildops_core_go_live_date<br>from Salesforce.</span></th>
+            <th style="width:32px">#</th>
+            <th style="min-width:250px">Account</th>
+            <th style="width:130px">Industry</th>
+            <th style="width:100px">Segment</th>
+            <th style="width:105px" class="th-tip">Core Go-Live<span class="tip-icon">?</span><span class="tip-box">buildops_core_go_live_date<br>from Salesforce.</span></th>
             <th style="width:150px" class="th-tip">Double-Write Since<span class="tip-icon">?</span><span class="tip-box">When enable-timesheet-double-write<br>was turned on for this tenant.<br>Source: LD audit log.</span></th>
           </tr>
         </thead>
@@ -212,19 +240,18 @@
       <h2 id="table-title">Training &amp; Test Tenants</h2>
       <input class="search" type="text" placeholder="Search…" oninput="filterTable(this.value)" />
     </div>
-    <div class="table-scroll">
+    <div class="table-scroll table-scroll--cap">
       <table>
         <thead>
           <tr>
-            <th style="width:40px">#</th>
-            <th>Tenant</th>
-            <th style="width:120px">Type</th>
-            <th style="width:80px" class="th-tip">TT 2.0<span class="tip-icon">?</span><span class="tip-box">Whether the tenant has the<br>time-tracking-redesign flag on.<br>Live from LD.</span></th>
-            <th style="width:120px">TT 2.0 Enabled</th>
-            <th style="width:95px" class="th-tip">Hours 30d<span class="tip-icon">?</span><span class="tip-box">Labor hours recorded in the last 30 days.<br>Counts all time tracking, 1.0 and 2.0.</span></th>
-            <th style="width:80px" class="th-tip">Web<span class="tip-icon">?</span><span class="tip-box">Times the TT 2.0 web page was opened<br>since this tenant's enable date.<br>Source: Heap (snapshot May 13, 2026)</span></th>
-            <th style="width:80px" class="th-tip">Mobile<span class="tip-icon">?</span><span class="tip-box">Mobile timesheet events fired<br>since this tenant's enable date.<br>Source: Heap (snapshot May 13, 2026)</span></th>
-            <th style="width:100px">Status</th>
+            <th style="width:32px">#</th>
+            <th style="min-width:250px">Tenant</th>
+            <th style="width:112px">Type</th>
+            <th style="width:64px" class="th-tip">TT 2.0<span class="tip-icon">?</span><span class="tip-box">Whether the tenant has the<br>time-tracking-redesign flag on.<br>Live from LD.</span></th>
+            <th style="width:108px">TT 2.0 Enabled</th>
+            <th style="width:88px" class="th-tip">Hours 30d<span class="tip-icon">?</span><span class="tip-box">Labor hours recorded in the last 30 days.<br>Counts all time tracking, 1.0 and 2.0.</span></th>
+            <th style="width:100px" class="th-tip">Hours on 2.0<span class="tip-icon">?</span><span class="tip-box">Labor hours recorded since this tenant's<br>enable date. n/a where no enable date<br>could be recovered from the LD audit log.</span></th>
+            <th style="width:88px">Status</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -475,7 +502,7 @@ const SNAPSHOT_DATE = '2026-09-10';
 // sole source of names, industry, segment, hours and usage. It needs an
 // interactive Okta session, so in practice it often does not run. This is the
 // date that says whether the numbers on this page can be trusted.
-const LAST_ENRICHED_DATE = '2026-09-08';
+const LAST_ENRICHED_DATE = '2026-09-10';
 
 // Days without enrichment before the page warns. The enrichment job is scheduled
 // daily, so 3 leaves slack for one missed run without hiding a real stall.
@@ -588,28 +615,31 @@ const GRADE_BANDS = [
 // isLive is a precomputed snapshot (not the exact go-live date, which is kept
 // private) of whether the account has passed go-live as of the snapshot date.
 const CUSTOMER_ACCOUNTS = [
+  {"id":"81b1ce95-a290-491a-a6dd-0e8b8dfbc9c5","name":"American Roofing & Metal","industry":"Roofing","segment":"Enterprise","goLiveDate":"2026-10-01","ttEnabledDate":"2026-09-10","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"05e80590-d03f-4ef2-b1e5-26e8e0d48ff5","name":"Anderson Systems, Inc.","industry":"HVAC/Mechanical","segment":"Commercial","goLiveDate":"2027-02-01","ttEnabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
-  {"id":"3d2e0c95-766e-4b8d-93a0-ca8bf33d0383","name":"Best Mechanical","industry":"HVAC/Mechanical","segment":"Strategic","goLiveDate":"2026-09-16","ttEnabledDate":null,"webViews":7,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
+  {"id":"3d2e0c95-766e-4b8d-93a0-ca8bf33d0383","name":"Best Mechanical","industry":"HVAC/Mechanical","segment":"Strategic","goLiveDate":"2026-09-30","ttEnabledDate":null,"webViews":7,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
   {"id":"8e59a0b5-8036-4c7a-8677-e182774b33ff","name":"Cabworks Custom Elevators","industry":null,"segment":"Commercial","goLiveDate":"2026-06-30","ttEnabledDate":"2026-07-28","webViews":85,"mobileEvents":0,"hours30d":26,"employees30d":4,"hoursOn20":35,"employeesOn20":6},
-  {"id":"7930c279-882d-4a40-b303-360d9d546799","name":"Calray Gas Heat Corp. dba Omnia Mechanical Group","industry":"HVAC/Mechanical","segment":"Commercial","goLiveDate":"2022-07-27","ttEnabledDate":"2026-07-21","webViews":49662,"mobileEvents":23475,"hours30d":3161,"employees30d":33,"hoursOn20":5534,"employeesOn20":34},
-  {"id":"29ebabdf-323d-4f1b-8779-874aa9ee509a","name":"Creative Cabling Solutions","industry":"Electrical","segment":"Commercial","goLiveDate":"2026-07-31","ttEnabledDate":"2026-07-31","webViews":236,"mobileEvents":0,"hours30d":360,"employees30d":6,"hoursOn20":376,"employeesOn20":6},
-  {"id":"23ea1210-d32e-4179-b317-bdb43c1f03fe","name":"Dual Fuel","industry":"Plumbing","segment":"Commercial","goLiveDate":"2024-03-30","ttEnabledDate":null,"webViews":113342,"mobileEvents":5334,"hours30d":12999,"employees30d":73,"hoursOn20":null,"employeesOn20":null},
-  {"id":"b7a34115-63d2-4d2f-b8af-13519d4dac83","name":"Eagle Controls","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-08-17","ttEnabledDate":null,"webViews":2274,"mobileEvents":0,"hours30d":4041,"employees30d":31,"hoursOn20":null,"employeesOn20":null},
-  {"id":"a76d247e-8308-478c-9ab1-65aacccfab68","name":"Empire Heating & Cooling","industry":"HVAC/Mechanical","segment":"Commercial","goLiveDate":"2026-09-08","ttEnabledDate":"2026-08-18","webViews":158,"mobileEvents":0,"hours30d":288,"employees30d":4,"hoursOn20":247,"employeesOn20":4},
+  {"id":"7930c279-882d-4a40-b303-360d9d546799","name":"Calray Gas Heat Corp. dba Omnia Mechanical Group","industry":"HVAC/Mechanical","segment":"Commercial","goLiveDate":"2022-07-27","ttEnabledDate":"2026-07-21","webViews":49662,"mobileEvents":23475,"hours30d":3309,"employees30d":33,"hoursOn20":5834,"employeesOn20":34},
+  {"id":"29ebabdf-323d-4f1b-8779-874aa9ee509a","name":"Creative Cabling Solutions","industry":"Electrical","segment":"Commercial","goLiveDate":"2026-07-31","ttEnabledDate":"2026-07-31","webViews":236,"mobileEvents":0,"hours30d":463,"employees30d":6,"hoursOn20":504,"employeesOn20":6},
+  {"id":"23ea1210-d32e-4179-b317-bdb43c1f03fe","name":"Dual Fuel","industry":"Plumbing","segment":"Commercial","goLiveDate":"2024-03-30","ttEnabledDate":null,"webViews":113342,"mobileEvents":5334,"hours30d":13653,"employees30d":73,"hoursOn20":null,"employeesOn20":null},
+  {"id":"b7a34115-63d2-4d2f-b8af-13519d4dac83","name":"Eagle Controls","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-08-17","ttEnabledDate":null,"webViews":2274,"mobileEvents":0,"hours30d":4582,"employees30d":32,"hoursOn20":null,"employeesOn20":null},
+  {"id":"9fb56059-bcbf-4141-a0d8-084065821918","name":"Elkhorn Mechanical","industry":null,"segment":"1-10","goLiveDate":"2026-08-25","ttEnabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":1805,"employees30d":12,"hoursOn20":197,"employeesOn20":11},
+  {"id":"a76d247e-8308-478c-9ab1-65aacccfab68","name":"Empire Heating & Cooling","industry":"HVAC/Mechanical","segment":"Commercial","goLiveDate":"2026-09-08","ttEnabledDate":"2026-08-18","webViews":158,"mobileEvents":0,"hours30d":297,"employees30d":4,"hoursOn20":265,"employeesOn20":4},
   {"id":"e3385ec7-f055-40f7-93b6-373a5e81688c","name":"Entry Solutions Inc.","industry":null,"segment":"1-10","goLiveDate":"2027-01-01","ttEnabledDate":"2026-09-01","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"4592bc69-bf6b-42db-b6c8-61f2fe5ba116","name":"Fleming Network & Security Services","industry":null,"segment":"Enterprise","goLiveDate":null,"ttEnabledDate":null,"webViews":947,"mobileEvents":6,"hours30d":1517,"employees30d":15,"hoursOn20":null,"employeesOn20":null},
+  {"id":"4592bc69-bf6b-42db-b6c8-61f2fe5ba116","name":"Fleming Network & Security Services","industry":null,"segment":"Enterprise","goLiveDate":null,"ttEnabledDate":null,"webViews":947,"mobileEvents":6,"hours30d":1488,"employees30d":15,"hoursOn20":null,"employeesOn20":null},
   {"id":"28d03ff8-1be3-4db8-b83c-9b3f080402f9","name":"Genset Holdings","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-11-02","ttEnabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
-  {"id":"a5a52fd9-8505-48ee-959f-a0089069694c","name":"Gunnar Electric","industry":"Electrical","segment":"Commercial","goLiveDate":"2026-09-01","ttEnabledDate":"2026-08-28","webViews":213,"mobileEvents":0,"hours30d":1808,"employees30d":46,"hoursOn20":1808,"employeesOn20":46},
+  {"id":"a5a52fd9-8505-48ee-959f-a0089069694c","name":"Gunnar Electric","industry":"Electrical","segment":"Commercial","goLiveDate":"2026-09-01","ttEnabledDate":"2026-08-28","webViews":213,"mobileEvents":0,"hours30d":2605,"employees30d":50,"hoursOn20":2605,"employeesOn20":50},
   {"id":"bf60c3b4-72a8-44e0-8c93-763c3e7ebaf8","name":"Harvard NDE","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":"2026-08-20","webViews":8,"mobileEvents":0,"hours30d":18,"employees30d":2,"hoursOn20":18,"employeesOn20":2},
   {"id":"a46f9a1c-e00a-4ac6-bc08-cad4ab59d83a","name":"LVC Companies","industry":"Fire Life Safety","segment":"Enterprise","goLiveDate":"2026-09-21","ttEnabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"faf522eb-956f-4c62-91cb-e12728ddc579","name":"MK Plumbing","industry":"Plumbing","segment":"1-10","goLiveDate":"2026-10-12","ttEnabledDate":"2026-09-01","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"abb0133a-e0f6-4787-b624-547857329b0d","name":"New England Mechanical Overlay, Inc.","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-09-02","ttEnabledDate":"2026-07-28","webViews":145,"mobileEvents":0,"hours30d":574,"employees30d":17,"hoursOn20":574,"employeesOn20":17},
+  {"id":"abb0133a-e0f6-4787-b624-547857329b0d","name":"New England Mechanical Overlay, Inc.","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-09-02","ttEnabledDate":"2026-07-28","webViews":145,"mobileEvents":0,"hours30d":767,"employees30d":24,"hoursOn20":767,"employeesOn20":24},
   {"id":"42e28501-6257-4092-902a-2838a7a780d3","name":"PPC Partners - Carolina Power","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-09-14","ttEnabledDate":"2026-08-13","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"b8b5ef57-e0ad-41d3-bddb-f5cd15e95c5c","name":"PPC Partners - Metro Power","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-09-14","ttEnabledDate":"2026-08-13","webViews":1,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"2b2d6915-e8e6-41d0-83c9-21a1d4288ff4","name":"PPC Partners - Pieper Power","industry":"Electrical","segment":"Strategic","goLiveDate":"2026-09-14","ttEnabledDate":"2026-08-13","webViews":4,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"307aed4b-3cc1-4d34-b2ba-2d77db8ac7c3","name":"Pro Services Inc","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-10-05","ttEnabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"3b008a2d-b0ea-4e88-9b19-a3b37c83f5c6","name":"The Management Trust","industry":null,"segment":"Strategic","goLiveDate":"2025-08-29","ttEnabledDate":"2026-07-21","webViews":85066,"mobileEvents":1262,"hours30d":9702,"employees30d":65,"hoursOn20":18318,"employeesOn20":70},
-  {"id":"8d38df5b-8946-4763-ac2d-b43f82806d49","name":"TJW Industrial, Inc.","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-02-23","ttEnabledDate":"2026-08-19","webViews":10245,"mobileEvents":4326,"hours30d":13250,"employees30d":82,"hoursOn20":7785,"employeesOn20":80},
+  {"id":"e579cd7e-101d-4efd-9b13-2a05749a637a","name":"S.E. Mechanical Plumbing, Heating & Drain Cleaning","industry":"Plumbing","segment":"Commercial","goLiveDate":null,"ttEnabledDate":"2026-09-09","webViews":0,"mobileEvents":0,"hours30d":2121,"employees30d":37,"hoursOn20":62,"employeesOn20":11},
+  {"id":"3b008a2d-b0ea-4e88-9b19-a3b37c83f5c6","name":"The Management Trust","industry":null,"segment":"Strategic","goLiveDate":"2025-08-29","ttEnabledDate":"2026-07-21","webViews":85066,"mobileEvents":1262,"hours30d":10591,"employees30d":65,"hoursOn20":19747,"employeesOn20":70},
+  {"id":"8d38df5b-8946-4763-ac2d-b43f82806d49","name":"TJW Industrial, Inc.","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-02-23","ttEnabledDate":"2026-08-19","webViews":10245,"mobileEvents":4326,"hours30d":13515,"employees30d":81,"hoursOn20":8286,"employeesOn20":80},
   {"id":"2eb374f1-8cb6-467c-8d7d-6e720eabad1f","name":"Trinity Southern","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":null,"webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
 ];
 
@@ -619,9 +649,9 @@ const CUSTOMER_ACCOUNTS = [
 // diffing the two flags' LD target lists; doubleWriteEnabledDate sourced from LD audit log.
 const NEXT_UP_TENANTS = [
   {"id":"2bbf5f68-c662-40b7-8c60-eca36b451682","name":"D & H Refrigeration, Inc.","industry":"HVAC/Mechanical","segment":"Commercial","coreGoLiveDate":"2026-05-22","doubleWriteEnabledDate":"2026-09-01"},
-  {"id":"9fb56059-bcbf-4141-a0d8-084065821918","name":"Elkhorn Mechanical","industry":null,"segment":"1-10","coreGoLiveDate":"2026-08-25","doubleWriteEnabledDate":"2026-09-02"},
   {"id":"5379128a-9c3c-4303-b334-7eb6c19e50f8","name":"Muska Electric","industry":"Electrical","segment":"Enterprise","coreGoLiveDate":"2025-07-14","doubleWriteEnabledDate":"2026-09-03"},
-  {"id":"49481e06-417b-44f6-8367-b3e88937dbbc","name":"North Shore Tech Electric LLC","industry":null,"segment":"1-10","coreGoLiveDate":"2026-07-15","doubleWriteEnabledDate":"2026-08-05"}
+  {"id":"49481e06-417b-44f6-8367-b3e88937dbbc","name":"North Shore Tech Electric LLC","industry":null,"segment":"1-10","coreGoLiveDate":"2026-07-15","doubleWriteEnabledDate":"2026-08-05"},
+  {"id":"85b12a7d-3cd7-47f5-afb5-d238b0c35c72","name":"Parc Mechanical Ltd.","industry":"HVAC/Mechanical","segment":"1-10","coreGoLiveDate":"2025-04-16","doubleWriteEnabledDate":"2026-09-08"}
 ];
 
 // ── Embedded training/test tenant snapshot ───────────────────────────────────────
@@ -634,7 +664,7 @@ const SNAPSHOT_TENANTS = [
   {"id":"0ad57319-e35a-47ac-b04b-8e44543bcbe8","name":"Adirondack Training","enabledDate":"2026-09-02","webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"9a20d9d1-a513-4a73-8d8e-587a41d7963f","name":"Advanced Commercial Group Training","enabledDate":"2026-07-28","webViews":1,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"30d139b2-7379-470a-92bd-3a25a1021ab4","name":"American Roofing & Metal Training","enabledDate":"2026-07-28","webViews":76,"mobileEvents":1,"hours30d":26,"employees30d":6,"hoursOn20":26,"employeesOn20":6},
-  {"id":"d974b8f8-658c-4b2b-a6b0-5eca590a1fa8","name":"Anderson Systems Training","enabledDate":null,"webViews":730,"mobileEvents":56,"hours30d":470,"employees30d":7,"hoursOn20":null,"employeesOn20":null},
+  {"id":"d974b8f8-658c-4b2b-a6b0-5eca590a1fa8","name":"Anderson Systems Training","enabledDate":null,"webViews":730,"mobileEvents":56,"hours30d":533,"employees30d":7,"hoursOn20":null,"employeesOn20":null},
   {"id":"ac6bed0f-6925-459f-82ac-263b3e4e6aac","name":"Best Mechanical - Training","enabledDate":null,"webViews":237,"mobileEvents":3,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
   {"id":"c168626b-0f18-4d10-8b32-a521a7a6f56d","name":"Bierlein-Trombley Electric Training","enabledDate":"2026-04-28","webViews":4,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"7a213da2-023c-4770-b609-921ae6a4b53b","name":"Billy Wonka Mechanical Demo","enabledDate":"2026-04-28","webViews":245,"mobileEvents":0,"hours30d":97,"employees30d":4,"hoursOn20":136,"employeesOn20":10},
@@ -644,27 +674,27 @@ const SNAPSHOT_TENANTS = [
   {"id":"5ad7a5b0-80d6-4929-a384-2acbe78e3cec","name":"Capitol Fire Sprinkler Training","enabledDate":"2026-07-29","webViews":85,"mobileEvents":0,"hours30d":44,"employees30d":4,"hoursOn20":44,"employeesOn20":4},
   {"id":"9ac1bacd-02f2-491a-a2e3-499a61c1960c","name":"Carolina Parking & Entry Systems Training","enabledDate":"2026-08-21","webViews":20,"mobileEvents":0,"hours30d":170,"employees30d":2,"hoursOn20":170,"employeesOn20":2},
   {"id":"3a436eb6-1f01-4d0c-bf83-31b903f6ff0d","name":"CarolinaPower Testing","enabledDate":null,"webViews":17,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
-  {"id":"3ddb9a66-14ff-4e34-ad33-4b7a5303bd90","name":"CarolinaPower Training","enabledDate":null,"webViews":738,"mobileEvents":37,"hours30d":570,"employees30d":15,"hoursOn20":null,"employeesOn20":null},
+  {"id":"3ddb9a66-14ff-4e34-ad33-4b7a5303bd90","name":"CarolinaPower Training","enabledDate":null,"webViews":738,"mobileEvents":37,"hours30d":568,"employees30d":15,"hoursOn20":null,"employeesOn20":null},
   {"id":"fff08999-7244-4ec6-9b1f-04bea5a9a952","name":"CarolinaPower Validation","enabledDate":null,"webViews":1,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
-  {"id":"06a73f68-61c8-428e-beea-929b6565a6b2","name":"Climate Efficiency Partners - ECPH - Training","enabledDate":"2026-07-28","webViews":83,"mobileEvents":0,"hours30d":51,"employees30d":4,"hoursOn20":60,"employeesOn20":4},
+  {"id":"06a73f68-61c8-428e-beea-929b6565a6b2","name":"Climate Efficiency Partners - ECPH - Training","enabledDate":"2026-07-28","webViews":83,"mobileEvents":0,"hours30d":68,"employees30d":5,"hoursOn20":77,"employeesOn20":5},
   {"id":"b8dd23d4-8c23-4748-b5df-cafb7e362bf5","name":"Cobalt Refrigeration Training","enabledDate":"2026-08-19","webViews":27,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"07e2dc0f-9718-46a5-a148-8aa41ebc76e5","name":"Continental Electric Training","enabledDate":"2026-07-28","webViews":218,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":26,"employeesOn20":2},
+  {"id":"07e2dc0f-9718-46a5-a148-8aa41ebc76e5","name":"Continental Electric Training","enabledDate":"2026-07-28","webViews":218,"mobileEvents":0,"hours30d":146,"employees30d":6,"hoursOn20":172,"employeesOn20":8},
   {"id":"94768cd7-8335-4674-80b0-a615fe2b5eab","name":"Cooper Oates AC Training","enabledDate":"2026-08-04","webViews":58,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"0ef78f50-11cd-4e93-a95a-676e51bf3a51","name":"Corvant Training","enabledDate":"2026-07-28","webViews":176,"mobileEvents":0,"hours30d":315,"employees30d":9,"hoursOn20":481,"employeesOn20":10},
   {"id":"1eea0fd2-7ef8-460a-a805-48c56d615677","name":"Creative Cabling Solutions Training","enabledDate":null,"webViews":42,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
   {"id":"9cd92420-55f7-4e65-a72c-1aff4e55056b","name":"Cummings Electric Training","enabledDate":null,"webViews":83,"mobileEvents":25,"hours30d":0,"employees30d":2,"hoursOn20":null,"employeesOn20":null},
   {"id":"b88407d9-233b-4a20-ad17-2860589f53e1","name":"CX Enablement Demo","enabledDate":"2026-08-18","webViews":108,"mobileEvents":0,"hours30d":2,"employees30d":3,"hoursOn20":2,"employeesOn20":3},
   {"id":"b826c795-58e7-400e-ae37-ac7f702533fa","name":"Daniels Electric Training","enabledDate":null,"webViews":164,"mobileEvents":72,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
-  {"id":"0d076fb9-488a-4f06-825e-f9402f8f5113","name":"Dee Cramer Training 2","enabledDate":"2026-09-01","webViews":88,"mobileEvents":0,"hours30d":284,"employees30d":20,"hoursOn20":284,"employeesOn20":20},
+  {"id":"0d076fb9-488a-4f06-825e-f9402f8f5113","name":"Dee Cramer Training 2","enabledDate":"2026-09-01","webViews":88,"mobileEvents":0,"hours30d":1387,"employees30d":29,"hoursOn20":1153,"employeesOn20":29},
   {"id":"ed1b794d-138f-4c3f-a35e-a4e02779c467","name":"DM Metro Electric Training","enabledDate":"2026-07-24","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":1},
   {"id":"11e1953b-4427-4cb1-9570-5ffb7f0b17a6","name":"Dorvin D. Leis Training","enabledDate":"2026-07-24","webViews":70,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":10,"employeesOn20":1},
   {"id":"8b6157dd-d727-4702-9011-af952144bba5","name":"Dual Fuel Training","enabledDate":"2026-05-01","webViews":44,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":169,"employeesOn20":1},
   {"id":"ae92aa50-1fef-48e4-9a7b-68cd093629cb","name":"DWC Bootcamp","enabledDate":"2026-08-12","webViews":5,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"71b8a042-c2a5-4899-b460-401a8aaa2a56","name":"Eagle Controls Training","enabledDate":null,"webViews":2669,"mobileEvents":92,"hours30d":810,"employees30d":27,"hoursOn20":null,"employeesOn20":null},
-  {"id":"c4fe60f2-3755-40c3-8e34-e951f520acd0","name":"Electricraft, Inc. Training 25","enabledDate":"2026-08-31","webViews":33,"mobileEvents":0,"hours30d":102,"employees30d":6,"hoursOn20":94,"employeesOn20":5},
+  {"id":"71b8a042-c2a5-4899-b460-401a8aaa2a56","name":"Eagle Controls Training","enabledDate":null,"webViews":2669,"mobileEvents":92,"hours30d":1583,"employees30d":26,"hoursOn20":null,"employeesOn20":null},
+  {"id":"c4fe60f2-3755-40c3-8e34-e951f520acd0","name":"Electricraft, Inc. Training 25","enabledDate":"2026-08-31","webViews":33,"mobileEvents":0,"hours30d":120,"employees30d":6,"hoursOn20":112,"employeesOn20":5},
   {"id":"9bad1b78-5810-4807-98ae-a6a4fda25e76","name":"Ellingson Training","enabledDate":null,"webViews":184,"mobileEvents":569,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
   {"id":"d3699632-30f7-4200-8a80-73aece9e6d86","name":"Empire Heating & Cooling Training","enabledDate":"2026-07-09","webViews":236,"mobileEvents":20,"hours30d":9,"employees30d":2,"hoursOn20":739,"employeesOn20":8},
-  {"id":"7f2433b4-3457-4098-a78c-b1d5300b5eb0","name":"Entry Solutions Training","enabledDate":"2026-09-02","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":1,"hoursOn20":0,"employeesOn20":1},
+  {"id":"7f2433b4-3457-4098-a78c-b1d5300b5eb0","name":"Entry Solutions Training","enabledDate":"2026-09-02","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":2,"hoursOn20":0,"employeesOn20":2},
   {"id":"00d49241-efb5-4424-9d1a-03623c774308","name":"Envision Mechanical - Training","enabledDate":"2026-07-09","webViews":42,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":6,"employeesOn20":3},
   {"id":"5fc1706d-6cb0-4dd4-81ae-084b51f7dc2b","name":"FCM Training Clone","enabledDate":null,"webViews":132,"mobileEvents":15,"hours30d":0,"employees30d":1,"hoursOn20":null,"employeesOn20":null},
   {"id":"726a2d51-3c39-4ed0-b81a-18c9acf1f30d","name":"First Call Mechanical Training","enabledDate":null,"webViews":214,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
@@ -681,7 +711,7 @@ const SNAPSHOT_TENANTS = [
   {"id":"f2324822-cf1c-4be5-a1b7-a35800cf16ee","name":"ICU Mechanical Training","enabledDate":null,"webViews":52,"mobileEvents":29,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
   {"id":"9de91c4f-65ab-4a97-b75c-c4ea6b2b39bc","name":"J & J Air Conditioning Training","enabledDate":"2026-08-06","webViews":31,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":9,"employeesOn20":1},
   {"id":"8fa6038d-5e1f-442f-9345-e77b8e01d8e0","name":"J3 Mechanical Services Training","enabledDate":"2026-08-06","webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"9c178fd0-d86c-4a1b-bc69-55989d7e08ce","name":"Jolma Electric Training","enabledDate":null,"webViews":0,"mobileEvents":2,"hours30d":18,"employees30d":2,"hoursOn20":null,"employeesOn20":null},
+  {"id":"9c178fd0-d86c-4a1b-bc69-55989d7e08ce","name":"Jolma Electric Training","enabledDate":null,"webViews":0,"mobileEvents":2,"hours30d":26,"employees30d":4,"hoursOn20":null,"employeesOn20":null},
   {"id":"2203ddff-2384-49e0-9618-667b694214e4","name":"Jonathan Wembo Demo","enabledDate":"2026-07-28","webViews":4,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":8,"employeesOn20":2},
   {"id":"a771e416-bd0b-4b9a-8496-6caa136ee8da","name":"Kaemmerlen Solutions Training","enabledDate":"2026-05-01","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"71aa90b3-5a4d-4cbf-8699-7abc128bcda2","name":"Lakeland Multi-trade Inc. Training","enabledDate":null,"webViews":305,"mobileEvents":322,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
@@ -690,32 +720,32 @@ const SNAPSHOT_TENANTS = [
   {"id":"85d90d22-b674-4338-91ec-7a0f018b9e39","name":"Maxon Mechanical Training","enabledDate":"2026-08-13","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"c9f657d0-cffe-4c44-9421-9dca91888f0d","name":"Menifee Valley AC Training","enabledDate":"2026-08-12","webViews":1,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"ed1d3716-c03d-47b2-80e9-79265d98a4e6","name":"MetroPower Testing","enabledDate":null,"webViews":325,"mobileEvents":2,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
-  {"id":"66a9cb4c-8f65-4be7-b18d-15a9d2ecc73c","name":"MetroPower Training","enabledDate":null,"webViews":1973,"mobileEvents":192,"hours30d":532,"employees30d":16,"hoursOn20":null,"employeesOn20":null},
+  {"id":"66a9cb4c-8f65-4be7-b18d-15a9d2ecc73c","name":"MetroPower Training","enabledDate":null,"webViews":1973,"mobileEvents":192,"hours30d":559,"employees30d":18,"hoursOn20":null,"employeesOn20":null},
   {"id":"2872ee32-5185-452d-ab6c-ef164d3828f8","name":"MetroPower Validation","enabledDate":null,"webViews":4,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
   {"id":"0e20f5d7-f440-46bc-91d1-4913bb9ce6fa","name":"Miranda Melendez Demo Account","enabledDate":"2026-07-27","webViews":20,"mobileEvents":0,"hours30d":17,"employees30d":1,"hoursOn20":25,"employeesOn20":1},
   {"id":"627768af-66d9-4830-a362-d56fe9b951eb","name":"MK Plumbing Training","enabledDate":"2026-08-10","webViews":36,"mobileEvents":0,"hours30d":12,"employees30d":1,"hoursOn20":12,"employeesOn20":1},
-  {"id":"2d911214-aa3d-436c-a110-6501ca8513c7","name":"Muska Companies - Sage + Remarcable Testing","enabledDate":null,"webViews":3,"mobileEvents":0,"hours30d":0,"employees30d":1,"hoursOn20":null,"employeesOn20":null},
+  {"id":"2d911214-aa3d-436c-a110-6501ca8513c7","name":"Muska Companies - Sage + Remarcable Testing","enabledDate":null,"webViews":3,"mobileEvents":0,"hours30d":158,"employees30d":1,"hoursOn20":null,"employeesOn20":null},
   {"id":"1054105d-0193-4836-9baf-70d25173604d","name":"New England Mechanical Overlay Training","enabledDate":"2026-07-28","webViews":155,"mobileEvents":0,"hours30d":50,"employees30d":5,"hoursOn20":348,"employeesOn20":23},
-  {"id":"ed60e594-4cea-4738-a1ce-979e799b1668","name":"North Post Construction","enabledDate":"2026-07-10","webViews":364,"mobileEvents":0,"hours30d":153,"employees30d":8,"hoursOn20":182,"employeesOn20":10},
+  {"id":"ed60e594-4cea-4738-a1ce-979e799b1668","name":"North Post Construction","enabledDate":"2026-07-10","webViews":364,"mobileEvents":0,"hours30d":102,"employees30d":6,"hoursOn20":182,"employeesOn20":10},
   {"id":"b29b5fd1-fb31-42a1-bbec-3aedcf4aff59","name":"North Shore Tech Electric Training","enabledDate":"2026-07-30","webViews":44,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":1},
   {"id":"6fc8f7e0-15b6-42bd-bf0c-331c1b7feb9a","name":"Omnia Group Training","enabledDate":"2026-07-15","webViews":31,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":12,"employeesOn20":1},
   {"id":"a55cf1d7-c93e-4695-b9bf-13dbffefa000","name":"PieperPower Testing","enabledDate":null,"webViews":16,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
-  {"id":"e6778d46-fca5-4e33-ab36-44a915de0f0c","name":"PieperPower Training","enabledDate":null,"webViews":1299,"mobileEvents":174,"hours30d":276,"employees30d":11,"hoursOn20":null,"employeesOn20":null},
+  {"id":"e6778d46-fca5-4e33-ab36-44a915de0f0c","name":"PieperPower Training","enabledDate":null,"webViews":1299,"mobileEvents":174,"hours30d":281,"employees30d":12,"hoursOn20":null,"employeesOn20":null},
   {"id":"8f0e6cdb-c193-4097-92b7-251e8d5fd11c","name":"PieperPower Validation","enabledDate":null,"webViews":4,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
-  {"id":"44b62934-70de-47cb-8034-da40ca3a37e4","name":"PMC Energy Staging","enabledDate":"2026-04-28","webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":1},
+  {"id":"44b62934-70de-47cb-8034-da40ca3a37e4","name":"PMC Energy Staging","enabledDate":"2026-04-28","webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":1,"hoursOn20":0,"employeesOn20":2},
   {"id":"c91479a1-d034-4465-a83d-64af31653d8c","name":"Polar Refrigeration, Inc._Training","enabledDate":"2026-07-28","webViews":0,"mobileEvents":0,"hours30d":2,"employees30d":2,"hoursOn20":2,"employeesOn20":2},
   {"id":"50973bc0-f107-4f0a-aeb0-db49202853ce","name":"PowerUp Electrical - Cory Bildfell Demo","enabledDate":"2026-07-09","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"befebc82-5d2f-4ae5-bd25-8af20d6797df","name":"Pro Services Training","enabledDate":null,"webViews":1767,"mobileEvents":315,"hours30d":161,"employees30d":14,"hoursOn20":null,"employeesOn20":null},
-  {"id":"81023912-08e1-470e-ac4a-57562b5138d2","name":"Pro-Craft Construction Training","enabledDate":null,"webViews":68,"mobileEvents":3,"hours30d":173,"employees30d":2,"hoursOn20":null,"employeesOn20":null},
-  {"id":"2029c9bd-51b1-4ca1-a916-e583bbb88bd4","name":"PyroComm Training","enabledDate":null,"webViews":1468,"mobileEvents":13,"hours30d":3,"employees30d":2,"hoursOn20":null,"employeesOn20":null},
+  {"id":"befebc82-5d2f-4ae5-bd25-8af20d6797df","name":"Pro Services Training","enabledDate":null,"webViews":1767,"mobileEvents":315,"hours30d":219,"employees30d":14,"hoursOn20":null,"employeesOn20":null},
+  {"id":"81023912-08e1-470e-ac4a-57562b5138d2","name":"Pro-Craft Construction Training","enabledDate":null,"webViews":68,"mobileEvents":3,"hours30d":174,"employees30d":2,"hoursOn20":null,"employeesOn20":null},
+  {"id":"2029c9bd-51b1-4ca1-a916-e583bbb88bd4","name":"PyroComm Training","enabledDate":null,"webViews":1468,"mobileEvents":13,"hours30d":2,"employees30d":1,"hoursOn20":null,"employeesOn20":null},
   {"id":"4cecaade-1364-4171-8341-aa75666263e9","name":"Remco Inc. Training","enabledDate":"2026-04-27","webViews":24,"mobileEvents":1,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":1},
-  {"id":"8cd427b5-2036-4c1b-ae16-6e5acd5a179f","name":"Sauer Building Solutions Training","enabledDate":"2026-04-27","webViews":1757,"mobileEvents":0,"hours30d":531,"employees30d":9,"hoursOn20":1136,"employeesOn20":17},
+  {"id":"8cd427b5-2036-4c1b-ae16-6e5acd5a179f","name":"Sauer Building Solutions Training","enabledDate":"2026-04-27","webViews":1757,"mobileEvents":0,"hours30d":499,"employees30d":9,"hoursOn20":1140,"employeesOn20":17},
   {"id":"6b535d0a-4519-4e77-b7d2-b24877f499b1","name":"SE Demo","enabledDate":"2026-03-30","webViews":65,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":5,"employeesOn20":1},
   {"id":"0b4b0b69-f735-4ccb-bd60-b3cd4781e217","name":"SG Contracting","enabledDate":"2026-08-27","webViews":12,"mobileEvents":0,"hours30d":0,"employees30d":1,"hoursOn20":0,"employeesOn20":1},
-  {"id":"298a1f9d-fc04-4909-bae1-76df760fca1d","name":"SmartBarrel","enabledDate":"2026-08-20","webViews":169,"mobileEvents":0,"hours30d":152,"employees30d":1,"hoursOn20":120,"employeesOn20":1},
+  {"id":"298a1f9d-fc04-4909-bae1-76df760fca1d","name":"SmartBarrel","enabledDate":"2026-08-20","webViews":169,"mobileEvents":0,"hours30d":153,"employees30d":1,"hoursOn20":121,"employeesOn20":1},
   {"id":"88365b03-21ae-4f35-baeb-79a819bc8df4","name":"Solidaire - Enervise Data Staging","enabledDate":"2026-09-01","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"8d169b59-177c-4426-85c8-efa5b0e035ea","name":"Solidaire - Enervise Training","enabledDate":"2026-09-01","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"0c850e36-08d8-45c1-b6ee-8878712c693c","name":"SolidAire - Training","enabledDate":"2026-08-27","webViews":44,"mobileEvents":0,"hours30d":83,"employees30d":12,"hoursOn20":83,"employeesOn20":12},
+  {"id":"0c850e36-08d8-45c1-b6ee-8878712c693c","name":"SolidAire - Training","enabledDate":"2026-08-27","webViews":44,"mobileEvents":0,"hours30d":90,"employees30d":13,"hoursOn20":90,"employeesOn20":13},
   {"id":"d51fe9dc-1085-434d-8180-6ea74e470ced","name":"Southwest Mechanical Services Training","enabledDate":null,"webViews":84,"mobileEvents":1,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
   {"id":"0f5b242a-1d93-4a3f-8be3-295372631d43","name":"Stetner Construction Group Training","enabledDate":"2026-04-28","webViews":43,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":4,"employeesOn20":1},
   {"id":"34bab973-2bc5-49d7-b2c7-dff628992bda","name":"Support Team","enabledDate":"2026-08-19","webViews":94,"mobileEvents":0,"hours30d":97,"employees30d":4,"hoursOn20":89,"employeesOn20":3},
@@ -729,19 +759,17 @@ const SNAPSHOT_TENANTS = [
   {"id":"c77a608e-2fd3-4d21-b6e8-66b942a4e3a0","name":"Variable Speed Solutions Training","enabledDate":"2026-08-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"5d23103d-98fe-44f7-9bb3-591fb63af2af","name":"Vital Mechanical Service Training","enabledDate":"2026-07-28","webViews":63,"mobileEvents":0,"hours30d":2,"employees30d":1,"hoursOn20":2,"employeesOn20":1},
   {"id":"f63f7159-7079-4f8e-b526-95f5e4b3e6be","name":"Westcoast Mechanical Contractors Training","enabledDate":null,"webViews":9,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null},
-  {"id":"d6355df4-8399-4625-bd30-555fbd08e5c5","name":"LVC Companies Training","enabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"d4f7c2d4-5ddd-4f94-a636-db62988a4eef","name":"SYS-Kool LLC Training","enabledDate":"2026-09-03","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"d6355df4-8399-4625-bd30-555fbd08e5c5","name":"LVC Companies Training","enabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":57,"employees30d":4,"hoursOn20":48,"employeesOn20":4},
+  {"id":"d4f7c2d4-5ddd-4f94-a636-db62988a4eef","name":"SYS-Kool LLC Training","enabledDate":"2026-09-03","webViews":0,"mobileEvents":0,"hours30d":24,"employees30d":1,"hoursOn20":24,"employeesOn20":1},
   {"id":"8a679489-261d-427b-8c20-504d984901b4","name":"Muska Electric Training","enabledDate":"2026-09-03","webViews":3,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"d69724f3-346e-45a1-8124-61bbdddc1043","name":"Connext Security Solutions Training","enabledDate":"2026-09-03","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"8a2b357f-4031-41b2-8347-d5a17925b672","name":"K2 Development Companies Training","enabledDate":"2026-09-03","webViews":48,"mobileEvents":0,"hours30d":156,"employees30d":1,"hoursOn20":0,"employeesOn20":1},
+  {"id":"8a2b357f-4031-41b2-8347-d5a17925b672","name":"K2 Development Companies Training","enabledDate":"2026-09-03","webViews":48,"mobileEvents":0,"hours30d":6,"employees30d":1,"hoursOn20":0,"employeesOn20":1},
   {"id":"8afb64ac-12a2-4cc5-8b4b-00a8759d3492","name":"Beaulieu Plumbing and Mechanical Training","enabledDate":"2026-09-03","webViews":6,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"ce0ceb80-7ba7-424b-8aaf-1a12182cbfb4","name":"NEO Electrical Solutions Training","enabledDate":"2026-09-02","webViews":3,"mobileEvents":3,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"3a9ec999-c8c0-4eb1-8a52-c4cf334b1fe4","name":"Elkhorn Mechanical Training","enabledDate":"2026-09-02","webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"e58e5265-1b3a-48a4-8114-a27a3dcf4b1f","name":null,"enabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"9fb56059-bcbf-4141-a0d8-084065821918","name":null,"enabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"2e8cd1ff-25bc-4da6-97e3-a5d1c5d28cbe","name":null,"enabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"e579cd7e-101d-4efd-9b13-2a05749a637a","name":null,"enabledDate":"2026-09-09","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"656a5adb-b1ba-4b5d-b85c-821ec2a20c1a","name":null,"enabledDate":"2026-09-09","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"e58e5265-1b3a-48a4-8114-a27a3dcf4b1f","name":"Gregory Electric LLC - Training","enabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"2e8cd1ff-25bc-4da6-97e3-a5d1c5d28cbe","name":"Parc Mechanical Training","enabledDate":"2026-09-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"656a5adb-b1ba-4b5d-b85c-821ec2a20c1a","name":"MetroTek Electrical Services Training","enabledDate":"2026-09-09","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -778,8 +806,31 @@ function isCustomerLive(c) {
   return !!c.goLiveDate && new Date(c.goLiveDate + 'T00:00:00Z') <= new Date();
 }
 
+// Sort keys for the Customer Accounts table. 'default' is the original ordering
+// (live accounts first, then alphabetical) and is what the page loads with.
+const CUST_SORT_KEYS = {
+  name:          c => (c.name || '').toLowerCase(),
+  status:        c => (isCustomerLive(c) ? 0 : 1),
+  industry:      c => (c.industry || '\uffff').toLowerCase(),
+  segment:       c => (c.segment || '\uffff').toLowerCase(),
+  goLiveDate:    c => c.goLiveDate || '9999-99-99',
+  ttEnabledDate: c => c.ttEnabledDate || '9999-99-99',
+  hours30d:      c => c.hours30d || 0,
+  // null means "cannot be computed" (enable date predates LD's retention), which is
+  // distinct from zero; sort it below zero rather than treating it as 0.
+  hoursOn20:     c => (c.hoursOn20 == null ? -1 : c.hoursOn20),
+};
+let CUST_SORT = { key: 'default', dir: 1 };
+
 function renderCustomerTable(customers) {
+  const keyFn = CUST_SORT_KEYS[CUST_SORT.key];
   const sorted = [...customers].sort((a, b) => {
+    if (keyFn) {
+      const av = keyFn(a), bv = keyFn(b);
+      if (av < bv) return -CUST_SORT.dir;
+      if (av > bv) return CUST_SORT.dir;
+      return (a.name || '').localeCompare(b.name || '');
+    }
     const aLive = isCustomerLive(a), bLive = isCustomerLive(b);
     if (aLive !== bLive) return aLive ? -1 : 1;
     return a.name.localeCompare(b.name);
@@ -801,9 +852,6 @@ function renderCustomerTable(customers) {
     const ttEnabled = c.ttEnabledDate
       ? `<span class="date-cell">${formatDate(c.ttEnabledDate)}</span>`
       : `<span class="date-cell date-unknown">—</span>`;
-    const web = c.webViews || 0;
-    const mobile = c.mobileEvents || 0;
-    const webLabel = web > 0 ? `<span class="usage-cell">${web.toLocaleString()}</span>` : `<span class="usage-zero">—</span>`;
     const hours30Label = c.hours30d > 0
       ? `<span class="usage-cell">${c.hours30d.toLocaleString()}</span><div class="tenant-sub">${c.employees30d} emp</div>`
       : `<span class="usage-zero">—</span>`;
@@ -812,10 +860,9 @@ function renderCustomerTable(customers) {
       : (c.hoursOn20 > 0
           ? `<span class="usage-cell">${c.hoursOn20.toLocaleString()}</span><div class="tenant-sub">${c.employeesOn20} emp</div>`
           : `<span class="usage-zero">—</span>`);
-    const mobileLabel = mobile > 0 ? `<span class="usage-cell">${mobile.toLocaleString()}</span>` : `<span class="usage-zero">—</span>`;
     return `<tr>
       <td style="color:#bbb">${i + 1}</td>
-      <td><div class="tenant-name">${c.name}</div><div class="tenant-id">${c.id}</div></td>
+      <td><div class="tenant-name">${c.name}</div><div class="tenant-id" title="${c.id}">${c.id.slice(0, 8)}</div></td>
       <td>${statusLabel}</td>
       <td>${industry}</td>
       <td>${segment}</td>
@@ -823,13 +870,30 @@ function renderCustomerTable(customers) {
       <td>${ttEnabled}</td>
       <td>${hours30Label}</td>
       <td>${hoursOn20Label}</td>
-      <td>${webLabel}</td>
-      <td>${mobileLabel}</td>
     </tr>`;
   }).join('');
 
   document.getElementById('stat-live').textContent = customers.filter(isCustomerLive).length;
   document.getElementById('stat-pending').textContent = customers.filter(c => !isCustomerLive(c)).length;
+  paintSortArrows();
+}
+
+// Numeric columns open descending — "who logged the most hours" is the question being
+// asked of them; text and date columns open ascending.
+function sortCustomers(key) {
+  const numeric = ['hours30d', 'hoursOn20', 'status'].includes(key);
+  CUST_SORT = CUST_SORT.key === key
+    ? { key, dir: -CUST_SORT.dir }
+    : { key, dir: numeric ? -1 : 1 };
+  renderCustomerTable(CUSTOMER_ACCOUNTS);
+}
+
+function paintSortArrows() {
+  document.querySelectorAll('#customer-table thead th.sortable').forEach(th => {
+    const active = th.dataset.sort === CUST_SORT.key;
+    th.classList.toggle('sorted', active);
+    th.setAttribute('data-dir', active && CUST_SORT.dir < 0 ? 'desc' : 'asc');
+  });
 }
 
 function renderNextUpTable(tenants) {
@@ -853,7 +917,7 @@ function renderNextUpTable(tenants) {
       : `<span class="date-cell date-unknown">—</span>`;
     return `<tr>
       <td style="color:#bbb">${i + 1}</td>
-      <td><div class="tenant-name">${t.name}</div><div class="tenant-id">${t.id}</div></td>
+      <td><div class="tenant-name">${t.name}</div><div class="tenant-id" title="${t.id}">${t.id.slice(0, 8)}</div></td>
       <td>${industry}</td>
       <td>${segment}</td>
       <td>${coreGoLive}</td>
@@ -879,13 +943,15 @@ function renderTable(tenants) {
     const dateLabel = t.enabledDate
       ? `<span class="date-cell">${formatDate(t.enabledDate)}</span>`
       : `<span class="date-cell date-unknown">—</span>`;
-    const web = t.webViews || 0;
-    const mobile = t.mobileEvents || 0;
-    const webLabel = web > 0 ? `<span class="usage-cell">${web}</span>` : `<span class="usage-zero">—</span>`;
-    const mobileLabel = mobile > 0 ? `<span class="usage-cell">${mobile}</span>` : `<span class="usage-zero">—</span>`;
     const tHours30 = t.hours30d > 0
       ? `<span class="usage-cell">${t.hours30d.toLocaleString()}</span><div class="tenant-sub">${t.employees30d} emp</div>`
       : `<span class="usage-zero">—</span>`;
+    // Freed by dropping the two frozen Heap columns; the data was already collected.
+    const tHoursOn20 = (t.hoursOn20 === null || t.hoursOn20 === undefined)
+      ? `<span class="date-cell date-unknown" title="No enable date could be recovered from the LD audit log, so hours cannot be scoped to the 2.0 period.">n/a</span>`
+      : (t.hoursOn20 > 0
+          ? `<span class="usage-cell">${t.hoursOn20.toLocaleString()}</span><div class="tenant-sub">${t.employeesOn20} emp</div>`
+          : `<span class="usage-zero">—</span>`);
     // ttOn defaults to true for snapshot tenants (all have TT 2.0); set explicitly after a live refresh
     const ttOn = t.ttOn !== undefined ? t.ttOn : true;
     const ttOnLabel = ttOn
@@ -893,13 +959,12 @@ function renderTable(tenants) {
       : `<span style="color:#ccc">—</span>`;
     return `<tr data-search="${name.toLowerCase()}">
       <td style="color:#bbb">${i + 1}</td>
-      <td><div class="tenant-name">${name}</div><div class="tenant-id">${t.id}</div></td>
+      <td><div class="tenant-name">${name}</div><div class="tenant-id" title="${t.id}">${t.id.slice(0, 8)}</div></td>
       <td><span class="badge badge-${type}">${BADGE_LABELS[type]}</span></td>
       <td>${ttOnLabel}</td>
       <td>${dateLabel}</td>
       <td>${tHours30}</td>
-      <td>${webLabel}</td>
-      <td>${mobileLabel}</td>
+      <td>${tHoursOn20}</td>
       <td><span class="dot"></span>Enabled</td>
     </tr>`;
   }).join('');
@@ -991,10 +1056,30 @@ renderCustomerTable(CUSTOMER_ACCOUNTS);
 renderNextUpTable(NEXT_UP_TENANTS);
 renderTable(SNAPSHOT_TENANTS);
 
+// The three hours/coverage tiles are derived here rather than hardcoded, for the same
+// reason the Analytics caveat prose is: any number quoted on this page must read from
+// the same arrays the tables do, or it silently goes stale on the next refresh.
+(function fillTenantStats() {
+  const sum = (arr, k) => arr.reduce((s, c) => s + (c[k] || 0), 0);
+  const active = CUSTOMER_ACCOUNTS.filter(c => (c.hours30d || 0) > 0).length;
+  const dated = CUSTOMER_ACCOUNTS.filter(c => c.ttEnabledDate).length;
+  const set = (id, text) => { const e = document.getElementById(id); if (e) e.textContent = text; };
+  set('stat-customers', CUSTOMER_ACCOUNTS.length);
+  set('stat-customers-sub', active + ' logging hours (30d)');
+  set('stat-hours30', sum(CUSTOMER_ACCOUNTS, 'hours30d').toLocaleString());
+  set('stat-hours30-sub', sum(CUSTOMER_ACCOUNTS, 'employees30d').toLocaleString() + ' employees · 1.0 + 2.0');
+  set('stat-hourson20', sum(CUSTOMER_ACCOUNTS, 'hoursOn20').toLocaleString());
+  set('stat-hourson20-sub', 'Since enable date · ' + dated + ' of ' + CUSTOMER_ACCOUNTS.length + ' dated');
+})();
+
+document.querySelectorAll('#customer-table thead th.sortable').forEach(th => {
+  th.addEventListener('click', () => sortCustomers(th.dataset.sort));
+});
+
 // ── Analytics tab ──────────────────────────────────────────────────────────────
 // WEEKLY: [tenantIdPrefix, weekStart(Mon), cappedHours, distinctEmployees, employeeDays]
 // Hours are capped at 24h per employee-day at source; see the caveat box for why.
-const WEEKLY = [["23ea1210","2026-05-25",2493,58,278],["23ea1210","2026-06-01",2803,62,296],["23ea1210","2026-06-08",2708,61,290],["23ea1210","2026-06-15",2743,61,293],["23ea1210","2026-06-22",2846,60,297],["23ea1210","2026-06-29",2930,65,307],["23ea1210","2026-07-06",2948,64,307],["23ea1210","2026-07-13",3109,70,322],["23ea1210","2026-07-20",3104,69,333],["23ea1210","2026-07-27",3130,65,327],["23ea1210","2026-08-03",3202,70,338],["23ea1210","2026-08-10",3132,67,336],["23ea1210","2026-08-17",3233,68,338],["23ea1210","2026-08-24",3025,67,319],["23ea1210","2026-08-31",3107,68,324],["23ea1210","2026-09-07",416,52,52],["29ebabdf","2026-08-03",16,2,2],["29ebabdf","2026-08-10",113,4,14],["29ebabdf","2026-08-17",96,3,12],["29ebabdf","2026-08-24",103,4,14],["29ebabdf","2026-08-31",48,3,6],["2eb374f1","2026-05-25",9,1,1],["8d38df5b","2026-08-17",3519,78,378],["8d38df5b","2026-08-24",3065,76,357],["8d38df5b","2026-08-31",2650,72,352],["8d38df5b","2026-09-07",41,4,4],["8e59a0b5","2026-08-03",9,2,2],["8e59a0b5","2026-08-24",21,2,2],["8e59a0b5","2026-08-31",5,3,3],["a5a52fd9","2026-08-24",117,13,18],["a5a52fd9","2026-08-31",1599,46,191],["a76d247e","2026-08-03",9,1,1],["a76d247e","2026-08-10",16,2,2],["a76d247e","2026-08-17",80,2,10],["a76d247e","2026-08-24",121,3,15],["a76d247e","2026-08-31",62,3,8],["abb0133a","2026-08-24",84,5,8],["abb0133a","2026-08-31",490,15,46],["b7a34115","2026-08-10",81,4,8],["b7a34115","2026-08-17",1229,30,146],["b7a34115","2026-08-24",1375,31,154],["b7a34115","2026-08-31",1224,31,142],["b7a34115","2026-09-07",72,9,9],["bf60c3b4","2026-08-31",18,2,2],["3b008a2d","2026-03-23",2903,57,257],["3b008a2d","2026-03-30",2980,57,264],["3b008a2d","2026-04-06",2878,57,256],["3b008a2d","2026-04-13",2818,60,267],["3b008a2d","2026-04-20",2965,59,273],["3b008a2d","2026-04-27",3078,66,280],["3b008a2d","2026-05-04",3378,64,305],["3b008a2d","2026-05-11",3397,64,304],["3b008a2d","2026-05-18",3070,62,292],["3b008a2d","2026-05-25",3003,62,295],["3b008a2d","2026-06-01",2999,60,281],["3b008a2d","2026-06-08",2934,61,283],["3b008a2d","2026-06-15",2942,63,285],["3b008a2d","2026-06-22",3215,64,297],["3b008a2d","2026-06-29",2985,61,282],["3b008a2d","2026-07-06",2813,59,271],["3b008a2d","2026-07-13",2926,59,279],["3b008a2d","2026-07-20",2481,63,282],["3b008a2d","2026-07-27",2488,62,286],["3b008a2d","2026-08-03",2380,59,280],["3b008a2d","2026-08-10",2455,60,273],["3b008a2d","2026-08-17",2206,59,259],["23ea1210","2025-12-29",2428,53,267],["23ea1210","2026-01-05",2468,53,262],["23ea1210","2026-01-12",2726,53,272],["23ea1210","2026-01-19",2596,55,277],["23ea1210","2026-01-26",2540,52,273],["23ea1210","2026-02-02",2727,51,273],["23ea1210","2026-02-09",2746,53,276],["23ea1210","2026-02-16",2462,53,268],["23ea1210","2026-02-23",2274,52,247],["23ea1210","2026-03-02",2469,53,261],["23ea1210","2026-03-09",2681,55,275],["23ea1210","2026-03-16",2761,54,281],["23ea1210","2026-03-23",2707,54,279],["23ea1210","2026-03-30",2623,54,274],["23ea1210","2026-04-06",2791,59,289],["23ea1210","2026-04-13",2600,57,274],["23ea1210","2026-04-20",2785,57,289],["23ea1210","2026-04-27",2650,58,280],["23ea1210","2026-05-04",2649,61,283],["23ea1210","2026-05-11",2781,56,275],["23ea1210","2026-05-18",2579,55,271],["3b008a2d","2026-08-24",2323,58,276],["3b008a2d","2026-08-31",2176,55,264],["3b008a2d","2026-09-07",369,45,45],["4592bc69","2026-03-09",48,1,2],["4592bc69","2026-03-16",64,4,5],["4592bc69","2026-03-23",95,4,12],["4592bc69","2026-03-30",143,5,17],["4592bc69","2026-04-06",152,7,18],["4592bc69","2026-04-13",150,5,20],["4592bc69","2026-04-20",143,4,19],["4592bc69","2026-04-27",128,5,17],["4592bc69","2026-05-04",157,7,22],["4592bc69","2026-05-11",188,6,25],["4592bc69","2026-05-18",83,6,11],["4592bc69","2026-05-25",48,1,2],["4592bc69","2026-06-01",263,10,35],["4592bc69","2026-06-08",237,9,32],["4592bc69","2026-06-15",188,10,25],["4592bc69","2026-06-22",158,7,23],["4592bc69","2026-07-13",99,7,11],["4592bc69","2026-07-20",328,13,36],["4592bc69","2026-07-27",333,12,35],["8d38df5b","2026-03-16",3709,65,327],["8d38df5b","2026-03-23",3268,64,301],["8d38df5b","2026-03-30",3608,65,335],["8d38df5b","2026-04-06",3663,71,350],["8d38df5b","2026-04-13",3575,72,337],["8d38df5b","2026-04-20",3977,71,359],["8d38df5b","2026-04-27",3661,74,347],["8d38df5b","2026-05-04",3464,72,342],["8d38df5b","2026-05-11",3622,73,348],["8d38df5b","2026-05-18",4184,74,391],["8d38df5b","2026-05-25",3346,73,327],["8d38df5b","2026-06-01",4049,83,398],["8d38df5b","2026-06-08",4731,86,441],["8d38df5b","2026-06-15",4301,83,407],["8d38df5b","2026-06-22",4351,81,407],["8d38df5b","2026-06-29",3102,81,324],["8d38df5b","2026-07-06",3560,78,364],["8d38df5b","2026-07-13",3782,82,381],["8d38df5b","2026-07-20",3665,78,368],["8d38df5b","2026-07-27",3579,79,372],["8d38df5b","2026-08-03",3757,79,389],["8d38df5b","2026-08-10",3441,77,352],["4592bc69","2026-08-03",333,10,38],["4592bc69","2026-08-10",473,14,54],["4592bc69","2026-08-17",498,13,57],["4592bc69","2026-08-24",366,14,41],["4592bc69","2026-08-31",180,8,20],["7930c279","2026-07-13",670,26,72],["7930c279","2026-07-20",773,30,118],["7930c279","2026-07-27",810,27,113],["7930c279","2026-08-03",758,30,118],["7930c279","2026-08-10",773,28,112],["7930c279","2026-08-17",724,25,99],["7930c279","2026-08-24",585,24,93],["7930c279","2026-08-31",732,28,109],["7930c279","2026-09-07",1,1,1],["8d38df5b","2026-01-05",10,3,3],["8d38df5b","2026-02-02",75,6,6],["8d38df5b","2026-02-09",85,2,9],["8d38df5b","2026-02-16",357,12,34],["8d38df5b","2026-02-23",3187,62,282],["8d38df5b","2026-03-02",3187,64,300],["8d38df5b","2026-03-09",3332,62,305],["2eb374f1","2026-06-01",93,5,13],["2eb374f1","2026-06-08",240,5,30],["2eb374f1","2026-06-15",240,5,30],["2eb374f1","2026-06-22",240,5,30],["2eb374f1","2026-06-29",175,5,20],["2eb374f1","2026-07-06",95,5,10],["2eb374f1","2026-07-20",204,4,20],["2eb374f1","2026-07-27",153,4,18],["2eb374f1","2026-08-03",64,4,8],["3b008a2d","2025-12-29",1705,55,203],["3b008a2d","2026-01-05",2591,54,252],["3b008a2d","2026-01-12",2615,55,263],["3b008a2d","2026-01-19",2883,56,258],["3b008a2d","2026-01-26",2918,57,268],["3b008a2d","2026-02-02",2752,58,272],["3b008a2d","2026-02-09",2815,57,268],["3b008a2d","2026-02-16",2768,58,266],["3b008a2d","2026-02-23",2895,59,272],["3b008a2d","2026-03-02",3199,59,281],["3b008a2d","2026-03-09",3054,61,277],["3b008a2d","2026-03-16",2845,57,261]];
+const WEEKLY = [["23ea1210","2025-12-29",2428,53,267],["23ea1210","2026-01-05",2468,53,262],["23ea1210","2026-01-12",2726,53,272],["23ea1210","2026-01-19",2596,55,277],["23ea1210","2026-01-26",2540,52,273],["23ea1210","2026-02-02",2727,51,273],["23ea1210","2026-02-09",2746,53,276],["23ea1210","2026-02-16",2462,53,268],["23ea1210","2026-02-23",2274,52,247],["23ea1210","2026-03-02",2469,53,261],["23ea1210","2026-03-09",2681,55,275],["23ea1210","2026-03-16",2761,54,281],["23ea1210","2026-03-23",2707,54,279],["23ea1210","2026-03-30",2623,54,274],["23ea1210","2026-04-06",2791,59,289],["23ea1210","2026-04-13",2600,57,274],["23ea1210","2026-04-20",2785,57,289],["23ea1210","2026-04-27",2650,58,280],["23ea1210","2026-05-04",2649,61,283],["23ea1210","2026-05-11",2781,56,275],["23ea1210","2026-05-18",2579,55,271],["23ea1210","2026-05-25",2493,58,278],["23ea1210","2026-06-01",2803,62,296],["23ea1210","2026-06-08",2708,61,290],["23ea1210","2026-06-15",2743,61,293],["23ea1210","2026-06-22",2846,60,297],["23ea1210","2026-06-29",2930,65,307],["23ea1210","2026-07-06",2948,64,307],["23ea1210","2026-07-13",3109,70,322],["23ea1210","2026-07-20",3104,69,333],["23ea1210","2026-07-27",3130,65,327],["23ea1210","2026-08-03",3202,70,338],["23ea1210","2026-08-10",3132,67,336],["23ea1210","2026-08-17",3233,68,338],["23ea1210","2026-08-24",3025,67,319],["23ea1210","2026-08-31",3107,68,324],["23ea1210","2026-09-07",1682,66,188],["29ebabdf","2026-08-03",16,2,2],["29ebabdf","2026-08-10",113,4,14],["29ebabdf","2026-08-17",96,3,12],["29ebabdf","2026-08-24",103,4,14],["29ebabdf","2026-08-31",120,4,15],["29ebabdf","2026-09-07",56,4,7],["2eb374f1","2026-05-25",9,1,1],["2eb374f1","2026-06-01",93,5,13],["2eb374f1","2026-06-08",240,5,30],["2eb374f1","2026-06-15",240,5,30],["2eb374f1","2026-06-22",240,5,30],["2eb374f1","2026-06-29",175,5,20],["2eb374f1","2026-07-06",95,5,10],["2eb374f1","2026-07-20",204,4,20],["2eb374f1","2026-07-27",153,4,18],["2eb374f1","2026-08-03",64,4,8],["3b008a2d","2025-12-29",1705,55,203],["3b008a2d","2026-01-05",2591,54,252],["3b008a2d","2026-01-12",2615,55,263],["3b008a2d","2026-01-19",2883,56,258],["3b008a2d","2026-01-26",2918,57,268],["3b008a2d","2026-02-02",2752,58,272],["3b008a2d","2026-02-09",2815,57,268],["3b008a2d","2026-02-16",2768,58,266],["3b008a2d","2026-02-23",2895,59,272],["3b008a2d","2026-03-02",3199,59,281],["3b008a2d","2026-03-09",3054,61,277],["3b008a2d","2026-03-16",2845,57,261],["3b008a2d","2026-03-23",2903,57,257],["3b008a2d","2026-03-30",2980,57,264],["3b008a2d","2026-04-06",2878,57,256],["3b008a2d","2026-04-13",2818,60,267],["3b008a2d","2026-04-20",2965,59,273],["3b008a2d","2026-04-27",3078,66,280],["3b008a2d","2026-05-04",3378,64,305],["3b008a2d","2026-05-11",3397,64,304],["3b008a2d","2026-05-18",3070,62,292],["3b008a2d","2026-05-25",3003,62,295],["3b008a2d","2026-06-01",2999,60,281],["3b008a2d","2026-06-08",2934,61,283],["3b008a2d","2026-06-15",2942,63,285],["3b008a2d","2026-06-22",3215,64,297],["3b008a2d","2026-06-29",2985,61,282],["3b008a2d","2026-07-06",2813,59,271],["3b008a2d","2026-07-13",2926,59,279],["3b008a2d","2026-07-20",2481,63,282],["3b008a2d","2026-07-27",2488,62,286],["3b008a2d","2026-08-03",2380,59,280],["3b008a2d","2026-08-10",2455,60,273],["3b008a2d","2026-08-17",2202,59,259],["3b008a2d","2026-08-24",2333,58,276],["3b008a2d","2026-08-31",2263,55,264],["3b008a2d","2026-09-07",1259,58,149],["4592bc69","2026-03-09",48,1,2],["4592bc69","2026-03-16",64,4,5],["4592bc69","2026-03-23",95,4,12],["4592bc69","2026-03-30",143,5,17],["4592bc69","2026-04-06",152,7,18],["4592bc69","2026-04-13",150,5,20],["4592bc69","2026-04-20",143,4,19],["4592bc69","2026-04-27",128,5,17],["4592bc69","2026-05-04",157,7,22],["4592bc69","2026-05-11",188,6,25],["4592bc69","2026-05-18",83,6,11],["4592bc69","2026-05-25",48,1,2],["4592bc69","2026-06-01",263,10,35],["4592bc69","2026-06-08",237,9,32],["4592bc69","2026-06-15",188,10,25],["4592bc69","2026-06-22",158,7,23],["4592bc69","2026-07-13",99,7,11],["4592bc69","2026-07-20",328,13,36],["4592bc69","2026-07-27",333,12,35],["4592bc69","2026-08-03",333,10,38],["4592bc69","2026-08-10",473,14,54],["4592bc69","2026-08-17",498,13,57],["4592bc69","2026-08-24",366,14,41],["4592bc69","2026-08-31",180,8,20],["4592bc69","2026-09-07",38,4,4],["7930c279","2026-07-13",670,26,72],["7930c279","2026-07-20",773,30,118],["7930c279","2026-07-27",810,27,113],["7930c279","2026-08-03",758,30,118],["7930c279","2026-08-10",773,28,112],["7930c279","2026-08-17",724,25,99],["7930c279","2026-08-24",585,24,93],["7930c279","2026-08-31",732,28,109],["7930c279","2026-09-07",300,28,47],["8d38df5b","2026-01-05",10,3,3],["8d38df5b","2026-02-02",75,6,6],["8d38df5b","2026-02-09",85,2,9],["8d38df5b","2026-02-16",357,12,34],["8d38df5b","2026-02-23",3187,62,282],["8d38df5b","2026-03-02",3187,64,300],["8d38df5b","2026-03-09",3332,62,305],["8d38df5b","2026-03-16",3709,65,327],["8d38df5b","2026-03-23",3268,64,301],["8d38df5b","2026-03-30",3608,65,335],["8d38df5b","2026-04-06",3663,71,350],["8d38df5b","2026-04-13",3575,72,337],["8d38df5b","2026-04-20",3977,71,359],["8d38df5b","2026-04-27",3661,74,347],["8d38df5b","2026-05-04",3464,72,342],["8d38df5b","2026-05-11",3622,73,348],["8d38df5b","2026-05-18",4184,74,391],["8d38df5b","2026-05-25",3346,73,327],["8d38df5b","2026-06-01",4049,83,398],["8d38df5b","2026-06-08",4731,86,441],["8d38df5b","2026-06-15",4301,83,407],["8d38df5b","2026-06-22",4351,81,407],["8d38df5b","2026-06-29",3102,81,324],["8d38df5b","2026-07-06",3560,78,364],["8d38df5b","2026-07-13",3782,82,381],["8d38df5b","2026-07-20",3665,78,368],["8d38df5b","2026-07-27",3579,79,372],["8d38df5b","2026-08-03",3757,79,389],["8d38df5b","2026-08-10",3459,77,352],["8d38df5b","2026-08-17",3519,78,378],["8d38df5b","2026-08-24",3065,76,357],["8d38df5b","2026-08-31",2650,72,352],["8d38df5b","2026-09-07",539,44,82],["8e59a0b5","2026-08-03",9,2,2],["8e59a0b5","2026-08-24",21,2,2],["8e59a0b5","2026-08-31",5,3,3],["9fb56059","2026-08-24",560,12,48],["9fb56059","2026-08-31",620,12,51],["9fb56059","2026-09-07",201,11,22],["a5a52fd9","2026-08-24",142,16,21],["a5a52fd9","2026-08-31",1793,50,216],["a5a52fd9","2026-09-07",548,40,64],["a76d247e","2026-08-03",9,1,1],["a76d247e","2026-08-10",16,2,2],["a76d247e","2026-08-17",80,2,10],["a76d247e","2026-08-24",121,3,15],["a76d247e","2026-08-31",62,3,8],["a76d247e","2026-09-07",18,2,2],["abb0133a","2026-08-24",84,5,8],["abb0133a","2026-08-31",490,15,46],["abb0133a","2026-09-07",193,17,22],["b7a34115","2026-08-10",81,4,8],["b7a34115","2026-08-17",1229,30,146],["b7a34115","2026-08-24",1375,31,154],["b7a34115","2026-08-31",1240,31,144],["b7a34115","2026-09-07",607,28,71],["bf60c3b4","2026-08-31",18,2,2],["e579cd7e","2025-12-29",87,12,16],["e579cd7e","2026-01-05",72,10,16],["e579cd7e","2026-01-12",104,9,19],["e579cd7e","2026-01-19",108,11,18],["e579cd7e","2026-01-26",265,19,37],["e579cd7e","2026-02-02",332,19,39],["e579cd7e","2026-02-09",146,13,31],["e579cd7e","2026-02-16",360,23,51],["e579cd7e","2026-02-23",393,24,50],["e579cd7e","2026-03-02",230,16,42],["e579cd7e","2026-03-09",320,20,48],["e579cd7e","2026-03-16",250,19,44],["e579cd7e","2026-03-23",310,16,35],["e579cd7e","2026-03-30",175,16,29],["e579cd7e","2026-04-06",283,13,28],["e579cd7e","2026-04-13",264,19,41],["e579cd7e","2026-04-20",357,25,48],["e579cd7e","2026-04-27",385,23,53],["e579cd7e","2026-05-04",314,21,43],["e579cd7e","2026-05-11",260,16,35],["e579cd7e","2026-05-18",169,14,30],["e579cd7e","2026-05-25",214,22,34],["e579cd7e","2026-06-01",262,20,39],["e579cd7e","2026-06-08",213,19,38],["e579cd7e","2026-06-15",148,17,29],["e579cd7e","2026-06-22",199,12,23],["e579cd7e","2026-06-29",130,9,18],["e579cd7e","2026-07-06",225,19,38],["e579cd7e","2026-07-13",624,37,74],["e579cd7e","2026-07-20",145,22,32],["e579cd7e","2026-07-27",299,21,49],["e579cd7e","2026-08-03",269,25,40],["e579cd7e","2026-08-10",469,39,59],["e579cd7e","2026-08-17",184,13,29],["e579cd7e","2026-08-24",292,28,51],["e579cd7e","2026-08-31",203,20,32],["e579cd7e","2026-09-07",122,17,21]];
 const PARTIAL_WEEK = '2026-09-07';
 
 const custById = () => { const m={}; CUSTOMER_ACCOUNTS.forEach(c => m[c.id.slice(0,8)] = c); return m; };
@@ -1139,7 +1224,7 @@ function drawEmps() {
 // Exact-date before/after, computed in Snowflake with the same 24h/employee-day cap.
 // NOT derived from WEEKLY: a mid-week cutover would misfile up to 6 days of post-2.0
 // hours into the pre bucket (it made TJW read 151 h/day instead of 371).
-const MIGRATION = [{"name":"TJW Industrial","before":520.8,"after":392.2,"days":20},{"name":"The Management Trust","before":416.5,"after":335,"days":49},{"name":"Gunnar Electric","before":0,"after":170.6,"days":11},{"name":"Calray / Omnia","before":14,"after":102.2,"days":49},{"name":"New England Mechanical","before":0,"after":14.9,"days":42},{"name":"Empire Heating & Cooling","before":0.7,"after":12.6,"days":21},{"name":"Creative Cabling","before":0,"after":9.6,"days":39},{"name":"Harvard NDE","before":0,"after":0.9,"days":19},{"name":"Cabworks","before":0,"after":0.8,"days":42}];
+const MIGRATION = [{"name":"TJW Industrial","before":521.1,"after":379.4,"days":22},{"name":"The Management Trust","before":416.5,"after":341.6,"days":51},{"name":"Gunnar Electric","before":0,"after":206.9,"days":13},{"name":"Calray / Omnia","before":14,"after":105.4,"days":51},{"name":"Elkhorn Mechanical","before":19.9,"after":98.7,"days":2},{"name":"S.E. Mechanical Plumbing, Heating & Drain Cleaning","before":42.4,"after":90.4,"days":1},{"name":"New England Mechanical","before":0,"after":18.6,"days":44},{"name":"Creative Cabling","before":0,"after":12.3,"days":41},{"name":"Empire Heating & Cooling","before":0.7,"after":11.5,"days":23},{"name":"Harvard NDE","before":0,"after":0.9,"days":21},{"name":"Cabworks","before":0,"after":0.9,"days":44}];
 
 function drawMigration() {
   const svg = document.getElementById("chart-mig"); if (!svg) return;
