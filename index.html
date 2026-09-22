@@ -361,17 +361,18 @@
     </div>
 
     <div class="chart-card">
-      <h3>Are the 2.0-only capabilities actually being used?</h3>
-      <p class="chart-sub">Share of each tenant's post-cutover entries using something that did not exist in
-        1.0: <b>General Time</b> (which replaced Daily Shift), <b>project time with no visit</b>, and
-        <b>meal-break attestation</b>. Daily Report project time is shown for contrast — it existed before.
-        A tenant with a flat row is on 2.0 but working exactly as they did on 1.0, which is a training
-        conversation rather than a product failure.</p>
+      <h3>Which time-tracking flows is each tenant actually using?</h3>
+      <p class="chart-sub">Share of each tenant's post-cutover entries by flow. <b>General Time</b> (which
+        replaced Daily Shift) and <b>project time with no visit</b> are genuinely new in 2.0. <b>Time card
+        sign-off</b> and <b>Daily Report</b> project time both had 1.0 equivalents, and are here for
+        contrast. 2.0's meal and rest break attestation settings are not shown: nothing records them per
+        entry, only per tenant. A tenant using none of the new flows is on 2.0 but working exactly as it did
+        on 1.0, which is a training conversation rather than a product failure.</p>
       <div class="chart-wrap"><svg id="chart-flows" width="1080" height="330"></svg></div>
       <div class="legend">
         <span><i style="background:#2f9e5f"></i>General Time</span>
         <span><i style="background:#3f6fb5"></i>Project, no visit</span>
-        <span><i style="background:#8a5fb8"></i>Attested</span>
+        <span><i style="background:#8a5fb8"></i>Time card signed off</span>
         <span><i style="background:#c9cad0"></i>Daily Report (existed in 1.0)</span>
       </div>
       <p class="chart-note" id="note-flows"></p>
@@ -1508,8 +1509,10 @@ function drawScorecard() {
     'on the ' + s.pre.tenants + ' tenants that had recorded time in their pre-cutover window; ' + s.post.tenants +
     ' have recorded time since. They are the same companies either side, not different ones, but the ' +
     'before side is the narrower cohort — the more recent cutovers have no pre-window volume to compare. ' +
-    'The bottom two rows are capabilities 1.0 did not have at all, so they show the 2.0 figure rather than ' +
-    'a change.';
+    'General Time is a flow 1.0 did not have, so it shows the 2.0 figure rather than a change. Meal and rest ' +
+    'break attestation are 2.0-only too, but nothing records them per entry — they exist only as tenant ' +
+    'settings — so they are not on this tab at all; the sign-off row below is Time Card Attestation, which ' +
+    '1.0 had an equivalent of.';
 
   // goodDown flips the colour for dismissal, where a fall is the improvement.
   //
@@ -1524,7 +1527,16 @@ function drawScorecard() {
   const ROWS = [
     { label: 'Entries approved', key: 'approved', share: true },
     { label: 'Entries dismissed', key: 'dismissed', share: true, goodDown: true },
-    { label: 'Meal-break attestation signed', key: 'attested', share: true, newIn20: true },
+    // Time Card Attestation, NOT meal break. 2.0 ships three attestation settings —
+    // requireMealBreakAttestation, requireRestBreakAttestation and
+    // technicianTimecardAttestation — and only the last has a per-entry signal:
+    // TIMESHEET.IS_SIGNED. Meal and rest break attestation are observable as tenant
+    // settings only (56 tenants each), never per entry, so they are not on this tab.
+    // Time Card Attestation also has a 1.0 predecessor — the requireTechSignOff
+    // setting, 134 tenants, writing the same column — so this is a genuine
+    // before/after and must NOT be flagged new-in-2.0.
+    { label: 'Time card signed off by technician', key: 'attested', share: true,
+      hint: 'time card attestation — 1.0 had an equivalent sign-off setting' },
     { label: 'General Time entries', key: 'generalTime', share: false, newIn20: true,
       hint: 'the 2.0 flow that replaced Daily Shift' },
   ];
@@ -1571,11 +1583,10 @@ function drawScorecard() {
       ? 'Dismissals fell ' + Math.abs(pts) + ' points, which is the clearest single piece of evidence that ' +
         'review improved: time is being captured correctly the first time instead of being thrown out and redone. '
       : 'Dismissals have not fallen, which is worth understanding before claiming review improved. ') +
-    'The two 2.0-only rows do carry a small pre-cutover residual — ' + s.pre.generalTime +
-    ' General Time and ' + s.pre.attested.toLocaleString() + ' signed entries — which is not 1.0 usage: ' +
-    'every General Time one falls within two days of a cutover, when double writes are running, and the ' +
-    'signed ones are that same boundary plus one tenant whose legacy 1.0 technician sign-off writes to the ' +
-    'field 2.0 attestation reuses. It is excluded from the before column rather than read as a baseline.' +
+    'General Time does show ' + s.pre.generalTime + ' pre-cutover entries, which is not 1.0 usage: every ' +
+    'one falls within two days of a cutover, when double writes are running. The sign-off row’s before ' +
+    'figure is real, though — 1.0’s technician sign-off setting writes the same field, and one tenant ' +
+    'has been using it all year.' +
     ' Approval speed is absent here for the same reason it is absent from every chart on this tab — the ' +
     'approval timestamps are epoch placeholders.';
 }
@@ -1696,7 +1707,7 @@ function drawFlows() {
   const SERIES = [
     ['generalTime', '#2f9e5f', 'General Time'],
     ['projectNoVisit', '#3f6fb5', 'Project, no visit'],
-    ['attested', '#8a5fb8', 'Attested'],
+    ['attested', '#8a5fb8', 'Time card signed off'],
     ['dailyReport', '#c9cad0', 'Daily Report'],
   ];
   const W_ = 1080, H = 330, L = 196, R = 96, T = 10, B = 28;
@@ -1726,7 +1737,7 @@ function drawFlows() {
   const any = rows.filter(r => r.generalTime > 0 || r.projectNoVisit > 0).length;
   const att = rows.filter(r => r.attested > 0).length;
   note.textContent = any + ' of ' + rows.length + ' tenants have used a flow that did not exist in 1.0, and ' +
-    att + ' are signing attestations. The right-hand number is that tenant’s post-cutover entry count; ' +
+    att + ' have technicians signing off their time cards. The right-hand number is that tenant’s post-cutover entry count; ' +
     'tenants under 20 entries are held back until there is enough to read.' +
     (rows.length > shown.length ? ' Showing the ' + shown.length + ' largest.' : '');
 }
