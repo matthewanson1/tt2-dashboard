@@ -1507,17 +1507,25 @@ function drawScorecard() {
     ' days before each tenant’s own cutover</b> against <b>everything since</b>. The before column rests ' +
     'on the ' + s.pre.tenants + ' tenants that had recorded time in their pre-cutover window; ' + s.post.tenants +
     ' have recorded time since. They are the same companies either side, not different ones, but the ' +
-    'before side is the narrower cohort — the more recent cutovers have no pre-window volume to compare.';
+    'before side is the narrower cohort — the more recent cutovers have no pre-window volume to compare. ' +
+    'The bottom two rows are capabilities 1.0 did not have at all, so they show the 2.0 figure rather than ' +
+    'a change.';
 
   // goodDown flips the colour for dismissal, where a fall is the improvement.
-  // General Time is a count, not a share: it is a flow rather than an outcome, and
-  // its "before" is small but NOT zero — 1.0 wrote the same event type for a handful
-  // of records, so it is shown as a real delta rather than labelled new-in-2.0.
+  //
+  // newIn20 marks capabilities 1.0 did not have, so a before/after delta would be
+  // meaningless — those rows print "not in 1.0" and lead with the 2.0 figure. Their
+  // pre-cutover counts are NOT 1.0 usage, they are artifacts, and the note below the
+  // table quantifies them rather than hiding them: General Time's residual is every
+  // row within two days of a cutover (the double-write window), and attestation's is
+  // that plus one tenant whose legacy 1.0 technician sign-off writes to the same
+  // IS_SIGNED column that 2.0 attestation uses. Do not "fix" this by reading the
+  // residual as a baseline.
   const ROWS = [
     { label: 'Entries approved', key: 'approved', share: true },
     { label: 'Entries dismissed', key: 'dismissed', share: true, goodDown: true },
-    { label: 'Meal-break attestation signed', key: 'attested', share: true },
-    { label: 'General Time entries', key: 'generalTime', share: false,
+    { label: 'Meal-break attestation signed', key: 'attested', share: true, newIn20: true },
+    { label: 'General Time entries', key: 'generalTime', share: false, newIn20: true,
       hint: 'the 2.0 flow that replaced Daily Shift' },
   ];
   const GOOD = '#2f9e5f', BAD = '#a32b2b', FLAT = '#77787c';
@@ -1528,7 +1536,12 @@ function drawScorecard() {
   for (const row of ROWS) {
     const a = s.pre[row.key], b = s.post[row.key];
     let beforeTxt, afterTxt, delta, colour;
-    if (row.share) {
+    if (row.newIn20) {
+      beforeTxt = 'not in 1.0';
+      afterTxt = row.share ? pctTxt(b, s.post.entries) + ' of entries' : b.toLocaleString() + ' entries';
+      delta = 'new in 2.0';
+      colour = b > 0 ? GOOD : FLAT;
+    } else if (row.share) {
       const pa = pct(a, s.pre.entries), pb = pct(b, s.post.entries);
       beforeTxt = pctTxt(a, s.pre.entries);
       afterTxt = pctTxt(b, s.post.entries);
@@ -1544,7 +1557,7 @@ function drawScorecard() {
     }
     html += '<tr><td>' + row.label +
       (row.hint ? ' <span style="color:#a0a1a5">— ' + row.hint + '</span>' : '') +
-      '</td><td style="text-align:right;color:#77787c">' + beforeTxt +
+      '</td><td style="text-align:right;color:#77787c' + (row.newIn20 ? ';font-style:italic' : '') + '">' + beforeTxt +
       '</td><td style="text-align:right;font-weight:650">' + afterTxt +
       '</td><td style="text-align:right;font-weight:650;color:' + colour + '">' + delta + '</td></tr>';
   }
@@ -1556,8 +1569,13 @@ function drawScorecard() {
     s.post.entries.toLocaleString() + ' since. ' +
     (pts < 0
       ? 'Dismissals fell ' + Math.abs(pts) + ' points, which is the clearest single piece of evidence that ' +
-        'review improved: time is being captured correctly the first time instead of being thrown out and redone.'
-      : 'Dismissals have not fallen, which is worth understanding before claiming review improved.') +
+        'review improved: time is being captured correctly the first time instead of being thrown out and redone. '
+      : 'Dismissals have not fallen, which is worth understanding before claiming review improved. ') +
+    'The two 2.0-only rows do carry a small pre-cutover residual — ' + s.pre.generalTime +
+    ' General Time and ' + s.pre.attested.toLocaleString() + ' signed entries — which is not 1.0 usage: ' +
+    'every General Time one falls within two days of a cutover, when double writes are running, and the ' +
+    'signed ones are that same boundary plus one tenant whose legacy 1.0 technician sign-off writes to the ' +
+    'field 2.0 attestation reuses. It is excluded from the before column rather than read as a baseline.' +
     ' Approval speed is absent here for the same reason it is absent from every chart on this tab — the ' +
     'approval timestamps are epoch placeholders.';
 }
