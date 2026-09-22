@@ -323,6 +323,21 @@
     </div>
 
     <div class="chart-card">
+      <h3>Approved and dismissed, week by week on 2.0</h3>
+      <p class="chart-sub">Share of each week's time entries that have reached Approved and that were
+        Dismissed, across every tenant on 2.0, from the first production cutover in June. Flat-to-rising
+        approved with flat-to-falling dismissed is the shape you want. <b>Read the last week or two with
+        care</b> — approval happens days after the work date, so the most recent weeks always under-read
+        until review catches up; the final segment is dashed for that reason.</p>
+      <div class="chart-wrap"><svg id="chart-trend" width="1080" height="270"></svg></div>
+      <div class="legend">
+        <span><i style="background:#2f9e5f"></i>Approved</span>
+        <span><i style="background:#a32b2b"></i>Dismissed</span>
+      </div>
+      <p class="chart-note" id="note-trend"></p>
+    </div>
+
+    <div class="chart-card">
       <h3>Review outcomes — migrated tenants vs the ones still on 1.0</h3>
       <p class="chart-sub">Share of time entries ending Approved, Dismissed, or still open, by week. Columns
         are tenants already on 2.0 that week; the dashed line is the same weeks for tenants that had
@@ -1591,6 +1606,99 @@ function drawScorecard() {
     'approval timestamps are epoch placeholders.';
 }
 
+// Weekly approved/dismissed shares for tenants on 2.0. Same REVIEW dataset the
+// stacked chart below uses, read as two trend lines: the columns show a week's full
+// composition, these show direction over time.
+function drawTrend() {
+  const svg = document.getElementById('chart-trend'); if (!svg) return;
+  svg.innerHTML = '';
+  const note = document.getElementById('note-trend');
+  const rows = REVIEW.filter(r => r[1] === 'post' && r[2] > 0).sort((a, b) => a[0].localeCompare(b[0]));
+  if (rows.length < 2) { note.textContent = 'Not enough weeks on 2.0 to draw a trend yet.'; return; }
+  const W_ = 1080, H = 270, L = 48, R = 104, T = 16, B = 44;
+  const iw = W_ - L - R, ih = H - T - B;
+  const y = p => T + ih - p * ih;
+  const x = i => L + (rows.length === 1 ? iw / 2 : (i / (rows.length - 1)) * iw);
+  for (let i = 0; i <= 4; i++) {
+    const p = i / 4;
+    svg.appendChild(el('line', { class:'grid', x1:L, x2:L+iw, y1:y(p), y2:y(p) }));
+    svg.appendChild(el('text', { class:'tick', x:L-8, y:y(p)+3, 'text-anchor':'end' }, Math.round(p*100) + '%'));
+  }
+  // The trailing week is still accumulating approvals, so its segment is dashed and
+  // its marker hollow rather than being presented as a settled value.
+  const lastIsPartial = rows[rows.length - 1][0] === PARTIAL_WEEK;
+  const SERIES = [
+    { idx: 3, colour: '#2f9e5f', label: 'Approved' },
+    { idx: 4, colour: '#a32b2b', label: 'Dismissed' },
+  ];
+  for (const s of SERIES) {
+    const pts = rows.map((r, i) => ({ x: x(i), y: y(pct(r[s.idx], r[2])), r }));
+    const solid = lastIsPartial ? pts.slice(0, -1) : pts;
+    if (solid.length > 1) {
+      svg.appendChild(el('path', {
+        d: solid.map((p, i) => (i ? 'L' : 'M') + p.x + ' ' + p.y).join(' '),
+        fill: 'none', stroke: s.colour, 'stroke-width': 2.5,
+      }));
+    }
+    if (lastIsPartial && pts.length > 1) {
+      const a = pts[pts.length - 2], b = pts[pts.length - 1];
+      svg.appendChild(el('path', {
+        d: 'M' + a.x + ' ' + a.y + ' L' + b.x + ' ' + b.y,
+        fill: 'none', stroke: s.colour, 'stroke-width': 2.5, 'stroke-dasharray': '4 3',
+      }));
+    }
+    pts.forEach((p, i) => {
+      const partial = lastIsPartial && i === pts.length - 1;
+      const dot = el('circle', {
+        cx: p.x, cy: p.y, r: 3.4, fill: partial ? '#fff' : s.colour,
+        stroke: s.colour, 'stroke-width': partial ? 1.6 : 0,
+      });
+      dot.appendChild(el('title', {}, p.r[0] + ' — ' + s.label + ' ' +
+        pctTxt(p.r[s.idx], p.r[2]) + ' (' + p.r[s.idx].toLocaleString() + ' of ' +
+        p.r[2].toLocaleString() + ' entries)' + (partial ? ' · week still in progress' : '')));
+      svg.appendChild(dot);
+    });
+    const last = pts[pts.length - 1];
+    svg.appendChild(el('text', {
+      class: 'tick', x: L + iw + 7, y: last.y + 3, fill: s.colour, 'font-weight': 650,
+    }, pctTxt(last.r[s.idx], last.r[2]) + ' ' + s.label.toLowerCase()));
+  }
+  rows.forEach((r, i) => {
+    if (i % 2 === 0 || i === rows.length - 1)
+      svg.appendChild(el('text', { class:'tick', x:x(i), y:H-B+16, 'text-anchor':'middle' }, fmtWk(r[0])));
+  });
+  svg.appendChild(el('line', { class:'axis', x1:L, x2:L+iw, y1:T+ih, y2:T+ih }));
+
+  // Compare the settled weeks only, and the first four against the last four so one
+  // noisy week cannot set the direction.
+  const settled = lastIsPartial ? rows.slice(0, -1) : rows;
+  const span = Math.min(4, Math.floor(settled.length / 2)) || 1;
+  const avg = (list, idx) => pct(list.reduce((a, r) => a + r[idx], 0), list.reduce((a, r) => a + r[2], 0));
+  const first = settled.slice(0, span), last = settled.slice(-span);
+  // Biggest week-over-week jump in entry volume, i.e. the largest cohort-mix change.
+  // Computed rather than hard-coded so the sentence below cannot go stale.
+  let jump = null;
+  for (let i = 1; i < rows.length; i++) {
+    const growth = rows[i][2] - rows[i - 1][2];
+    if (growth > 0 && (!jump || growth > jump.growth)) {
+      jump = { wk: rows[i][0], from: rows[i - 1][2], to: rows[i][2], growth };
+    }
+  }
+  const dAppr = Math.round((avg(last, 3) - avg(first, 3)) * 100);
+  const dDism = Math.round((avg(last, 4) - avg(first, 4)) * 100);
+  const dir = (v, good) => (v === 0 ? 'flat' : (v > 0 ? 'up ' : 'down ') + Math.abs(v) + ' pts') +
+    (v !== 0 ? (good ? '' : ' the wrong way') : '');
+  note.textContent = settled.length + ' settled weeks from ' + fmtWk(settled[0][0]) + '. Comparing the ' +
+    'first ' + span + ' against the last ' + span + ': approved is ' + dir(dAppr, dAppr >= 0) +
+    ', dismissed is ' + dir(dDism, dDism <= 0) + '. ' +
+    (lastIsPartial ? 'The dashed final point (' + fmtWk(rows[rows.length - 1][0]) + ') is a part-week and ' +
+      'is excluded from that comparison. ' : '') +
+    'Both lines move with the mix of tenants as well as with behaviour: a large tenant cutting over ' +
+    'mid-series shifts the whole cohort.' +
+    (jump ? ' The sharpest such step is ' + fmtWk(jump.wk) + ', when weekly entries went from ' +
+      jump.from.toLocaleString() + ' to ' + jump.to.toLocaleString() + '.' : '');
+}
+
 function drawReview() {
   const svg = document.getElementById('chart-review'); if (!svg) return;
   svg.innerHTML = '';
@@ -1786,7 +1894,7 @@ function drawReports() {
 }
 
 function renderAnalytics() {
-  drawAnalyticsStats(); drawScorecard(); drawReview(); drawPayroll(); drawFlows(); drawReports();
+  drawAnalyticsStats(); drawScorecard(); drawTrend(); drawReview(); drawPayroll(); drawFlows(); drawReports();
   drawStack(); drawHpd(); drawEmps(); drawMigration(); drawCumulative();
 }
 
