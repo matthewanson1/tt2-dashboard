@@ -61,9 +61,15 @@ function loadArrays(html) {
   const stub = new Proxy(function () {}, {
     get: () => stub, set: () => true, apply: () => stub, construct: () => stub, has: () => true,
   });
-  const fn = new Function('document', 'window', 'console',
+  // location and history are plain objects, NOT the catch-all Proxy: the tab router
+  // reads location.hash and coerces it to a string, and String() on a function Proxy
+  // throws "Cannot convert object to primitive value". An empty hash sends the router
+  // down its default branch, which renders nothing.
+  const loc = { hash: '', pathname: '', search: '' };
+  const hist = { replaceState() {}, pushState() {} };
+  const fn = new Function('document', 'window', 'console', 'location', 'history',
     script + '; return { CUSTOMER_ACCOUNTS, SNAPSHOT_TENANTS, NEXT_UP_TENANTS };');
-  return fn(stub, stub, { log() {}, warn() {}, error() {} });
+  return fn(stub, stub, { log() {}, warn() {}, error() {} }, loc, hist);
 }
 
 // ── Query construction ─────────────────────────────────────────────────────────
