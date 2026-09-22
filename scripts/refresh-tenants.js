@@ -10,6 +10,12 @@ const path = require('path');
 
 const LD_TOKEN = process.env.LD_API_TOKEN;
 const FLAG_KEY = 'time-tracking-redesign';
+// "Next Up" is every tenant in migration prep: double-write on, redesign still off.
+// It is maintained HERE because it is pure LaunchDarkly state and needs no Snowflake.
+// It used to be hand-built, which meant it silently rotted — on 2026-09-22 it showed
+// 4 tenants when the real answer was 59, and still listed Parc Mechanical five days
+// after that tenant went live on 2.0. Nothing else recomputes it, so do not remove.
+const DOUBLE_WRITE_FLAG = 'enable-timesheet-double-write';
 const INDEX_PATH = path.join(__dirname, '..', 'index.html');
 
 if (!LD_TOKEN) {
@@ -23,22 +29,26 @@ async function ldFetch(url) {
   return res.json();
 }
 
-async function getCurrentTargetIds() {
-  const flag = await ldFetch(`https://app.launchdarkly.com/api/v2/flags/default/${FLAG_KEY}`);
+async function getCurrentTargetIds(flagKey = FLAG_KEY) {
+  const flag = await ldFetch(`https://app.launchdarkly.com/api/v2/flags/default/${flagKey}`);
   const trueIdx = flag.variations.findIndex(v => v.value === true);
   const targets = flag.environments.production.targets || [];
   const match = targets.find(t => t.variation === trueIdx);
   return new Set(match ? match.values : []);
 }
 
-async function findEnabledDate(tenantId) {
+async function findEnabledDate(tenantId, flagKey = FLAG_KEY) {
   let before;
   for (let page = 0; page < 20; page++) {
-    let url = `https://app.launchdarkly.com/api/v2/auditlog?q=${FLAG_KEY}&limit=20`;
+    let url = `https://app.launchdarkly.com/api/v2/auditlog?q=${flagKey}&limit=20`;
     if (before) url += `&before=${before}`;
     const d = await ldFetch(url);
     for (const item of d.items || []) {
-      if (JSON.stringify(item).includes(tenantId)) {
+      // q= does fuzzy, tokenised matching — `time-tracking-redesign` also returns
+      // unrelated flags like `equipment-tracking`. Confirm the accessed resource is
+      // actually this flag before trusting the date.
+      const hitsFlag = (item.accesses || []).some(a => String(a.resource || '').includes(`flag/${flagKey}`));
+      if (hitsFlag && JSON.stringify(item).includes(tenantId)) {
         return new Date(item.date).toISOString().slice(0, 10);
       }
     }
@@ -69,7 +79,7 @@ function loadArrays(html) {
   const hist = { replaceState() {}, pushState() {} };
   const fn = new Function(
     'document', 'window', 'console', 'location', 'history',
-    script + '; return { CUSTOMER_ACCOUNTS, SNAPSHOT_TENANTS, SNAPSHOT_DATE };'
+    script + '; return { CUSTOMER_ACCOUNTS, SNAPSHOT_TENANTS, NEXT_UP_TENANTS, SNAPSHOT_DATE };'
   );
   return fn(stub, stub, { log() {}, warn() {}, error() {} }, loc, hist);
 }
@@ -87,7 +97,7 @@ function serializeEntry(o) {
 
 async function main() {
   const html = fs.readFileSync(INDEX_PATH, 'utf8');
-  const { CUSTOMER_ACCOUNTS, SNAPSHOT_TENANTS } = loadArrays(html);
+  const { CUSTOMER_ACCOUNTS, SNAPSHOT_TENANTS, NEXT_UP_TENANTS } = loadArrays(html);
   const ldIds = await getCurrentTargetIds();
 
   const keptCustomers = CUSTOMER_ACCOUNTS.filter(c => ldIds.has(c.id));
@@ -113,6 +123,30 @@ async function main() {
     console.log(`Added ${newIds.length} new tenant(s), removed ${removedCount}.`);
   }
 
+  // ── Next Up: double-write on, redesign still off ────────────────────────────
+  // Recomputed from LaunchDarkly every run. Entries already on 2.0 fall out by
+  // construction, which is what stops a migrated tenant lingering here; existing
+  // rows are kept intact so Snowflake-sourced names and dates survive.
+  const dwIds = await getCurrentTargetIds(DOUBLE_WRITE_FLAG);
+  const onTt2 = new Set([...keptCustomers.map(c => c.id), ...keptTenants.map(t => t.id)]);
+  const nextUpIds = [...dwIds].filter(id => !onTt2.has(id));
+  const byId = new Map((NEXT_UP_TENANTS || []).map(t => [t.id, t]));
+  const nextUp = [];
+  let newNextUp = 0;
+  for (const id of nextUpIds) {
+    const existing = byId.get(id);
+    if (existing) { nextUp.push(existing); continue; }
+    newNextUp++;
+    nextUp.push({
+      id, name: null, industry: null, segment: null, coreGoLiveDate: null,
+      doubleWriteEnabledDate: await findEnabledDate(id, DOUBLE_WRITE_FLAG),
+    });
+  }
+  // Longest-waiting first; undated entries sort last rather than jumping the queue.
+  nextUp.sort((a, b) => (a.doubleWriteEnabledDate || '9999').localeCompare(b.doubleWriteEnabledDate || '9999'));
+  const droppedNextUp = (NEXT_UP_TENANTS || []).length - nextUp.filter(t => byId.has(t.id)).length;
+  console.log(`Next Up: ${nextUp.length} tenants (${newNextUp} new, ${droppedNextUp} dropped — migrated or double-write removed).`);
+
   const today = new Date().toISOString().slice(0, 10);
 
   let out = html.replace(
@@ -126,6 +160,10 @@ async function main() {
   out = out.replace(
     /const SNAPSHOT_TENANTS = \[[\s\S]*?\n\];/,
     `const SNAPSHOT_TENANTS = [\n${keptTenants.map(serializeEntry).join('\n')}\n];`
+  );
+  out = out.replace(
+    /const NEXT_UP_TENANTS = \[[\s\S]*?\n\];/,
+    `const NEXT_UP_TENANTS = [\n${nextUp.map(serializeEntry).join('\n')}\n];`
   );
 
   // Sanity check before writing: must still parse, and never contain forbidden fields.
