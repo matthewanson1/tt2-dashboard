@@ -76,8 +76,12 @@ function loadArrays(html) {
 // Cutoffs are emitted from the same model the file is written from, so the query
 // and the data can never drift apart.
 function buildQueries(model) {
-  const { customers, tenants } = model;
+  const { customers, tenants, nextUp = [] } = model;
   const all = [...customers, ...tenants];
+  // Next Up tenants are NOT on 2.0, so they are excluded from every usage, hours and
+  // config query — but they still need names. Look them up alongside the rest rather
+  // than leaving them rendering as "Unknown (id prefix…)" forever.
+  const lookupIds = [...new Set([...all.map(t => t.id), ...nextUp.map(t => t.id)])];
   const custIds = new Set(customers.map(c => c.id));
   const allIds = all.map(t => t.id);
 
@@ -95,12 +99,12 @@ function buildQueries(model) {
     // Names for tenants that have a Salesforce account (i.e. real customers).
     salesforce: `SELECT tenant_id, name, account_status, industry, segment, account_executive,
         customer_success_manager, active_core_licenses, buildops_core_go_live_date
-      FROM PROD.INTERNAL_ANALYTICS.SALESFORCE_ACCOUNT WHERE tenant_id IN (${list(allIds)})`,
+      FROM PROD.INTERNAL_ANALYTICS.SALESFORCE_ACCOUNT WHERE tenant_id IN (${list(lookupIds)})`,
 
     // Training/demo tenants have no Salesforce row; their names live in product analytics.
     training: `SELECT tenant_id, tenant_name, MAX(created_time_utc) AS last_seen
       FROM PROD.INTERNAL_ANALYTICS.PRODUCT_ANALYTICS_SESSIONS_REDACTED
-      WHERE tenant_id IN (${list(allIds)}) GROUP BY 1,2 ORDER BY 1, 3 DESC`,
+      WHERE tenant_id IN (${list(lookupIds)}) GROUP BY 1,2 ORDER BY 1, 3 DESC`,
 
     // Legacy Heap web/mobile counters, one pass instead of two.
     usage: `WITH cutoffs AS (SELECT column1 AS tenant_id, column2::date AS cutoff FROM VALUES ${cutoffs})
@@ -386,7 +390,7 @@ const num = v => (v === null || v === '' ? 0 : Number(v));
 const pair = rows => Object.fromEntries(rows.map(r => [r[0], [num(r[1]), num(r[2])]]));
 
 function applyResults(model, r) {
-  const { customers, tenants } = model;
+  const { customers, tenants, nextUp: nextUpList = [] } = model;
   const custIds = new Set(customers.map(c => c.id));
   const usage = pair(r.usage);
   const h30 = pair(r.hours30d);
@@ -426,6 +430,20 @@ function applyResults(model, r) {
     const dated = custIds.has(t.id) ? t.ttEnabledDate : t.enabledDate;
     t.employeesOn20 = dated ? (hOn[t.id] ? hOn[t.id][0] : 0) : null;
     t.hoursOn20 = dated ? (hOn[t.id] ? hOn[t.id][1] : 0) : null;
+  }
+
+  // Next Up carries identity only — no usage or hours, because these tenants are not
+  // on 2.0 yet. coreGoLiveDate is their BuildOps go-live, not a TT 2.0 cutover.
+  for (const t of nextUpList) {
+    const s2 = sf[t.id];
+    if (s2 && s2.name) {
+      t.name = s2.name;
+      if (s2.industry) t.industry = s2.industry;
+      if (s2.segment) t.segment = s2.segment;
+      if (s2.goLive) t.coreGoLiveDate = s2.goLive;
+    } else if (!t.name && tn[t.id]) {
+      t.name = tn[t.id];
+    }
   }
 
   // Config/headcount, customers only. tri() keeps "not set" distinct from false:
