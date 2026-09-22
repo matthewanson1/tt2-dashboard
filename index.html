@@ -859,7 +859,7 @@ const NEXT_UP_TENANTS = [
   {"id":"4a8dd34e-a6ba-4cd3-b420-8e27e3ba4bad","name":"Tower Mechanical","industry":"HVAC/Mechanical","segment":"1-10","coreGoLiveDate":"2026-06-02","doubleWriteEnabledDate":null},
   {"id":"e5790a25-7cc9-4c17-aa31-f51b3a8287f5","name":"Vanrook Electric LTD","industry":"Electrical","segment":"1-10","coreGoLiveDate":"2024-08-19","doubleWriteEnabledDate":null},
   {"id":"913a73de-17b3-4ce9-8b32-131f72ca32e4","name":"Vortec Fire Protection","industry":"Fire Life Safety","segment":"1-10","coreGoLiveDate":"2025-08-12","doubleWriteEnabledDate":null},
-  {"id":"35ee516f-820e-4349-8fd2-47de5b410716","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null}
+  {"id":"35ee516f-820e-4349-8fd2-47de5b410716","name":"Greater San Diego Air Conditioning Training","industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null}
 ];
 
 // ── Embedded training/test tenant snapshot ───────────────────────────────────────
@@ -1159,7 +1159,7 @@ function renderNextUpTable(tenants) {
       : `<span class="date-cell date-unknown">—</span>`;
     return `<tr>
       <td style="color:#bbb">${i + 1}</td>
-      <td><div class="tenant-name">${t.name}</div><div class="tenant-id">${t.id}</div></td>
+      <td><div class="tenant-name">${t.name || '<span style="color:#b0b0b0">Unknown</span>'}</div><div class="tenant-id">${t.id}</div></td>
       <td>${industry}</td>
       <td>${segment}</td>
       <td>${coreGoLive}</td>
