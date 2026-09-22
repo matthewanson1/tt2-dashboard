@@ -30,6 +30,10 @@ const WEB_EVENT = 'timesheets_and_timetracking_web_time_tracking_pageview_time_t
 const MOBILE_EVENTS = ['mobile_timesheet_touch_submit_day_level_', 'mobile_visit_details_touch_submit_timesheet_'];
 const WEEKLY_START = '2025-12-29';
 const REVIEW_START = '2026-04-01';
+// The scorecard compares a fixed window before each tenant's own cutover against
+// everything since. 60 days matches the migration-signature chart's convention, so
+// the two cannot end up disagreeing about what "before" means.
+const SCORECARD_WINDOW = 60;
 // SIP priorities that count against the migration plan's "no more than 25% of a
 // month's migrated tenants carry a High/Blocker report" confidence gate. Jira's
 // full ladder is Blocker/Highest/High/Medium/Low/Lowest.
@@ -244,6 +248,22 @@ function buildQueries(model) {
         COUNT_IF(s.PRIORITY IN (${list(HIGH_PRIORITIES)})) AS high_reports
       FROM d LEFT JOIN sip s ON LOWER(s.TENANT_ID) = LOWER(d.tenant_id) AND s.CREATED_TIME_UTC >= d.enabled
       GROUP BY 1 ORDER BY 1` : null,
+
+    // The headline before/after, one row per era across the whole migrated cohort.
+    // Same IS_DISMISSED rule as `review` — see that note. Two of these measures are
+    // capabilities that did not exist in 1.0 at all, so their "before" is zero by
+    // definition rather than by measurement; the page labels them as such.
+    scorecard: datedCust.length ? `WITH d AS (SELECT column1 AS tenant_id, column2::date AS enabled FROM VALUES ${datedCustVals})
+      SELECT IFF(ts.WORK_DATE < d.enabled,'pre','post') AS era, COUNT(*) AS entries,
+        COUNT_IF(ts.APPROVAL_STATUS = 'APPROVED' AND NOT COALESCE(ts.IS_DISMISSED, FALSE)) AS approved,
+        COUNT_IF(COALESCE(ts.IS_DISMISSED, FALSE)) AS dismissed,
+        COUNT_IF(COALESCE(ts.IS_SIGNED, FALSE)) AS attested,
+        COUNT_IF(ts.EVENT_TYPE = 'Standalone') AS general_time,
+        COUNT(DISTINCT d.tenant_id) AS tenants
+      FROM d JOIN PROD.APP_REDACTED.TIMESHEET ts ON ts.TENANT_ID = d.tenant_id
+      WHERE ts.IS_DELETED = FALSE AND ts.WORK_DATE < CURRENT_DATE()
+        AND ts.WORK_DATE >= DATEADD(day,-${SCORECARD_WINDOW},d.enabled)
+      GROUP BY 1 ORDER BY 1` : null,
   };
 }
 
@@ -427,7 +447,23 @@ function applyResults(model, r) {
   const reports = (r.reports || []).map(([cohort, t, hi, any, n]) =>
     [cohort, num(t), num(hi), num(any), num(n)]);
 
-  return { weekly, partialWeek: weeks[weeks.length - 1] || null, migration, review, payroll, flows, reports };
+  // Headline before/after. Emitted as one object per era plus the window length, so
+  // the page can state the comparison it is making rather than assuming one.
+  const era = {};
+  for (const [e, n, ap, di, att, gen, tn] of (r.scorecard || [])) {
+    era[e] = {
+      entries: num(n), approved: num(ap), dismissed: num(di),
+      attested: num(att), generalTime: num(gen), tenants: num(tn),
+    };
+  }
+  const scorecard = era.pre || era.post
+    ? { pre: era.pre || null, post: era.post || null, windowDays: SCORECARD_WINDOW }
+    : null;
+
+  return {
+    weekly, partialWeek: weeks[weeks.length - 1] || null, migration,
+    review, payroll, flows, reports, scorecard,
+  };
 }
 
 // The migration chart is narrow; full Salesforce names overflow it. Keep the same
@@ -448,7 +484,12 @@ const shortName = n => SHORT[n] || String(n || '').replace(/,? (Inc|LLC|Ltd|Corp
 function writeHtml(html, model, extra) {
   const ser = a => '[\n' + a.map(x => '  ' + JSON.stringify(x)).join(',\n') + '\n]';
   const sub = (s, name, text) => {
-    const re = new RegExp(`(const ${name} = )(\\[[\\s\\S]*?\\n\\]|\\[.*?\\]|'[^']*');`);
+    // Alternatives, in order: a multi-line array, a single-line array, a single-line
+    // object, a quoted string, or the literal null placeholder a new dataset starts
+    // life as. The object form is `\{.*\}` without the s-flag on purpose — greedy to
+    // the end of the LINE, so a nested object matches whole. A lazy `[\s\S]*?` would
+    // stop at the first inner brace and corrupt the file.
+    const re = new RegExp(`(const ${name} = )(\\[[\\s\\S]*?\\n\\]|\\[.*?\\]|\\{.*\\}|'[^']*'|null);`);
     if (!re.test(s)) throw new Error(`could not find const ${name}`);
     return s.replace(re, (_, p) => p + text + ';');
   };
@@ -462,6 +503,7 @@ function writeHtml(html, model, extra) {
   out = sub(out, 'PAYROLL', JSON.stringify(extra.payroll));
   out = sub(out, 'FLOWS', JSON.stringify(extra.flows));
   out = sub(out, 'REPORTS', JSON.stringify(extra.reports));
+  if (extra.scorecard) out = sub(out, 'SCORECARD', JSON.stringify(extra.scorecard));
   if (extra.partialWeek) out = sub(out, 'PARTIAL_WEEK', `'${extra.partialWeek}'`);
   out = sub(out, 'LAST_ENRICHED_DATE', `'${today()}'`);
   return out;
@@ -524,7 +566,8 @@ async function main() {
   const unnamed = named.filter(t => !t.name).length;
   console.log(`customers ${model.customers.length} · training ${model.tenants.length} · next-up ${model.nextUp.length} · unnamed ${unnamed}`);
   console.log(`weekly ${extra.weekly.length} rows through ${extra.partialWeek} · migration ${extra.migration.length} tenants`);
-  console.log(`review ${extra.review.length} week/era rows · payroll ${extra.payroll.length} tenants · flows ${extra.flows.length} tenants · reports ${extra.reports.length} cohorts`);
+  console.log(`review ${extra.review.length} week/era rows · payroll ${extra.payroll.length} tenants · flows ${extra.flows.length} tenants · reports ${extra.reports.length} cohorts` +
+    (extra.scorecard ? ` · scorecard ${extra.scorecard.pre ? extra.scorecard.pre.entries.toLocaleString() : 0} pre / ${extra.scorecard.post ? extra.scorecard.post.entries.toLocaleString() : 0} post entries` : ' · scorecard MISSING'));
 
   const out = writeHtml(html, model, extra);
   sanityCheck(out);
