@@ -2018,23 +2018,61 @@ function renderAnalytics() {
   drawStack(); drawHpd(); drawEmps(); drawMigration(); drawCumulative();
 }
 
+// ── Tabs, addressed by URL hash ───────────────────────────────────────────────
+// Each tab has its own address (#analytics, #plan, #runway) so a link opens on the
+// right one. The hash is the single source of truth: a click only sets it, and the
+// hashchange handler does the switching. One code path, and the browser's back and
+// forward buttons work without any extra handling.
+//
+// Slugs deliberately differ from the panel element ids (`analytics`, not
+// `panel-analytics`): if a hash matched an element id the browser would scroll to
+// that element on load, jumping past the header.
 (function initTabs(){
-  let drawn = false;
-  let drawnRw = false;
-  let drawnPl = false;
+  const PANELS = ['panel-tenants', 'panel-analytics', 'panel-plan', 'panel-runway'];
+  const DEFAULT_SLUG = 'tenants';
+  const slugOf = id => id.replace(/^panel-/, '');
+  const known = slug => PANELS.includes('panel-' + slug);
+  // Panels render lazily. A deep link has to trigger the same render a click would,
+  // so this is keyed off the slug rather than repeated as a branch per tab.
+  const RENDERERS = { analytics: renderAnalytics, plan: renderPlan, runway: renderRunway };
+  const drawn = {};
+
+  function activate(slug) {
+    if (!known(slug)) slug = DEFAULT_SLUG;
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.panel === 'panel-' + slug);
+    });
+    PANELS.forEach(id => {
+      const p = document.getElementById(id);
+      if (p) p.hidden = (id !== 'panel-' + slug);
+    });
+    if (RENDERERS[slug] && !drawn[slug]) { RENDERERS[slug](); drawn[slug] = true; }
+  }
+
+  const current = () => decodeURIComponent((location.hash || '').replace(/^#/, '')).toLowerCase();
+
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      ['panel-tenants','panel-analytics','panel-plan','panel-runway'].forEach(id => {
-        const p = document.getElementById(id);
-        if (p) p.hidden = (id !== btn.dataset.panel);
-      });
-      if (btn.dataset.panel === 'panel-analytics' && !drawn) { renderAnalytics(); drawn = true; }
-      if (btn.dataset.panel === 'panel-plan' && !drawnPl) { renderPlan(); drawnPl = true; }
-      if (btn.dataset.panel === 'panel-runway' && !drawnRw) { renderRunway(); drawnRw = true; }
+      const slug = slugOf(btn.dataset.panel);
+      // Setting the hash fires hashchange, which activates. Re-clicking the tab you
+      // are already on fires nothing, so handle that case directly.
+      if (current() === slug) activate(slug);
+      else location.hash = slug;
     });
   });
+
+  window.addEventListener('hashchange', () => activate(current()));
+
+  // On load, honour the hash. If it is missing or names nothing real, rewrite it so
+  // the address bar and the visible tab cannot disagree — replaceState rather than
+  // assignment, so opening the page does not leave a history entry behind.
+  const initial = current();
+  if (known(initial)) {
+    activate(initial);
+  } else {
+    history.replaceState(null, '', location.pathname + location.search + '#' + DEFAULT_SLUG);
+    activate(DEFAULT_SLUG);
+  }
 })();
 
 // ── Plan vs Actual tab ─────────────────────────────────────────────────────────
