@@ -338,6 +338,23 @@
     </div>
 
     <div class="chart-card">
+      <h3>Impossible days — one person, one day, 20+ hours</h3>
+      <p class="chart-sub">A single employee logging 20 or more hours in one calendar day cannot be real
+        work: it means time was duplicated or entered carelessly. This counts how often that happens per
+        employee-day, before and after cutover, and tracks whether the 2.0 rate holds as tenants are added.
+        The threshold sits below 24h deliberately, so it catches duplication that stops short of a
+        physically impossible day. Hours here are uncapped — the other charts cap at 24h per employee-day,
+        which would erase exactly this.</p>
+      <div class="stats" id="imp-stats"></div>
+      <div class="chart-wrap"><svg id="chart-impossible" width="1080" height="250"></svg></div>
+      <div class="legend">
+        <span><i style="background:#2f9e5f"></i>Weekly rate on 2.0</span>
+        <span><i style="background:#a32b2b"></i>1.0 baseline</span>
+      </div>
+      <p class="chart-note" id="note-impossible"></p>
+    </div>
+
+    <div class="chart-card">
       <h3>Review outcomes — migrated tenants vs the ones still on 1.0</h3>
       <p class="chart-sub">Share of time entries ending Approved, Dismissed, or still open, by week. Columns
         are tenants already on 2.0 that week; the dashed line is the same weeks for tenants that had
@@ -1506,6 +1523,11 @@ const REPORTS = [["2026-06",1,1,1,1],["2026-07",5,0,1,0],["2026-08",8,2,2,2],["2
 // before each tenant's own cutover, "post" is everything since.
 const SCORECARD = {"pre":{"entries":57015,"approved":33614,"dismissed":20148,"attested":525,"generalTime":19,"tenants":9},"post":{"entries":39401,"approved":28674,"dismissed":6559,"attested":11068,"generalTime":840,"tenants":15},"windowDays":60};
 
+// { pre: {days, flagged, tenants}, post: {...}, threshold, weekly: [[wk, days, flagged, tenants]] }
+// Employee-days where one person logged `threshold`+ hours. The 1.0 side uses all
+// pre-cutover history, not the scorecard's 60-day window — see the note in enrich.js.
+const IMPOSSIBLE = {"pre":{"days":60334,"flagged":2404,"tenants":9},"post":{"days":11520,"flagged":121,"tenants":15},"threshold":20,"weekly":[["2026-06-15",293,2,1],["2026-06-22",297,5,1],["2026-06-29",307,4,1],["2026-07-06",307,3,1],["2026-07-13",322,3,1],["2026-07-20",656,13,3],["2026-07-27",727,18,4],["2026-08-03",740,4,5],["2026-08-10",743,11,5],["2026-08-17",1092,9,7],["2026-08-24",1262,7,10],["2026-08-31",1496,13,11],["2026-09-07",1534,12,13],["2026-09-14",1744,17,15]]};
+
 const pct = (a, b) => (b > 0 ? a / b : 0);
 const pctTxt = (a, b) => (b > 0 ? Math.round(100 * a / b) + '%' : '—');
 
@@ -1697,6 +1719,102 @@ function drawTrend() {
     'mid-series shifts the whole cohort.' +
     (jump ? ' The sharpest such step is ' + fmtWk(jump.wk) + ', when weekly entries went from ' +
       jump.from.toLocaleString() + ' to ' + jump.to.toLocaleString() + '.' : '');
+}
+
+function drawImpossible() {
+  const svg = document.getElementById('chart-impossible'); if (!svg) return;
+  svg.innerHTML = '';
+  const stats = document.getElementById('imp-stats');
+  const note = document.getElementById('note-impossible');
+  const s = IMPOSSIBLE;
+  if (!s || !s.pre || !s.post) { if (note) note.textContent = 'No cutovers to compare yet.'; return; }
+
+  // "1 in N" reads far better than a fraction of a percent, which is what these are.
+  const oneIn = e => (e.flagged > 0 ? '1 in ' + Math.round(e.days / e.flagged) : 'none');
+  const card = (label, value, sub) =>
+    '<div class="stat-card"><div class="label">' + label + '</div><div class="value">' + value +
+    '</div><div class="sub">' + sub + '</div></div>';
+  if (stats) {
+    stats.innerHTML =
+      card('On 1.0', oneIn(s.pre), 'employee-days, ' + s.pre.flagged.toLocaleString() + ' of ' +
+        s.pre.days.toLocaleString()) +
+      card('On 2.0', oneIn(s.post), 'employee-days, ' + s.post.flagged.toLocaleString() + ' of ' +
+        s.post.days.toLocaleString()) +
+      card('Improvement', s.post.flagged && s.pre.flagged
+        ? (pct(s.pre.flagged, s.pre.days) / pct(s.post.flagged, s.post.days)).toFixed(1) + '× rarer'
+        : '—', 'On 2.0 vs 1.0') +
+      card('Tenants on 2.0', s.post.tenants, 'Recording time since cutover');
+  }
+
+  const rows = (s.weekly || []).filter(r => r[1] > 0);
+  if (rows.length < 2) { note.textContent = 'Not enough weeks on 2.0 to draw a trend yet.'; return; }
+  const baseline = pct(s.pre.flagged, s.pre.days);
+  const W_ = 1080, H = 250, L = 52, R = 112, T = 16, B = 46;
+  const iw = W_ - L - R, ih = H - T - B;
+  const top = Math.max(baseline, ...rows.map(r => pct(r[2], r[1]))) * 1.18 || 0.05;
+  const y = v => T + ih - (v / top) * ih;
+  const x = i => L + (rows.length === 1 ? iw / 2 : (i / (rows.length - 1)) * iw);
+  for (let i = 0; i <= 4; i++) {
+    const v = top * i / 4;
+    svg.appendChild(el('line', { class:'grid', x1:L, x2:L+iw, y1:y(v), y2:y(v) }));
+    svg.appendChild(el('text', { class:'tick', x:L-8, y:y(v)+3, 'text-anchor':'end' }, (v*100).toFixed(1) + '%'));
+  }
+  // 1.0 baseline, so the gap is the point of the chart rather than an inference.
+  svg.appendChild(el('line', { x1:L, x2:L+iw, y1:y(baseline), y2:y(baseline),
+    stroke:'#a32b2b', 'stroke-width':1.8, 'stroke-dasharray':'6 3' }));
+  svg.appendChild(el('text', { class:'tick', x:L+iw+6, y:y(baseline)+3, fill:'#a32b2b' },
+    '1.0 — ' + oneIn(s.pre)));
+
+  const lastIsPartial = rows[rows.length - 1][0] === PARTIAL_WEEK;
+  const pts = rows.map((r, i) => ({ x: x(i), y: y(pct(r[2], r[1])), r }));
+  const solid = lastIsPartial ? pts.slice(0, -1) : pts;
+  if (solid.length > 1) {
+    svg.appendChild(el('path', { d: solid.map((p, i) => (i ? 'L' : 'M') + p.x + ' ' + p.y).join(' '),
+      fill:'none', stroke:'#2f9e5f', 'stroke-width':2.5 }));
+  }
+  if (lastIsPartial && pts.length > 1) {
+    const a = pts[pts.length - 2], b = pts[pts.length - 1];
+    svg.appendChild(el('path', { d:'M' + a.x + ' ' + a.y + ' L' + b.x + ' ' + b.y,
+      fill:'none', stroke:'#2f9e5f', 'stroke-width':2.5, 'stroke-dasharray':'4 3' }));
+  }
+  pts.forEach((p, i) => {
+    const partial = lastIsPartial && i === pts.length - 1;
+    const dot = el('circle', { cx:p.x, cy:p.y, r:3.4, fill: partial ? '#fff' : '#2f9e5f',
+      stroke:'#2f9e5f', 'stroke-width': partial ? 1.6 : 0 });
+    dot.appendChild(el('title', {}, p.r[0] + ' — ' + p.r[2] + ' of ' + p.r[1].toLocaleString() +
+      ' employee-days (' + (p.r[1] ? (100*p.r[2]/p.r[1]).toFixed(1) : '0') + '%, ' +
+      (p.r[2] ? '1 in ' + Math.round(p.r[1]/p.r[2]) : 'none') + ') across ' + p.r[3] + ' tenants' +
+      (partial ? ' · week still in progress' : '')));
+    svg.appendChild(dot);
+    // Tenant count under each point: the "holding as we scale" half of the claim.
+    if (i % 2 === 0 || i === pts.length - 1) {
+      svg.appendChild(el('text', { class:'tick', x:p.x, y:H-B+16, 'text-anchor':'middle' }, fmtWk(p.r[0])));
+      svg.appendChild(el('text', { class:'tick', x:p.x, y:H-B+30, 'text-anchor':'middle', fill:'#a0a1a5' },
+        p.r[3] + (p.r[3] === 1 ? ' tnt' : ' tnts')));
+    }
+  });
+  svg.appendChild(el('line', { class:'axis', x1:L, x2:L+iw, y1:T+ih, y2:T+ih }));
+
+  const settled = lastIsPartial ? rows.slice(0, -1) : rows;
+  const half = Math.max(1, Math.floor(settled.length / 2));
+  const rate = list => pct(list.reduce((a, r) => a + r[2], 0), list.reduce((a, r) => a + r[1], 0));
+  const early = rate(settled.slice(0, half)), late = rate(settled.slice(-half));
+  const worstI = settled.reduce((bi, r, i) => (pct(r[2], r[1]) > pct(settled[bi][2], settled[bi][1]) ? i : bi), 0);
+  const worst = settled[worstI];
+  // Only call the spike onboarding noise if that week actually gained tenants.
+  const gained = worstI > 0 ? worst[3] - settled[worstI - 1][3] : 0;
+  note.textContent = 'On 2.0 the rate is ' + oneIn(s.post) + ' employee-days against ' + oneIn(s.pre) +
+    ' on 1.0. Across the settled weeks it has gone from ' + (early*100).toFixed(1) + '% to ' +
+    (late*100).toFixed(1) + '% while tenants recording time grew from ' + rows[0][3] + ' to ' +
+    rows[rows.length-1][3] + ' and weekly employee-days from ' + rows[0][1].toLocaleString() + ' to ' +
+    rows[rows.length-1][1].toLocaleString() + '. The worst week is ' + fmtWk(worst[0]) + ' at ' +
+    (100*pct(worst[2], worst[1])).toFixed(1) + '%' +
+    (gained > 0
+      ? ', a week that took on ' + gained + ' new tenant' + (gained > 1 ? 's' : '') +
+        ' — onboarding weeks run hot and then settle.'
+      : ', which did not coincide with any new tenant that week and is worth a look.') +
+    ' This is a small numerator on a modest denominator, so single weeks swing hard: the level and the ' +
+    'direction are the readable parts, not any one point.';
 }
 
 function drawReview() {
@@ -1894,7 +2012,7 @@ function drawReports() {
 }
 
 function renderAnalytics() {
-  drawAnalyticsStats(); drawScorecard(); drawTrend(); drawReview(); drawPayroll(); drawFlows(); drawReports();
+  drawAnalyticsStats(); drawScorecard(); drawTrend(); drawImpossible(); drawReview(); drawPayroll(); drawFlows(); drawReports();
   drawStack(); drawHpd(); drawEmps(); drawMigration(); drawCumulative();
 }
 
