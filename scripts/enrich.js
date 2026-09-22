@@ -34,6 +34,12 @@ const REVIEW_START = '2026-04-01';
 // everything since. 60 days matches the migration-signature chart's convention, so
 // the two cannot end up disagreeing about what "before" means.
 const SCORECARD_WINDOW = 60;
+// One person logging this many hours in a single day is not a real day's work; it
+// means time was duplicated or entered carelessly. Deliberately below 24 so it catches
+// duplication that stops short of a physically impossible day. NOTE: the hours used
+// here must NOT be capped — WEEKLY and MIGRATION apply LEAST(hours, 24) at source,
+// which would erase exactly what this measures.
+const IMPOSSIBLE_HOURS = 20;
 // SIP priorities that count against the migration plan's "no more than 25% of a
 // month's migrated tenants carry a High/Blocker report" confidence gate. Jira's
 // full ladder is Blocker/Highest/High/Medium/Low/Lowest.
@@ -264,6 +270,36 @@ function buildQueries(model) {
       WHERE ts.IS_DELETED = FALSE AND ts.WORK_DATE < CURRENT_DATE()
         AND ts.WORK_DATE >= DATEADD(day,-${SCORECARD_WINDOW},d.enabled)
       GROUP BY 1 ORDER BY 1` : null,
+
+    // ── Impossible days ────────────────────────────────────────────────────────
+    // One employee, one calendar day, 20+ hours. Hours come from SHIFT_ENTRY (the
+    // only trustworthy duration source) and are summed UNCAPPED on purpose.
+    //
+    // The 1.0 baseline uses ALL pre-cutover history rather than the scorecard's
+    // 60-day window: 60k employee-days instead of 8.5k makes the rate stable, and a
+    // short window moves it enough to change the headline (1 in 20 vs 1 in 25).
+    impossible: datedCust.length ? `WITH d AS (SELECT column1 AS tenant_id, column2::date AS enabled FROM VALUES ${datedCustVals}),
+      ed AS (SELECT d.tenant_id AS tid, d.enabled, se.EMPLOYEE_ID AS eid, se.WORK_DATE AS wd,
+               SUM(se.DURATION_MINS)/60.0 AS hrs
+             FROM d JOIN PROD.APP_REDACTED.EMPLOYEE_TIMESHEET_SHIFT_ENTRY se ON se.TENANT_ID = d.tenant_id
+             WHERE se.IS_DELETED = FALSE AND se.WORK_DATE < CURRENT_DATE()
+             GROUP BY 1,2,3,4)
+      SELECT IFF(wd < enabled,'pre','post') AS era, COUNT(*) AS employee_days,
+        COUNT_IF(hrs >= ${IMPOSSIBLE_HOURS}) AS impossible, COUNT(DISTINCT tid) AS tenants
+      FROM ed GROUP BY 1 ORDER BY 1` : null,
+
+    // Same measure by week, on 2.0 only, with the tenant count so the page can show
+    // that the rate held while the cohort grew.
+    impossibleWeekly: datedCust.length ? `WITH d AS (SELECT column1 AS tenant_id, column2::date AS enabled FROM VALUES ${datedCustVals}),
+      ed AS (SELECT d.tenant_id AS tid, se.WORK_DATE AS wd, se.EMPLOYEE_ID AS eid,
+               SUM(se.DURATION_MINS)/60.0 AS hrs
+             FROM d JOIN PROD.APP_REDACTED.EMPLOYEE_TIMESHEET_SHIFT_ENTRY se ON se.TENANT_ID = d.tenant_id
+             WHERE se.IS_DELETED = FALSE AND se.WORK_DATE >= d.enabled AND se.WORK_DATE < CURRENT_DATE()
+             GROUP BY 1,2,3)
+      SELECT TO_CHAR(DATEADD(day,-(DAYOFWEEKISO(wd)-1),wd),'YYYY-MM-DD') AS wk,
+        COUNT(*) AS employee_days, COUNT_IF(hrs >= ${IMPOSSIBLE_HOURS}) AS impossible,
+        COUNT(DISTINCT tid) AS tenants
+      FROM ed GROUP BY 1 ORDER BY 1` : null,
   };
 }
 
@@ -460,9 +496,21 @@ function applyResults(model, r) {
     ? { pre: era.pre || null, post: era.post || null, windowDays: SCORECARD_WINDOW }
     : null;
 
+  // Impossible days: 20+ hours for one person in one calendar day. Counts only, so
+  // the page shows "1 in N" from a live denominator rather than a frozen ratio.
+  const imp = {};
+  for (const [e, days, flagged, tn] of (r.impossible || [])) {
+    imp[e] = { days: num(days), flagged: num(flagged), tenants: num(tn) };
+  }
+  const impossible = imp.pre || imp.post ? {
+    pre: imp.pre || null, post: imp.post || null, threshold: IMPOSSIBLE_HOURS,
+    weekly: (r.impossibleWeekly || []).map(([wk, days, flagged, tn]) =>
+      [wk, num(days), num(flagged), num(tn)]),
+  } : null;
+
   return {
     weekly, partialWeek: weeks[weeks.length - 1] || null, migration,
-    review, payroll, flows, reports, scorecard,
+    review, payroll, flows, reports, scorecard, impossible,
   };
 }
 
@@ -504,6 +552,7 @@ function writeHtml(html, model, extra) {
   out = sub(out, 'FLOWS', JSON.stringify(extra.flows));
   out = sub(out, 'REPORTS', JSON.stringify(extra.reports));
   if (extra.scorecard) out = sub(out, 'SCORECARD', JSON.stringify(extra.scorecard));
+  if (extra.impossible) out = sub(out, 'IMPOSSIBLE', JSON.stringify(extra.impossible));
   if (extra.partialWeek) out = sub(out, 'PARTIAL_WEEK', `'${extra.partialWeek}'`);
   out = sub(out, 'LAST_ENRICHED_DATE', `'${today()}'`);
   return out;
