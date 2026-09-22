@@ -300,6 +300,91 @@
 
     <div class="stats" id="analytics-stats"></div>
 
+    <div class="chart-card" style="border-left:3px solid #2f9e5f">
+      <h3>Is 2.0 working?</h3>
+      <p class="chart-sub" style="margin-bottom:0">
+        The four charts below measure the commitments TT 2.0 was signed up to, rather than how much time is
+        flowing through it. <b>Review outcomes</b> tests the pain points in
+        <a href="https://buildops.atlassian.net/browse/LEP-111">LEP-111</a> — that initiative exists because
+        reviewers could not approve or edit across many employees at once. <b>Payroll integrity</b> is the
+        closest computable stand-in for the Cohort&nbsp;1 criterion that every tenant complete a full payroll
+        run. <b>Capability adoption</b> separates using 2.0 from using 1.0 in a new skin. <b>Report rate</b>
+        is the migration plan's own monthly confidence gate. Everything from <i>Weekly labor hours</i> onward
+        is volume and data integrity — necessary, but it cannot tell you whether 2.0 is better.
+      </p>
+    </div>
+
+    <div class="chart-card">
+      <h3>Review outcomes — migrated tenants vs the ones still on 1.0</h3>
+      <p class="chart-sub">Share of time entries ending Approved, Dismissed, or still open, by week. Columns
+        are tenants already on 2.0 that week; the dashed line is the same weeks for tenants that had
+        <i>not</i> cut over yet — a live control group, same weeks, same product. A falling dismissal rate is
+        the strongest evidence 2.0 improved review: time is being captured correctly the first time instead
+        of being thrown out. Dismissal is read from the timesheet's <i>dismissed</i> flag, not its approval
+        status: 1.0 records a dismissal by setting that flag and leaving the status as Pending, so reading
+        the status instead understates 1.0 dismissals about sixteenfold and inverts this comparison.
+        <b>Approval speed is deliberately absent</b> — see the note below the chart.</p>
+      <div class="chart-wrap"><svg id="chart-review" width="1080" height="290"></svg></div>
+      <div class="legend">
+        <span><i style="background:#2f9e5f"></i>Approved</span>
+        <span><i style="background:#a32b2b"></i>Dismissed</span>
+        <span><i style="background:#c9cad0"></i>Still open</span>
+        <span><i style="background:#1b1b1f"></i>Still on 1.0, same week — dismissed</span>
+      </div>
+      <p class="chart-note" id="note-review"></p>
+    </div>
+
+    <div class="chart-card">
+      <h3>Payroll integrity — last 28 days on 2.0</h3>
+      <p class="chart-sub">Per tenant, the share of live time entries that reached Approved, and the amber
+        slice still unapproved with a work date more than a week old. Approved entries are what payroll can
+        actually pay; the amber bar is the backlog someone has to clear before it can. Dismissed entries are
+        excluded — they are resolved, not backlog. Counted in <b>entries, not hours</b>: approval status
+        lives on the timesheet, which carries no duration, and the cost-line durations that would supply one
+        are not per-entry slices (they inflated one tenant's 28-day total roughly sixfold). Entry counts are
+        exact.</p>
+      <div class="chart-wrap"><svg id="chart-payroll" width="1080" height="300"></svg></div>
+      <div class="legend">
+        <span><i style="background:#2f9e5f"></i>Approved</span>
+        <span><i style="background:#e8e9ec"></i>Not yet approved</span>
+        <span><i style="background:#d98c26"></i>Unapproved &amp; older than 7 days</span>
+      </div>
+      <p class="chart-note" id="note-payroll"></p>
+    </div>
+
+    <div class="chart-card">
+      <h3>Are the 2.0-only capabilities actually being used?</h3>
+      <p class="chart-sub">Share of each tenant's post-cutover entries using something that did not exist in
+        1.0: <b>General Time</b> (which replaced Daily Shift), <b>project time with no visit</b>, and
+        <b>meal-break attestation</b>. Daily Report project time is shown for contrast — it existed before.
+        A tenant with a flat row is on 2.0 but working exactly as they did on 1.0, which is a training
+        conversation rather than a product failure.</p>
+      <div class="chart-wrap"><svg id="chart-flows" width="1080" height="330"></svg></div>
+      <div class="legend">
+        <span><i style="background:#2f9e5f"></i>General Time</span>
+        <span><i style="background:#3f6fb5"></i>Project, no visit</span>
+        <span><i style="background:#8a5fb8"></i>Attested</span>
+        <span><i style="background:#c9cad0"></i>Daily Report (existed in 1.0)</span>
+      </div>
+      <p class="chart-note" id="note-flows"></p>
+    </div>
+
+    <div class="chart-card">
+      <h3>Report rate against the 25% confidence gate</h3>
+      <p class="chart-sub">By the month a tenant migrated: the share that have since filed a High or Blocker
+        Time&nbsp;Tracking&nbsp;&amp;&nbsp;Labor support ticket. The migration plan's gate is that
+        <b>no more than 25%</b> of a month's migrated tenants carry a High/Blocker report. Tickets attribute
+        to tenants by id rather than by customer name, and count only from that tenant's own cutover onward.
+        Small cohorts move this a long way — one tenant in a cohort of four is 25% on its own.</p>
+      <div class="chart-wrap"><svg id="chart-reports" width="1080" height="250"></svg></div>
+      <div class="legend">
+        <span><i style="background:#a32b2b"></i>High/Blocker report</span>
+        <span><i style="background:#c9cad0"></i>Any report</span>
+        <span><i style="background:#1b1b1f"></i>25% gate</span>
+      </div>
+      <p class="chart-note" id="note-reports"></p>
+    </div>
+
     <div class="chart-card">
       <h3>Weekly labor hours — pre-2.0 vs on 2.0</h3>
       <p class="chart-sub">Every customer tenant with recorded time, stacked. The green band is hours logged after that tenant went on 2.0.</p>
@@ -521,7 +606,7 @@ const SNAPSHOT_DATE = '2026-09-21';
 // sole source of names, industry, segment, hours and usage. It needs an
 // interactive Okta session, so in practice it often does not run. This is the
 // date that says whether the numbers on this page can be trusted.
-const LAST_ENRICHED_DATE = '2026-09-21';
+const LAST_ENRICHED_DATE = '2026-09-22';
 
 // Days without enrichment before the page warns. The enrichment job is scheduled
 // daily, so 3 leaves slack for one missed run without hiding a real stall.
@@ -1368,8 +1453,230 @@ function drawAnalyticsStats() {
     card('Hours per employee-day', days2 ? (tot2/days2).toFixed(1) : '—', 'On 2.0. Normal is 6–10');
 }
 
+// ── TT 2.0 outcome datasets ───────────────────────────────────────────────────
+// All four come from APP_REDACTED.TIMESHEET (plus INTERNAL_ANALYTICS.JIRA_ISSUES
+// for REPORTS) via scripts/enrich.js. They carry counts, never percentages, so a
+// zero denominator renders as "no data" instead of silently becoming 0%.
+//
+// There is no approval-latency dataset on purpose. APPROVED_TIME_UTC is a 1970
+// epoch placeholder on virtually every row (27,057 of 27,100 on the pilot
+// tenant), so "time to approve" cannot be computed from this schema. Approval
+// *status* is real and is what these charts use. Do not add a speed metric here
+// without first confirming the timestamps have been fixed at source.
+
+// [week, era, entries, approved, dismissed]. "Still open" is the remainder, so the
+// three shares always total 100% even if a status outside the expected set appears.
+// Dismissal comes from IS_DISMISSED, the only column written in both eras — read the
+// note in enrich.js before ever switching it to APPROVAL_STATUS.
+const REVIEW = [["2026-03-30","pre",3852,2398,1333],["2026-04-06","pre",6237,3922,2089],["2026-04-13","pre",6159,3863,1947],["2026-04-20","pre",6124,3913,1927],["2026-04-27","pre",6305,3940,2067],["2026-05-04","pre",6345,3994,2033],["2026-05-11","pre",6791,4403,2124],["2026-05-18","pre",6945,4357,2322],["2026-05-25","pre",5851,3493,2068],["2026-06-01","pre",6947,4377,2320],["2026-06-08","pre",7362,4537,2484],["2026-06-15","post",1363,886,241],["2026-06-15","pre",5264,3227,1801],["2026-06-22","post",1392,1034,237],["2026-06-22","pre",5425,3324,1864],["2026-06-29","post",1307,922,292],["2026-06-29","pre",4585,2657,1698],["2026-07-06","post",1343,1112,168],["2026-07-06","pre",4686,2630,1781],["2026-07-13","post",1366,1150,143],["2026-07-13","pre",5153,2416,1980],["2026-07-20","post",3058,2016,640],["2026-07-20","pre",1816,990,510],["2026-07-27","post",3107,2196,645],["2026-07-27","pre",1148,670,178],["2026-08-03","post",3018,2315,569],["2026-08-03","pre",1269,703,246],["2026-08-10","post",2978,2295,495],["2026-08-10","pre",1201,639,282],["2026-08-17","post",3622,2652,592],["2026-08-17","pre",682,262,158],["2026-08-24","post",3729,2697,645],["2026-08-24","pre",618,70,243],["2026-08-31","post",4154,3198,540],["2026-08-31","pre",541,99,238],["2026-09-07","post",4060,2858,669],["2026-09-07","pre",198,19,34],["2026-09-14","post",4904,3343,683],["2026-09-14","pre",24,0,8]];
+// [{ name, entries, approved, dismissed, stale }] — trailing 28 days on 2.0. Entries,
+// not hours: see the note in enrich.js on why cost-line durations cannot supply hours.
+const PAYROLL = [{"name":"Dual Fuel","entries":5205,"approved":4829,"dismissed":287,"stale":69},{"name":"The Management Trust","entries":4516,"approved":2936,"dismissed":1299,"stale":97},{"name":"TJW Industrial","entries":2225,"approved":1764,"dismissed":357,"stale":96},{"name":"Calray / Omnia","entries":1420,"approved":1189,"dismissed":165,"stale":46},{"name":"Eagle Controls","entries":1137,"approved":138,"dismissed":67,"stale":676},{"name":"Gunnar Electric","entries":1080,"approved":844,"dismissed":182,"stale":11},{"name":"Elkhorn Mechanical","entries":272,"approved":152,"dismissed":67,"stale":41},{"name":"S.E. Mechanical Plumbing, Heating & Drain Cleaning","entries":269,"approved":15,"dismissed":48,"stale":103},{"name":"Empire Heating & Cooling","entries":228,"approved":195,"dismissed":20,"stale":0},{"name":"Cabworks","entries":224,"approved":25,"dismissed":22,"stale":20},{"name":"New England Mechanical","entries":130,"approved":9,"dismissed":7,"stale":107},{"name":"Creative Cabling","entries":91,"approved":0,"dismissed":9,"stale":64},{"name":"Parc Mechanical","entries":38,"approved":0,"dismissed":3,"stale":0},{"name":"Harvard NDE","entries":10,"approved":0,"dismissed":4,"stale":6},{"name":"LVC Companies","entries":2,"approved":0,"dismissed":0,"stale":0}];
+// [{ name, entries, generalTime, projectNoVisit, dailyReport, attested }] — since cutover
+const FLOWS = [{"name":"Dual Fuel","entries":18811,"generalTime":127,"projectNoVisit":1209,"dailyReport":0,"attested":1484},{"name":"The Management Trust","entries":10428,"generalTime":0,"projectNoVisit":129,"dailyReport":0,"attested":9442},{"name":"Calray / Omnia","entries":3568,"generalTime":0,"projectNoVisit":1,"dailyReport":0,"attested":0},{"name":"TJW Industrial","entries":2769,"generalTime":144,"projectNoVisit":598,"dailyReport":851,"attested":60},{"name":"Eagle Controls","entries":1400,"generalTime":529,"projectNoVisit":451,"dailyReport":0,"attested":0},{"name":"Gunnar Electric","entries":1080,"generalTime":0,"projectNoVisit":197,"dailyReport":503,"attested":0},{"name":"Elkhorn Mechanical","entries":272,"generalTime":0,"projectNoVisit":14,"dailyReport":0,"attested":7},{"name":"S.E. Mechanical Plumbing, Heating & Drain Cleaning","entries":269,"generalTime":0,"projectNoVisit":2,"dailyReport":28,"attested":69},{"name":"Empire Heating & Cooling","entries":236,"generalTime":28,"projectNoVisit":165,"dailyReport":15,"attested":0},{"name":"Cabworks","entries":227,"generalTime":11,"projectNoVisit":199,"dailyReport":0,"attested":3},{"name":"Creative Cabling","entries":161,"generalTime":0,"projectNoVisit":0,"dailyReport":161,"attested":0},{"name":"New England Mechanical","entries":130,"generalTime":0,"projectNoVisit":3,"dailyReport":127,"attested":0},{"name":"Parc Mechanical","entries":38,"generalTime":0,"projectNoVisit":0,"dailyReport":0,"attested":0},{"name":"Harvard NDE","entries":10,"generalTime":0,"projectNoVisit":0,"dailyReport":10,"attested":0},{"name":"LVC Companies","entries":2,"generalTime":1,"projectNoVisit":1,"dailyReport":0,"attested":0}];
+// [cohort month, tenants, tenants with High/Blocker, tenants with any, report count]
+const REPORTS = [["2026-06",1,1,1,1],["2026-07",5,0,1,0],["2026-08",8,2,2,2],["2026-09",12,0,1,0]];
+
+const pct = (a, b) => (b > 0 ? a / b : 0);
+const pctTxt = (a, b) => (b > 0 ? Math.round(100 * a / b) + '%' : '—');
+
+function drawReview() {
+  const svg = document.getElementById('chart-review'); if (!svg) return;
+  svg.innerHTML = '';
+  const note = document.getElementById('note-review');
+  const post = {}, pre = {};
+  REVIEW.forEach(r => { if (r[2] > 0) (r[1] === 'post' ? post : pre)[r[0]] = r; });
+  const wks = Object.keys(post).sort();
+  if (!wks.length) { note.textContent = 'No entries from migrated tenants yet.'; return; }
+  const W_ = 1080, H = 290, L = 48, R = 168, T = 14, B = 42;
+  const iw = W_ - L - R, ih = H - T - B;
+  const y = p => T + ih - p * ih;
+  const step = iw / wks.length, bw = Math.max(5, step * 0.66);
+  const x = i => L + (i + 0.5) * step;
+  for (let i = 0; i <= 4; i++) {
+    const p = i / 4;
+    svg.appendChild(el('line', { class:'grid', x1:L, x2:L+iw, y1:y(p), y2:y(p) }));
+    svg.appendChild(el('text', { class:'tick', x:L-8, y:y(p)+3, 'text-anchor':'end' }, Math.round(p*100) + '%'));
+  }
+  wks.forEach((w, i) => {
+    const r = post[w], n = r[2];
+    let acc = 0;
+    [[r[3], '#2f9e5f', 'Approved'], [r[4], '#a32b2b', 'Dismissed'],
+     [Math.max(0, n - r[3] - r[4]), '#c9cad0', 'Still open']]
+      .forEach(([v, colour, lab]) => {
+        const p = pct(v, n); if (p <= 0) return;
+        const bar = el('rect', { x:x(i)-bw/2, y:y(acc+p), width:bw, height:Math.max(0.6, p*ih), fill:colour });
+        bar.appendChild(el('title', {}, w + ' — ' + lab + ' ' + Math.round(p*100) + '% (' + v + ' of ' + n + ')'));
+        svg.appendChild(bar); acc += p;
+      });
+    if (i % 3 === 0 || i === wks.length - 1)
+      svg.appendChild(el('text', { class:'tick', x:x(i), y:H-B+16, 'text-anchor':'middle' }, fmtWk(w)));
+  });
+  // Control line: dismissal rate among tenants that had not cut over that week. The
+  // control group empties out as the rollout proceeds — by mid-September it is down
+  // to a couple of dozen entries — so weeks below MIN_CONTROL are dropped rather
+  // than drawn as a wild swing off a denominator of 24.
+  const MIN_CONTROL = 300;
+  let d = '', seen = false, lastY = null;
+  wks.forEach((w, i) => {
+    const p = pre[w]; if (!p || p[2] < MIN_CONTROL) return;
+    const v = pct(p[4], p[2]);
+    d += (seen ? ' L' : 'M') + x(i) + ' ' + y(v); seen = true; lastY = y(v);
+  });
+  if (seen) {
+    svg.appendChild(el('path', { d, fill:'none', stroke:'#1b1b1f', 'stroke-width':1.8, 'stroke-dasharray':'5 3' }));
+    svg.appendChild(el('text', { class:'tick', x:L+iw+6, y:lastY+3 }, 'still on 1.0 — dismissed'));
+  }
+  svg.appendChild(el('line', { class:'axis', x1:L, x2:L+iw, y1:T+ih, y2:T+ih }));
+  const sum = (o, idx) => Object.values(o).reduce((a, r) => a + r[idx], 0);
+  const postN = sum(post, 2), preN = sum(pre, 2);
+  note.textContent =
+    'Across every week shown, migrated tenants dismissed ' + pctTxt(sum(post, 4), postN) +
+    ' of entries and approved ' + pctTxt(sum(post, 3), postN) + ' (' + postN.toLocaleString() + ' entries). ' +
+    (preN ? 'The same tenants before their own cutover dismissed ' + pctTxt(sum(pre, 4), preN) +
+      ' and approved ' + pctTxt(sum(pre, 3), preN) + ' (' + preN.toLocaleString() + ' entries). ' : '') +
+    'Approval speed is not shown because the approval timestamps in this schema are epoch placeholders, not real times.';
+}
+
+function drawPayroll() {
+  const svg = document.getElementById('chart-payroll'); if (!svg) return;
+  svg.innerHTML = '';
+  const note = document.getElementById('note-payroll');
+  const rows = PAYROLL.filter(r => r.entries > 0);
+  if (!rows.length) { note.textContent = 'No entries on 2.0 in the last 28 days.'; return; }
+  const shown = rows.slice(0, 13);
+  const W_ = 1080, H = 300, L = 196, R = 132, T = 10, B = 26;
+  const iw = W_ - L - R, ih = H - T - B;
+  const rh = ih / shown.length, bh = Math.min(15, rh * 0.62);
+  // Denominator is live entries: a dismissed entry is resolved, not backlog.
+  const liveOf = r => Math.max(1, r.entries - r.dismissed);
+  for (let i = 0; i <= 4; i++) {
+    const gx = L + (i / 4) * iw;
+    svg.appendChild(el('line', { class:'grid', x1:gx, x2:gx, y1:T, y2:T+ih }));
+    svg.appendChild(el('text', { class:'tick', x:gx, y:H-B+14, 'text-anchor':'middle' }, (i*25) + '%'));
+  }
+  shown.forEach((r, i) => {
+    const cy = T + i * rh + rh / 2;
+    const live = liveOf(r);
+    svg.appendChild(el('text', { class:'tick', x:L-9, y:cy+3, 'text-anchor':'end' }, r.name.slice(0, 30)));
+    svg.appendChild(el('rect', { x:L, y:cy-bh/2, width:iw, height:bh, fill:'#e8e9ec' }));
+    const ap = pct(r.approved, live);
+    const g = el('rect', { x:L, y:cy-bh/2, width:Math.max(0, ap*iw), height:bh, fill:'#2f9e5f' });
+    g.appendChild(el('title', {}, r.name + ' — ' + r.approved.toLocaleString() + ' of ' +
+      live.toLocaleString() + ' live entries approved' +
+      (r.dismissed ? ' (' + r.dismissed.toLocaleString() + ' dismissed, excluded)' : '')));
+    svg.appendChild(g);
+    const st = pct(r.stale, live);
+    if (st > 0) {
+      const s = el('rect', { x:L+iw-Math.max(1, st*iw), y:cy-bh/2, width:Math.max(1, st*iw), height:bh, fill:'#d98c26' });
+      s.appendChild(el('title', {}, r.name + ' — ' + r.stale.toLocaleString() + ' entries unapproved and over 7 days old'));
+      svg.appendChild(s);
+    }
+    svg.appendChild(el('text', { class:'tick', x:L+iw+7, y:cy+3 },
+      Math.round(ap*100) + '% · ' + live.toLocaleString()));
+  });
+  const tot = rows.reduce((a, r) => a + liveOf(r), 0), app = rows.reduce((a, r) => a + r.approved, 0);
+  const stale = rows.reduce((a, r) => a + r.stale, 0);
+  const worst = rows.filter(r => r.stale > 0).sort((a, b) => b.stale - a.stale)[0];
+  note.textContent = 'Across ' + rows.length + ' tenants on 2.0: ' + pctTxt(app, tot) + ' of ' +
+    tot.toLocaleString() + ' live entries approved, with ' + stale.toLocaleString() +
+    ' still unapproved and more than a week old' +
+    (worst ? ' — the biggest backlog is ' + worst.name + ' at ' + worst.stale.toLocaleString() +
+      ' entries (' + pctTxt(worst.stale, liveOf(worst)) + ' of its last 28 days).' : '.') +
+    (rows.length > shown.length ? ' Showing the ' + shown.length + ' largest by entry count.' : '');
+}
+
+function drawFlows() {
+  const svg = document.getElementById('chart-flows'); if (!svg) return;
+  svg.innerHTML = '';
+  const note = document.getElementById('note-flows');
+  const rows = FLOWS.filter(r => r.entries >= 20);
+  if (!rows.length) { note.textContent = 'Not enough post-cutover entries to read a mix yet.'; return; }
+  const shown = rows.slice(0, 12);
+  const SERIES = [
+    ['generalTime', '#2f9e5f', 'General Time'],
+    ['projectNoVisit', '#3f6fb5', 'Project, no visit'],
+    ['attested', '#8a5fb8', 'Attested'],
+    ['dailyReport', '#c9cad0', 'Daily Report'],
+  ];
+  const W_ = 1080, H = 330, L = 196, R = 96, T = 10, B = 28;
+  const iw = W_ - L - R, ih = H - T - B;
+  const rh = ih / shown.length, bh = Math.min(7, (rh * 0.8) / SERIES.length);
+  // Most shares sit well under a third, so scaling to the observed maximum keeps the
+  // small but real values readable instead of squashing them against the axis.
+  const cap = Math.min(1, Math.max(0.12, ...shown.flatMap(r => SERIES.map(([k]) => pct(r[k], r.entries)))) * 1.25);
+  for (let i = 0; i <= 4; i++) {
+    const gx = L + (i / 4) * iw;
+    svg.appendChild(el('line', { class:'grid', x1:gx, x2:gx, y1:T, y2:T+ih }));
+    svg.appendChild(el('text', { class:'tick', x:gx, y:H-B+14, 'text-anchor':'middle' }, Math.round(cap*100*i/4) + '%'));
+  }
+  shown.forEach((r, i) => {
+    const top = T + i * rh;
+    svg.appendChild(el('text', { class:'tick', x:L-9, y:top+rh/2+3, 'text-anchor':'end' }, r.name.slice(0, 30)));
+    SERIES.forEach(([k, colour, lab], j) => {
+      const p = pct(r[k], r.entries);
+      const by = top + (rh - bh*SERIES.length) / 2 + j*bh;
+      const bar = el('rect', { x:L, y:by, width:Math.max(p > 0 ? 1 : 0, (p/cap)*iw), height:bh-1, fill:colour });
+      bar.appendChild(el('title', {}, r.name + ' — ' + lab + ': ' + r[k].toLocaleString() + ' of ' +
+        r.entries.toLocaleString() + ' entries (' + pctTxt(r[k], r.entries) + ')'));
+      svg.appendChild(bar);
+    });
+    svg.appendChild(el('text', { class:'tick', x:L+iw+7, y:top+rh/2+3 }, r.entries.toLocaleString()));
+  });
+  const any = rows.filter(r => r.generalTime > 0 || r.projectNoVisit > 0).length;
+  const att = rows.filter(r => r.attested > 0).length;
+  note.textContent = any + ' of ' + rows.length + ' tenants have used a flow that did not exist in 1.0, and ' +
+    att + ' are signing attestations. The right-hand number is that tenant’s post-cutover entry count; ' +
+    'tenants under 20 entries are held back until there is enough to read.' +
+    (rows.length > shown.length ? ' Showing the ' + shown.length + ' largest.' : '');
+}
+
+function drawReports() {
+  const svg = document.getElementById('chart-reports'); if (!svg) return;
+  svg.innerHTML = '';
+  const note = document.getElementById('note-reports');
+  const rows = REPORTS.filter(r => r[1] > 0).sort((a, b) => a[0].localeCompare(b[0]));
+  if (!rows.length) { note.textContent = 'No dated cutovers to group into cohorts yet.'; return; }
+  const GATE = 0.25;
+  const W_ = 1080, H = 250, L = 48, R = 130, T = 16, B = 46;
+  const iw = W_ - L - R, ih = H - T - B;
+  const top = Math.max(GATE * 1.6, ...rows.map(r => pct(r[3], r[1]))) * 1.1 || 1;
+  const y = p => T + ih - (p / top) * ih;
+  const step = iw / rows.length, bw = Math.min(58, step * 0.5);
+  const x = i => L + (i + 0.5) * step;
+  for (let i = 0; i <= 4; i++) {
+    const p = top * i / 4;
+    svg.appendChild(el('line', { class:'grid', x1:L, x2:L+iw, y1:y(p), y2:y(p) }));
+    svg.appendChild(el('text', { class:'tick', x:L-8, y:y(p)+3, 'text-anchor':'end' }, Math.round(p*100) + '%'));
+  }
+  rows.forEach((r, i) => {
+    const cohort = r[0], tenants = r[1], hi = r[2], anyN = r[3];
+    const pAny = pct(anyN, tenants), pHi = pct(hi, tenants);
+    const a = el('rect', { x:x(i)-bw/2, y:y(pAny), width:bw, height:Math.max(0.6, (pAny/top)*ih), fill:'#c9cad0' });
+    a.appendChild(el('title', {}, cohort + ' — ' + anyN + ' of ' + tenants + ' tenants filed any report'));
+    svg.appendChild(a);
+    const h = el('rect', { x:x(i)-bw/2, y:y(pHi), width:bw, height:Math.max(0.6, (pHi/top)*ih), fill:'#a32b2b' });
+    h.appendChild(el('title', {}, cohort + ' — ' + hi + ' of ' + tenants + ' tenants filed a High/Blocker report'));
+    svg.appendChild(h);
+    svg.appendChild(el('text', { class:'tick', x:x(i), y:y(pHi)-6, 'text-anchor':'middle' }, Math.round(pHi*100) + '%'));
+    svg.appendChild(el('text', { class:'tick', x:x(i), y:H-B+16, 'text-anchor':'middle' }, cohort));
+    svg.appendChild(el('text', { class:'tick', x:x(i), y:H-B+30, 'text-anchor':'middle', fill:'#a0a1a5' }, tenants + ' tenants'));
+  });
+  svg.appendChild(el('line', { x1:L, x2:L+iw, y1:y(GATE), y2:y(GATE), stroke:'#1b1b1f', 'stroke-width':1.6, 'stroke-dasharray':'6 3' }));
+  svg.appendChild(el('text', { class:'tick', x:L+iw+6, y:y(GATE)+3 }, '25% gate'));
+  svg.appendChild(el('line', { class:'axis', x1:L, x2:L+iw, y1:T+ih, y2:T+ih }));
+  const over = rows.filter(r => pct(r[2], r[1]) > GATE);
+  const tenants = rows.reduce((a, r) => a + r[1], 0), hi = rows.reduce((a, r) => a + r[2], 0);
+  note.textContent = 'Overall, ' + hi + ' of ' + tenants + ' migrated tenants (' + pctTxt(hi, tenants) +
+    ') have filed a High or Blocker time-tracking report since their own cutover. ' +
+    (over.length
+      ? over.map(r => r[0] + ' is over the gate at ' + pctTxt(r[2], r[1]) + ' (' + r[2] + ' of ' + r[1] + ')').join('; ') + '.'
+      : 'No month’s cohort is over the 25% gate.');
+}
+
 function renderAnalytics() {
-  drawAnalyticsStats(); drawStack(); drawHpd(); drawEmps(); drawMigration(); drawCumulative();
+  drawAnalyticsStats(); drawReview(); drawPayroll(); drawFlows(); drawReports();
+  drawStack(); drawHpd(); drawEmps(); drawMigration(); drawCumulative();
 }
 
 (function initTabs(){
