@@ -52,7 +52,10 @@
     .tenant-name { font-weight: 500; color: #1a1a2e; }
     /* Truncated to the 8-char prefix — the full UUID wrapped onto three lines and was
        the single largest contributor to row height. Full value kept in the title attr. */
-    .tenant-id { font-family: monospace; font-size: 9.5px; color: #c4c4c4; margin-top: 0; }
+    /* Full tenant UUID. user-select:all so one click grabs the whole id for pasting
+       into LaunchDarkly/Snowflake, and nowrap so it never breaks mid-id. */
+    .tenant-id { font-family: monospace; font-size: 9.5px; color: #c4c4c4; margin-top: 0;
+      user-select: all; -webkit-user-select: all; white-space: nowrap; }
     .tenant-sub { font-size: 10px; color: #999; margin-top: 0; }
 
     /* Payroll config flags. Three settings in one column instead of three: filled =
@@ -1099,7 +1102,7 @@ function renderCustomerTable(customers) {
           : `<span class="usage-zero">—</span>`);
     return `<tr>
       <td style="color:#bbb">${i + 1}</td>
-      <td><div class="tenant-name">${c.name}</div><div class="tenant-id" title="${c.id}">${c.id.slice(0, 8)}</div></td>
+      <td><div class="tenant-name">${c.name}</div><div class="tenant-id">${c.id}</div></td>
       <td>${statusLabel}</td>
       <td>${industry}</td>
       <td>${segment}</td>
@@ -1156,7 +1159,7 @@ function renderNextUpTable(tenants) {
       : `<span class="date-cell date-unknown">—</span>`;
     return `<tr>
       <td style="color:#bbb">${i + 1}</td>
-      <td><div class="tenant-name">${t.name}</div><div class="tenant-id" title="${t.id}">${t.id.slice(0, 8)}</div></td>
+      <td><div class="tenant-name">${t.name}</div><div class="tenant-id">${t.id}</div></td>
       <td>${industry}</td>
       <td>${segment}</td>
       <td>${coreGoLive}</td>
@@ -1198,7 +1201,7 @@ function renderTable(tenants) {
       : `<span style="color:#ccc">—</span>`;
     return `<tr data-search="${name.toLowerCase()}">
       <td style="color:#bbb">${i + 1}</td>
-      <td><div class="tenant-name">${name}</div><div class="tenant-id" title="${t.id}">${t.id.slice(0, 8)}</div></td>
+      <td><div class="tenant-name">${name}</div><div class="tenant-id">${t.id}</div></td>
       <td><span class="badge badge-${type}">${BADGE_LABELS[type]}</span></td>
       <td>${ttOnLabel}</td>
       <td>${dateLabel}</td>
