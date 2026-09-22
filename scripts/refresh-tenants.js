@@ -61,11 +61,17 @@ function loadArrays(html) {
     get: () => stub, set: () => true, apply: () => stub,
     construct: () => stub, has: () => true,
   });
+  // location and history must be plain objects rather than the Proxy above: the tab
+  // router reads location.hash and coerces it to a string, and String() on a function
+  // Proxy throws "Cannot convert object to primitive value". An empty hash sends the
+  // router down its default branch, which renders nothing.
+  const loc = { hash: '', pathname: '', search: '' };
+  const hist = { replaceState() {}, pushState() {} };
   const fn = new Function(
-    'document', 'window', 'console',
+    'document', 'window', 'console', 'location', 'history',
     script + '; return { CUSTOMER_ACCOUNTS, SNAPSHOT_TENANTS, SNAPSHOT_DATE };'
   );
-  return fn(stub, stub, { log() {}, warn() {}, error() {} });
+  return fn(stub, stub, { log() {}, warn() {}, error() {} }, loc, hist);
 }
 
 // This job owns ONLY the tenant ID list — which tenants are present. Every other
