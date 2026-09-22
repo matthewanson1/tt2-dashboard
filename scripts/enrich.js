@@ -29,6 +29,15 @@ const INDEX_PATH = path.join(__dirname, '..', 'index.html');
 const WEB_EVENT = 'timesheets_and_timetracking_web_time_tracking_pageview_time_tracking_page';
 const MOBILE_EVENTS = ['mobile_timesheet_touch_submit_day_level_', 'mobile_visit_details_touch_submit_timesheet_'];
 const WEEKLY_START = '2025-12-29';
+const REVIEW_START = '2026-04-01';
+// SIP priorities that count against the migration plan's "no more than 25% of a
+// month's migrated tenants carry a High/Blocker report" confidence gate. Jira's
+// full ladder is Blocker/Highest/High/Medium/Low/Lowest.
+const HIGH_PRIORITIES = ['Blocker', 'Highest', 'High'];
+const SIP_MODULE = 'Time Tracking and Labor';
+// The review workflow's vocabulary. APPROVAL_STATUS is mutually exclusive, and
+// REVIEW_STATUS is a byte-for-byte duplicate of it, so only this one is read.
+const OPEN_STATUSES = ['PENDING', 'SUBMITTED', 'UNSUBMITTED'];
 
 const q = s => `'${String(s).replace(/'/g, "''")}'`;
 const list = xs => xs.map(q).join(',');
@@ -64,6 +73,7 @@ function buildQueries(model) {
   const datedVals = dated.map(t => `(${q(t.id)},${q(custIds.has(t.id) ? t.ttEnabledDate : t.enabledDate)})`).join(',');
   const custList = list(customers.map(c => c.id));
   const datedCust = customers.filter(c => c.ttEnabledDate);
+  const datedCustVals = datedCust.map(c => `(${q(c.id)},${q(c.ttEnabledDate)})`).join(',');
 
   return {
     // Names for tenants that have a Salesforce account (i.e. real customers).
@@ -146,6 +156,94 @@ function buildQueries(model) {
         ROUND(SUM(CASE WHEN ed.wd >= d.enabled THEN ed.cap_hrs END)/NULLIF(DATEDIFF(day,d.enabled,CURRENT_DATE()),0),1) AS after_cap,
         DATEDIFF(day,d.enabled,CURRENT_DATE()) AS days_since
       FROM d JOIN ed ON ed.tid = d.tid GROUP BY 1,2 ORDER BY 1` : null,
+
+    // ── Review quality, payroll integrity, flow adoption, report rate ────────
+    // All four read APP_REDACTED.TIMESHEET, which is the ONLY place the TT 2.0
+    // review workflow is observable. Product analytics never got 2.0
+    // instrumentation: every Heap timetracking event is 1.0-shaped
+    // (binder_level, save_edit_timestamps) and the single Amplitude event is
+    // `time_entry_created`, so no event source can tell 1.0 usage from 2.0.
+    //
+    // Deliberately NOT attempted: approval *latency*. APPROVED_TIME_UTC is a
+    // 1970 epoch placeholder on 27,057 of 27,100 rows for the pilot tenant, so
+    // "time to approve" cannot be computed. Only approval *status* is real.
+
+    // Weekly outcome mix, split by whether that tenant was on 2.0 that week.
+    // A week can appear in both eras: tenants that had not cut over yet act as a
+    // live control group on the same weeks and the same product surface.
+    // DISMISSAL MUST COME FROM IS_DISMISSED, NOT APPROVAL_STATUS. The two columns
+    // are written differently either side of the cutover: in 1.0 a dismissal sets
+    // the IS_DISMISSED flag and leaves APPROVAL_STATUS as PENDING (6,442 such rows
+    // on Dual Fuel pre-cutover against just 402 carrying APPROVAL_STATUS =
+    // 'DISMISSED'), while 2.0 sets both. Reading APPROVAL_STATUS across the
+    // cutover therefore understates 1.0 dismissals about sixteenfold and inverts
+    // the comparison — it made 2.0 look worse than 1.0. IS_DISMISSED is written in
+    // both eras and is the only comparable signal.
+    //
+    // "Still open" is derived on the page as entries - approved - dismissed rather
+    // than enumerated here, so a status outside the expected set (REOPENED exists)
+    // cannot silently fall out of the mix and leave the shares short of 100%.
+    review: datedCust.length ? `WITH d AS (SELECT column1 AS tenant_id, column2::date AS enabled FROM VALUES ${datedCustVals})
+      SELECT TO_CHAR(DATEADD(day, -(DAYOFWEEKISO(ts.WORK_DATE)-1), ts.WORK_DATE),'YYYY-MM-DD') AS wk,
+        IFF(ts.WORK_DATE < d.enabled,'pre','post') AS era, COUNT(*) AS entries,
+        COUNT_IF(ts.APPROVAL_STATUS = 'APPROVED' AND NOT COALESCE(ts.IS_DISMISSED, FALSE)) AS approved,
+        COUNT_IF(COALESCE(ts.IS_DISMISSED, FALSE)) AS dismissed
+      FROM d JOIN PROD.APP_REDACTED.TIMESHEET ts ON ts.TENANT_ID = d.tenant_id
+      WHERE ts.IS_DELETED = FALSE AND ts.WORK_DATE >= ${q(REVIEW_START)} AND ts.WORK_DATE < CURRENT_DATE()
+      GROUP BY 1,2 ORDER BY 1,2` : null,
+
+    // Payroll integrity over the trailing 28 days on 2.0, counted in ENTRIES.
+    //
+    // This deliberately does not report hours. TIMESHEET carries approval status
+    // but no duration, and the obvious fix — joining TIMESHEET_COST_LINE and
+    // summing TOTAL_DURATION_MINS — is wrong: that column is not an allocated
+    // slice of the timesheet. On Gunnar Electric, 24 timesheets with four cost
+    // lines each summed to 5,686 h (237 h per timesheet), and even taking the
+    // MAX line gave 140 h per timesheet. It inflated that tenant's 28-day total
+    // to 16,271 h against ~2,600 h of real shift-entry hours. Entry counts are
+    // exact and need no join, so that is what this reports.
+    // Dismissed entries are excluded from the denominator on the page: they are
+    // resolved, not backlog, and leaving them in drags the approved share down.
+    payroll: datedCust.length ? `WITH d AS (SELECT column1 AS tenant_id, column2::date AS enabled FROM VALUES ${datedCustVals})
+      SELECT LEFT(ts.TENANT_ID,8) AS id, COUNT(*) AS entries,
+        COUNT_IF(ts.APPROVAL_STATUS = 'APPROVED' AND NOT COALESCE(ts.IS_DISMISSED, FALSE)) AS approved,
+        COUNT_IF(COALESCE(ts.IS_DISMISSED, FALSE)) AS dismissed,
+        COUNT_IF(NOT COALESCE(ts.IS_DISMISSED, FALSE) AND ts.APPROVAL_STATUS IN (${list(OPEN_STATUSES)})
+          AND ts.WORK_DATE < DATEADD(day,-7,CURRENT_DATE())) AS stale
+      FROM d JOIN PROD.APP_REDACTED.TIMESHEET ts ON ts.TENANT_ID = d.tenant_id
+      WHERE ts.IS_DELETED = FALSE AND ts.WORK_DATE < CURRENT_DATE()
+        AND ts.WORK_DATE >= GREATEST(d.enabled, DATEADD(day,-28,CURRENT_DATE()))
+      GROUP BY 1 ORDER BY 1` : null,
+
+    // Adoption of capabilities that only exist in 2.0, since each tenant's
+    // cutover. General Time is EVENT_TYPE 'Standalone' (it replaced Daily
+    // Shift). Project-time-without-a-visit is a project entry with no visit and
+    // no daily report and no event type — 'ManDay' means a project visit, and a
+    // daily-report id means the Daily Report flow, so both are excluded.
+    flows: datedCust.length ? `WITH d AS (SELECT column1 AS tenant_id, column2::date AS enabled FROM VALUES ${datedCustVals})
+      SELECT LEFT(ts.TENANT_ID,8) AS id, COUNT(*) AS entries,
+        COUNT_IF(ts.EVENT_TYPE = 'Standalone') AS general_time,
+        COUNT_IF(ts.PROJECT_ID IS NOT NULL AND ts.VISIT_ID IS NULL
+          AND ts.DAILY_REPORT_ID IS NULL AND NULLIF(ts.EVENT_TYPE,'') IS NULL) AS project_no_visit,
+        COUNT_IF(ts.DAILY_REPORT_ID IS NOT NULL) AS daily_report,
+        COUNT_IF(ts.IS_SIGNED) AS attested
+      FROM d JOIN PROD.APP_REDACTED.TIMESHEET ts ON ts.TENANT_ID = d.tenant_id
+      WHERE ts.IS_DELETED = FALSE AND ts.WORK_DATE >= d.enabled AND ts.WORK_DATE < CURRENT_DATE()
+      GROUP BY 1 ORDER BY 1` : null,
+
+    // Report rate by migration-month cohort, against the 25% gate. JIRA_ISSUES
+    // carries TENANT_ID directly, so tickets attribute to tenants without any
+    // customer-name matching. Join on LOWER() — id casing differs by source.
+    reports: datedCust.length ? `WITH d AS (SELECT column1 AS tenant_id, column2::date AS enabled FROM VALUES ${datedCustVals}),
+      sip AS (SELECT TENANT_ID, PRIORITY, CREATED_TIME_UTC FROM PROD.INTERNAL_ANALYTICS.JIRA_ISSUES
+              WHERE PROJECT_KEY = 'SIP' AND MODULE_NAME = ${q(SIP_MODULE)})
+      SELECT TO_CHAR(DATE_TRUNC('month', d.enabled),'YYYY-MM') AS cohort,
+        COUNT(DISTINCT d.tenant_id) AS tenants,
+        COUNT(DISTINCT IFF(s.PRIORITY IN (${list(HIGH_PRIORITIES)}), d.tenant_id, NULL)) AS tenants_high,
+        COUNT(DISTINCT IFF(s.TENANT_ID IS NOT NULL, d.tenant_id, NULL)) AS tenants_any,
+        COUNT_IF(s.PRIORITY IN (${list(HIGH_PRIORITIES)})) AS high_reports
+      FROM d LEFT JOIN sip s ON LOWER(s.TENANT_ID) = LOWER(d.tenant_id) AND s.CREATED_TIME_UTC >= d.enabled
+      GROUP BY 1 ORDER BY 1` : null,
   };
 }
 
@@ -296,7 +394,40 @@ function applyResults(model, r) {
     .filter(Boolean)
     .sort((a, b) => b.after - a.after);
 
-  return { weekly, partialWeek: weeks[weeks.length - 1] || null, migration };
+  // ── The four TT 2.0 outcome datasets ────────────────────────────────────────
+  // Each is shaped for one chart and carries counts, not percentages: the page
+  // computes shares at render time so a zero denominator stays visible as "no
+  // data" instead of silently becoming 0%.
+
+  // [week, era, entries, approved, dismissed] — "open" is derived on the page
+  const review = (r.review || []).map(([wk, era, n, ap, di]) =>
+    [wk, era, num(n), num(ap), num(di)]);
+
+  // Per-tenant payroll integrity, newest cutovers last. Named here rather than
+  // in the page so the chart can label bars without re-deriving names.
+  const byPfx = Object.fromEntries(customers.map(c => [c.id.slice(0, 8), c]));
+  const payroll = (r.payroll || []).map(([id, n, appr, dism, stale]) => {
+    const c = byPfx[id];
+    return c ? {
+      name: shortName(c.name), entries: num(n), approved: num(appr),
+      dismissed: num(dism), stale: num(stale),
+    } : null;
+  }).filter(Boolean).sort((a, b) => b.entries - a.entries);
+
+  // Per-tenant adoption of 2.0-only capabilities, since that tenant's cutover.
+  const flows = (r.flows || []).map(([id, n, gen, pnv, dr, att]) => {
+    const c = byPfx[id];
+    return c ? {
+      name: shortName(c.name), entries: num(n), generalTime: num(gen),
+      projectNoVisit: num(pnv), dailyReport: num(dr), attested: num(att),
+    } : null;
+  }).filter(Boolean).sort((a, b) => b.entries - a.entries);
+
+  // [cohort month, tenants, tenants with a High/Blocker report, tenants with any, report count]
+  const reports = (r.reports || []).map(([cohort, t, hi, any, n]) =>
+    [cohort, num(t), num(hi), num(any), num(n)]);
+
+  return { weekly, partialWeek: weeks[weeks.length - 1] || null, migration, review, payroll, flows, reports };
 }
 
 // The migration chart is narrow; full Salesforce names overflow it. Keep the same
@@ -327,6 +458,10 @@ function writeHtml(html, model, extra) {
   out = sub(out, 'NEXT_UP_TENANTS', ser(model.nextUp));
   out = sub(out, 'WEEKLY', JSON.stringify(extra.weekly));
   out = sub(out, 'MIGRATION', JSON.stringify(extra.migration));
+  out = sub(out, 'REVIEW', JSON.stringify(extra.review));
+  out = sub(out, 'PAYROLL', JSON.stringify(extra.payroll));
+  out = sub(out, 'FLOWS', JSON.stringify(extra.flows));
+  out = sub(out, 'REPORTS', JSON.stringify(extra.reports));
   if (extra.partialWeek) out = sub(out, 'PARTIAL_WEEK', `'${extra.partialWeek}'`);
   out = sub(out, 'LAST_ENRICHED_DATE', `'${today()}'`);
   return out;
@@ -389,6 +524,7 @@ async function main() {
   const unnamed = named.filter(t => !t.name).length;
   console.log(`customers ${model.customers.length} · training ${model.tenants.length} · next-up ${model.nextUp.length} · unnamed ${unnamed}`);
   console.log(`weekly ${extra.weekly.length} rows through ${extra.partialWeek} · migration ${extra.migration.length} tenants`);
+  console.log(`review ${extra.review.length} week/era rows · payroll ${extra.payroll.length} tenants · flows ${extra.flows.length} tenants · reports ${extra.reports.length} cohorts`);
 
   const out = writeHtml(html, model, extra);
   sanityCheck(out);
