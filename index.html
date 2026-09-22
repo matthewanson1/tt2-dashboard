@@ -303,8 +303,9 @@
     <div class="chart-card" style="border-left:3px solid #2f9e5f">
       <h3>Is 2.0 working?</h3>
       <p class="chart-sub" style="margin-bottom:0">
-        The four charts below measure the commitments TT 2.0 was signed up to, rather than how much time is
-        flowing through it. <b>Review outcomes</b> tests the pain points in
+        The charts below measure the commitments TT 2.0 was signed up to, rather than how much time is
+        flowing through it. The <b>before/after scorecard</b> is the summary — same tenants, either side of
+        their own cutover. <b>Review outcomes</b> puts that on a weekly trend and tests the pain points in
         <a href="https://buildops.atlassian.net/browse/LEP-111">LEP-111</a> — that initiative exists because
         reviewers could not approve or edit across many employees at once. <b>Payroll integrity</b> is the
         closest computable stand-in for the Cohort&nbsp;1 criterion that every tenant complete a full payroll
@@ -312,6 +313,13 @@
         is the migration plan's own monthly confidence gate. Everything from <i>Weekly labor hours</i> onward
         is volume and data integrity — necessary, but it cannot tell you whether 2.0 is better.
       </p>
+    </div>
+
+    <div class="chart-card">
+      <h3>Before and after, across the whole migrated cohort</h3>
+      <p class="chart-sub" id="score-sub"></p>
+      <div class="chart-wrap"><table id="score-table" style="width:100%"></table></div>
+      <p class="chart-note" id="note-score"></p>
     </div>
 
     <div class="chart-card">
@@ -1477,8 +1485,82 @@ const FLOWS = [{"name":"Dual Fuel","entries":18811,"generalTime":127,"projectNoV
 // [cohort month, tenants, tenants with High/Blocker, tenants with any, report count]
 const REPORTS = [["2026-06",1,1,1,1],["2026-07",5,0,1,0],["2026-08",8,2,2,2],["2026-09",12,0,1,0]];
 
+// { pre: {entries, approved, dismissed, attested, generalTime, tenants},
+//   post: {...}, windowDays } — the headline before/after. "pre" is the fixed window
+// before each tenant's own cutover, "post" is everything since.
+const SCORECARD = {"pre":{"entries":57015,"approved":33614,"dismissed":20148,"attested":525,"generalTime":19,"tenants":9},"post":{"entries":39401,"approved":28674,"dismissed":6559,"attested":11068,"generalTime":840,"tenants":15},"windowDays":60};
+
 const pct = (a, b) => (b > 0 ? a / b : 0);
 const pctTxt = (a, b) => (b > 0 ? Math.round(100 * a / b) + '%' : '—');
+
+function drawScorecard() {
+  const box = document.getElementById('score-table'); if (!box) return;
+  const sub = document.getElementById('score-sub');
+  const note = document.getElementById('note-score');
+  const s = SCORECARD;
+  if (!s || !s.pre || !s.post) {
+    if (sub) sub.textContent = 'No dated cutovers to compare yet.';
+    box.innerHTML = ''; return;
+  }
+  const w = s.windowDays;
+  sub.innerHTML = 'Every time entry from the migrated customer tenants, in the <b>' + w +
+    ' days before each tenant’s own cutover</b> against <b>everything since</b>. The before column rests ' +
+    'on the ' + s.pre.tenants + ' tenants that had recorded time in their pre-cutover window; ' + s.post.tenants +
+    ' have recorded time since. They are the same companies either side, not different ones, but the ' +
+    'before side is the narrower cohort — the more recent cutovers have no pre-window volume to compare.';
+
+  // goodDown flips the colour for dismissal, where a fall is the improvement.
+  // General Time is a count, not a share: it is a flow rather than an outcome, and
+  // its "before" is small but NOT zero — 1.0 wrote the same event type for a handful
+  // of records, so it is shown as a real delta rather than labelled new-in-2.0.
+  const ROWS = [
+    { label: 'Entries approved', key: 'approved', share: true },
+    { label: 'Entries dismissed', key: 'dismissed', share: true, goodDown: true },
+    { label: 'Meal-break attestation signed', key: 'attested', share: true },
+    { label: 'General Time entries', key: 'generalTime', share: false,
+      hint: 'the 2.0 flow that replaced Daily Shift' },
+  ];
+  const GOOD = '#2f9e5f', BAD = '#a32b2b', FLAT = '#77787c';
+  let html = '<thead><tr><th>Measure</th>' +
+    '<th style="text-align:right">Before 2.0 &middot; ' + s.pre.tenants + ' tenants</th>' +
+    '<th style="text-align:right">On 2.0 &middot; ' + s.post.tenants + ' tenants</th>' +
+    '<th style="text-align:right">Change</th></tr></thead><tbody>';
+  for (const row of ROWS) {
+    const a = s.pre[row.key], b = s.post[row.key];
+    let beforeTxt, afterTxt, delta, colour;
+    if (row.share) {
+      const pa = pct(a, s.pre.entries), pb = pct(b, s.post.entries);
+      beforeTxt = pctTxt(a, s.pre.entries);
+      afterTxt = pctTxt(b, s.post.entries);
+      const pts = Math.round((pb - pa) * 100);
+      const better = row.goodDown ? pts < 0 : pts > 0;
+      delta = (pts > 0 ? '+' : '') + pts + ' pts';
+      colour = pts === 0 ? FLAT : (better ? GOOD : BAD);
+    } else {
+      beforeTxt = a.toLocaleString();
+      afterTxt = b.toLocaleString();
+      delta = (b - a > 0 ? '+' : '') + (b - a).toLocaleString();
+      colour = b > a ? GOOD : (b < a ? BAD : FLAT);
+    }
+    html += '<tr><td>' + row.label +
+      (row.hint ? ' <span style="color:#a0a1a5">— ' + row.hint + '</span>' : '') +
+      '</td><td style="text-align:right;color:#77787c">' + beforeTxt +
+      '</td><td style="text-align:right;font-weight:650">' + afterTxt +
+      '</td><td style="text-align:right;font-weight:650;color:' + colour + '">' + delta + '</td></tr>';
+  }
+  html += '</tbody>';
+  box.innerHTML = html;
+
+  const pts = Math.round((pct(s.post.dismissed, s.post.entries) - pct(s.pre.dismissed, s.pre.entries)) * 100);
+  note.textContent = 'Base: ' + s.pre.entries.toLocaleString() + ' entries before, ' +
+    s.post.entries.toLocaleString() + ' since. ' +
+    (pts < 0
+      ? 'Dismissals fell ' + Math.abs(pts) + ' points, which is the clearest single piece of evidence that ' +
+        'review improved: time is being captured correctly the first time instead of being thrown out and redone.'
+      : 'Dismissals have not fallen, which is worth understanding before claiming review improved.') +
+    ' Approval speed is absent here for the same reason it is absent from every chart on this tab — the ' +
+    'approval timestamps are epoch placeholders.';
+}
 
 function drawReview() {
   const svg = document.getElementById('chart-review'); if (!svg) return;
@@ -1675,7 +1757,7 @@ function drawReports() {
 }
 
 function renderAnalytics() {
-  drawAnalyticsStats(); drawReview(); drawPayroll(); drawFlows(); drawReports();
+  drawAnalyticsStats(); drawScorecard(); drawReview(); drawPayroll(); drawFlows(); drawReports();
   drawStack(); drawHpd(); drawEmps(); drawMigration(); drawCumulative();
 }
 
