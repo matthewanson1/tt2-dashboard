@@ -667,29 +667,32 @@ const STALE_AFTER_DAYS = 3;
 const RUNWAY_AS_OF = '2026-09-01';
 const RUNWAY_SRC = 'https://claude.ai/code/artifact/57ea0941-f9b0-407d-85c4-072468a9690c';
 const RUNWAY = {
-  window: '90 days to 2026-09-01',
-  total: 967, clear: 858, blocked: 109, dims: 14, cohort: 6, noFlags: 563,
+  window: '90 days to 2026-09-09',
+  total: 969, clear: 860, blocked: 109, dims: 14, cohort: 9, noFlags: 567,
   // mutually exclusive — these sum to `blocked`
   blockers: [
-    { label: 'Integrate over the TT 1.0 public API', n: 73 },
-    { label: 'Larger than anything TT 2.0 has carried', n: 34 },
+    { label: 'Integrate over the TT 1.0 public API', n: 72 },
+    { label: 'Larger than anything TT 2.0 has carried', n: 25 },
+    { label: 'Both public API and oversized', n: 10 },
     { label: 'Already reverted off 2.0 once', n: 2 },
   ],
   // OVERLAPPING — a tenant can carry several, so these do NOT sum to `clear`
   flags: [
-    { label: 'No flags at all — schedule freely', n: 563, tone: 'good' },
-    { label: 'Auto-time-tracking off in 1.0 · needs LE-2024', n: 142, tone: 'warn' },
+    { label: 'No flags at all — schedule freely', n: 567, tone: 'good' },
     { label: 'Technicians rarely submit — change-management ask', n: 98, tone: 'warn' },
-    { label: 'Prevailing wage configured', n: 71, tone: 'warn' },
+    { label: 'Prevailing wage configured', n: 73, tone: 'warn' },
   ],
-  // the six with real production volume; pct = share of timesheet entries, 90d
+  // the nine with real production volume; pct = share of timesheet entries, 90d
   cohort_rows: [
-    { name: 'The Management Trust', techs: 90, records: 'Job visits 83%', creates: 'Tech 51% / foreman 32%', submitted: 90, approvers: 3 },
-    { name: 'Dual Fuel', techs: 96, records: 'Job 42% / project 32%', creates: 'Tech 72%', submitted: 90, approvers: 14 },
-    { name: 'TJW Industrial', techs: 100, records: 'Job 41% / Daily Report 25%', creates: 'Office 51% / foreman 37%', submitted: 83, approvers: 4 },
-    { name: 'Omnia Mechanical', techs: 51, records: 'Job visits 82%', creates: 'Office 62%', submitted: 53, approvers: 2 },
-    { name: 'Fleming Network & Security', techs: 15, records: 'Daily Reports 94%', creates: 'Foreman 78%', submitted: 67, approvers: 3 },
-    { name: 'Eagle Controls', techs: 31, records: 'Standalone 38% / project 35%', creates: 'Tech 97%', submitted: 91, approvers: 4 },
+    { name: 'TJW Industrial', techs: 98, records: 'Job visits 40% / Daily Reports 26%', creates: 'office 48% / foreman 38%', submitted: 83, approvers: 3 },
+    { name: 'The Management Trust', techs: 87, records: 'Job visits 78% / project 17%', creates: 'Tech 41% / foreman 39%', submitted: 89, approvers: 3 },
+    { name: 'Dual Fuel', techs: 85, records: 'Job visits 42% / project 33%', creates: 'Tech 75% / foreman 21%', submitted: 88, approvers: 15 },
+    { name: 'Omnia Mechanical', techs: 58, records: 'Job visits 81%', creates: 'office 65% / Tech 34%', submitted: 44, approvers: 2 },
+    { name: 'S.E. Mechanical', techs: 56, records: 'Job visits 50% / project 30%', creates: 'foreman 44% / Tech 41%', submitted: 10, approvers: 10 },
+    { name: 'Gunnar Electric', techs: 47, records: 'Daily Reports 48% / Job visits 34%', creates: 'Tech 45% / office 29%', submitted: 87, approvers: 2 },
+    { name: 'Eagle Controls', techs: 32, records: 'Standalone 37% / project no-visit 34%', creates: 'Tech 95%', submitted: 90, approvers: 4 },
+    { name: 'Fleming Network & Security', techs: 15, records: 'Daily Reports 94%', creates: 'foreman 78%', submitted: 74, approvers: 3 },
+    { name: 'Elkhorn Mechanical', techs: 12, records: 'Job visits 50% / project 50%', creates: 'Tech 52% / foreman 48%', submitted: 78, approvers: 3 },
   ],
   gap: 'No tenant running TT 2.0 has prevailing-wage, Davis-Bacon or certified-payroll hour types configured, '
      + 'and 71 of the clear-to-schedule tenants do. The mechanism is shared with 1.0 and behaves identically, so '
@@ -706,45 +709,35 @@ const RUNWAY = {
 // `cum` is the plan's own cumulative column, NOT a running total of `n` computed
 // here — keep them as published so a transcription error shows up as a mismatch
 // rather than being silently smoothed over.
-const PLAN_AS_OF = '2026-09-08';
+const PLAN_AS_OF = '2026-09-23';
 const PLAN_SRC = 'https://buildops.atlassian.net/wiki/spaces/BPD/pages/4851826814';
 const SUNSET_DATE = '2027-02-27';   // last migrate date; TT 1.0 sunset target
-const PLAN_TOTAL = 982;             // 967 live 1.0 tenants + 15 pilot
+const PLAN_TOTAL = 988;             // every tenant the plan sequences, incl. the pre-plan cohort
 const PLAN_GROUPS = [
-  { label: 'Clear to schedule', n: 716 },
-  { label: 'Clear — needs LE-2024 shipped', n: 142 },
+  { label: 'Clear to schedule', n: 860 },
   { label: 'Blocked — public API', n: 73 },
   { label: 'Blocked — scale / prior rollback', n: 36 },
 ];
 const PLAN = [
-  { week: '2026-08-10', migrate: '2026-08-15', group: 'Initial pilot', n: 5, cum: 5 },
-  { week: '2026-08-17', migrate: '2026-08-22', group: 'Initial pilot', n: 5, cum: 10 },
-  { week: '2026-08-24', migrate: '2026-08-29', group: 'Initial pilot', n: 5, cum: 15 },
-  { week: '2026-09-07', migrate: '2026-09-12', group: 'Clear to schedule', n: 10, cum: 25 },
-  { week: '2026-09-14', migrate: '2026-09-19', group: 'Clear to schedule', n: 15, cum: 40 },
-  { week: '2026-09-21', migrate: '2026-09-26', group: 'Clear to schedule', n: 20, cum: 60 },
-  { week: '2026-09-28', migrate: '2026-10-03', group: 'Clear to schedule', n: 30, cum: 90 },
-  { week: '2026-10-05', migrate: '2026-10-10', group: 'Clear to schedule', n: 40, cum: 130 },
-  { week: '2026-10-12', migrate: '2026-10-17', group: 'Clear to schedule', n: 47, cum: 177 },
-  { week: '2026-10-19', migrate: '2026-10-24', group: 'Clear to schedule', n: 47, cum: 224 },
-  { week: '2026-10-26', migrate: '2026-10-31', group: 'Clear to schedule', n: 47, cum: 271 },
-  { week: '2026-11-02', migrate: '2026-11-07', group: 'Clear to schedule', n: 46, cum: 317 },
-  { week: '2026-11-09', migrate: '2026-11-14', group: 'Clear to schedule', n: 46, cum: 363 },
-  { week: '2026-11-16', migrate: '2026-11-21', group: 'Clear to schedule', n: 46, cum: 409 },
-  { week: '2026-11-23', migrate: null, group: 'Thanksgiving — skipped', n: 0, cum: 409 },
-  { week: '2026-11-30', migrate: '2026-12-05', group: 'Clear to schedule', n: 46, cum: 455 },
-  { week: '2026-12-07', migrate: '2026-12-12', group: 'Clear to schedule', n: 46, cum: 501 },
-  { week: '2026-12-14', migrate: '2026-12-19', group: 'Clear to schedule', n: 46, cum: 547 },
-  { week: '2026-12-21', migrate: null, group: 'Christmas — skipped', n: 0, cum: 547 },
-  { week: '2026-12-28', migrate: null, group: 'New Year — skipped', n: 0, cum: 547 },
-  { week: '2027-01-04', migrate: '2027-01-09', group: 'Clear to schedule', n: 46, cum: 593 },
-  { week: '2027-01-11', migrate: '2027-01-16', group: 'Clear to schedule', n: 46, cum: 639 },
-  { week: '2027-01-18', migrate: '2027-01-23', group: 'Clear to schedule', n: 46, cum: 685 },
-  { week: '2027-01-25', migrate: '2027-01-30', group: 'Clear to schedule', n: 46, cum: 731 },
-  { week: '2027-02-01', migrate: '2027-02-06', group: 'Clear — needs LE-2024 shipped', n: 71, cum: 802 },
-  { week: '2027-02-08', migrate: '2027-02-13', group: 'Clear — needs LE-2024 shipped', n: 71, cum: 873 },
-  { week: '2027-02-15', migrate: '2027-02-20', group: 'Blocked — public API', n: 73, cum: 946 },
-  { week: '2027-02-22', migrate: '2027-02-27', group: 'Blocked — scale / prior rollback', n: 36, cum: 982 },
+  { week: '2026-09-28', migrate: '2026-10-03', group: 'Clear to schedule', n: 50, cum: 76 },
+  { week: '2026-10-05', migrate: '2026-10-10', group: 'Clear to schedule', n: 40, cum: 116 },
+  { week: '2026-10-12', migrate: '2026-10-17', group: 'Clear to schedule', n: 51, cum: 167 },
+  { week: '2026-10-19', migrate: '2026-10-24', group: 'Clear to schedule', n: 51, cum: 218 },
+  { week: '2026-10-26', migrate: '2026-10-31', group: 'Clear to schedule', n: 51, cum: 269 },
+  { week: '2026-11-02', migrate: '2026-11-07', group: 'Clear to schedule', n: 51, cum: 320 },
+  { week: '2026-11-09', migrate: '2026-11-14', group: 'Clear to schedule', n: 51, cum: 371 },
+  { week: '2026-11-16', migrate: '2026-11-21', group: 'Clear to schedule', n: 51, cum: 422 },
+  { week: '2026-11-30', migrate: '2026-12-05', group: 'Clear to schedule', n: 51, cum: 473 },
+  { week: '2026-12-07', migrate: '2026-12-12', group: 'Clear to schedule', n: 51, cum: 524 },
+  { week: '2026-12-14', migrate: '2026-12-19', group: 'Clear to schedule', n: 51, cum: 575 },
+  { week: '2027-01-04', migrate: '2027-01-09', group: 'Clear to schedule', n: 51, cum: 626 },
+  { week: '2027-01-11', migrate: '2027-01-16', group: 'Clear to schedule', n: 51, cum: 677 },
+  { week: '2027-01-18', migrate: '2027-01-23', group: 'Clear to schedule', n: 51, cum: 728 },
+  { week: '2027-01-25', migrate: '2027-01-30', group: 'Clear to schedule', n: 51, cum: 779 },
+  { week: '2027-02-01', migrate: '2027-02-06', group: 'Clear to schedule', n: 51, cum: 830 },
+  { week: '2027-02-08', migrate: '2027-02-13', group: 'Clear to schedule', n: 49, cum: 879 },
+  { week: '2027-02-15', migrate: '2027-02-20', group: 'Blocked — public API', n: 73, cum: 952 },
+  { week: '2027-02-22', migrate: '2027-02-27', group: 'Blocked — scale / prior rollback', n: 36, cum: 988 },
 ];
 
 // Pace grade rubric. Deliberately explicit and rendered on the page next to the
@@ -2168,7 +2161,7 @@ function planSummary() {
 
   // Like-for-like: the schedule's cumulative column starts at zero on its own start
   // date and counts only tenants it sequences. Tenants already on 2.0 before then —
-  // the original reference cohort — are outside the 982 population entirely, so
+  // the original reference cohort — are outside the plan population entirely, so
   // comparing the raw total against the plan would flatter the early weeks. Measure
   // progress made *inside* the plan window instead.
   const baseline = a.at(PLAN[0].week);
@@ -2365,11 +2358,13 @@ function renderGradeTable() {
       '<td>' + b.say + '</td></tr>';
   });
   t.innerHTML = h + '</tbody>';
-  document.getElementById('grade-explain').textContent =
-    'Attainment is migrated-to-date divided by what the schedule called for by the most recent migrate ' +
-    'date that has passed (' + s.actual + ' ÷ ' + s.plannedToDate + ' = ' + Math.round(s.ratio * 100) + '%). ' +
-    'It measures delivery against the committed schedule, not effort or difficulty — a plan that was ' +
-    'always going to be re-cut will grade badly here until it is re-cut.';
+  document.getElementById('grade-explain').textContent = s.plannedToDate
+    ? 'Attainment is migrated-to-date divided by what the schedule called for by the most recent migrate ' +
+      'date that has passed (' + s.actual + ' ÷ ' + s.plannedToDate + ' = ' + Math.round(s.ratio * 100) + '%). ' +
+      'It measures delivery against the committed schedule, not effort or difficulty — a plan that was ' +
+      'always going to be re-cut will grade badly here until it is re-cut.'
+    : 'No migrate date in the schedule has passed yet, so there is nothing to grade. Attainment starts ' +
+      'reporting after the first cutover on ' + fmtWk(PLAN[0].migrate) + '.';
 }
 
 function renderPlan() {
@@ -2384,7 +2379,10 @@ function renderPlan() {
     (s.actual / PLAN_TOTAL * 100).toFixed(1) + '%). ' + s.onFlagTotal +
     ' on 2.0 in total, incl. ' + s.baseline + ' from before the plan began');
   put('pl-planned', s.plannedToDate);
-  put('pl-planned-sub', 'Cumulative through ' + fmtWk(PLAN.filter(p => p.migrate && p.migrate <= SNAPSHOT_DATE).slice(-1)[0].migrate));
+  const lastDone = PLAN.filter(p => p.migrate && p.migrate <= SNAPSHOT_DATE).slice(-1)[0];
+  put('pl-planned-sub', lastDone
+    ? 'Cumulative through ' + fmtWk(lastDone.migrate)
+    : 'Plan has not started — first cutover ' + fmtWk(PLAN[0].migrate));
   put('pl-ratio', Math.round(s.ratio * 100) + '%');
   put('pl-grade', s.band.g);
   put('pl-grade-sub', s.band.say);
