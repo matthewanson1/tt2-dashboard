@@ -62,6 +62,34 @@ own Action daily, so the two repos drift within hours. A `409 does not match` on
 mirror means it has data BuildHero lacks — re-apply your change on top of the mirror's
 current file and publish that to both. Never force.
 
+## Keeping the plan in step with Confluence
+
+The **Confluence migration plan is the source of truth** for the schedule
+(`BPD/4851826814`). The `PLAN`, `PLAN_GROUPS`, `PLAN_TOTAL` and `PLAN_AS_OF`
+constants in `index.html` are a hand import of its tranche table — the enrichment
+job has no way to regenerate them, so they go stale silently the moment the plan
+is re-cut.
+
+`check-plan.js` closes that loop. It fetches the page, re-parses the tranche
+table, and diffs it against the imported block — week dates, cutover dates, group
+labels, per-week counts, the cumulative column, and `PLAN_TOTAL` against the final
+cumulative. Any mismatch exits non-zero and names the week.
+
+```
+CONFLUENCE_USERNAME=... CONFLUENCE_API_TOKEN=... node tools/check-plan.js
+```
+
+Run it after any plan revision and before publishing. It reads credentials from
+the environment only, which is also why it **cannot run in the nightly Action** —
+that workflow holds `LD_API_TOKEN` and nothing else. Until a Confluence token is
+added as a repo secret, this is a deliberate manual gate, not an automated one.
+
+Two conventions worth keeping. `cum` is the plan's own cumulative column, copied
+as published rather than recomputed here, so a transcription error surfaces as a
+mismatch instead of being smoothed over. And `PLAN` starts at the first *scheduled*
+tranche — the already-live cohort is Tranche 0 in the doc and is handled by the
+baseline logic in `planSummary()`, not by a row in this array.
+
 ## The real fix
 
 `enrich.js` already has working key-pair JWT auth against the Snowflake SQL API. It
@@ -78,3 +106,4 @@ aid rather than the main path.
 | `fixture-sql.js` | Emits the refresh queries, split into size-bounded chunks |
 | `apply-fixtures.js` | Verifies each blob's MD5 and row count, writes `fixtures.json` |
 | `check.js` | Charts draw, tab routing works, no private fields, ids intact, Next Up disjoint from 2.0 |
+| `check-plan.js` | Diffs the imported `PLAN` block against the Confluence migration plan |
