@@ -94,13 +94,16 @@ const ok = (cond, label, detail) => {
 const r = run('');
 r.api.renderAnalytics(); r.api.renderPlan(); r.api.renderRunway();
 const CHARTS = ['chart-impossible', 'chart-trend', 'chart-review', 'chart-payroll', 'chart-flows',
-  'chart-reports', 'chart-stack', 'chart-hpd', 'chart-emps', 'chart-mig', 'chart-cum'];
+  'chart-ownership', 'chart-coverage', 'chart-reports', 'chart-stack', 'chart-hpd', 'chart-emps',
+  'chart-mig', 'chart-cum'];
 for (const id of CHARTS) {
   const n = r.nodes.has(id) ? r.nodes.get(id).kids.length : 0;
   ok(n > 0, `${id} draws`, `${n} svg children`);
 }
 const scRows = (r.nodes.get('score-table').innerHTML.match(/<tr>/g) || []).length;
 ok(scRows === 5, 'scorecard table has header + 4 rows', `${scRows} rows`);
+const ownRows = (r.nodes.get('own-table').innerHTML.match(/<tr>/g) || []).length;
+ok(ownRows === 4, 'ownership table has header + 3 rows', `${ownRows} rows`);
 
 // 2. Tab routing: deep link lands right and renders, bad hash self-corrects.
 const deep = run('#analytics');
