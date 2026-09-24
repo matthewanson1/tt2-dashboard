@@ -310,6 +310,64 @@ function buildQueries(model) {
         COUNT(*) AS employee_days, COUNT_IF(hrs >= ${IMPOSSIBLE_HOURS}) AS impossible,
         COUNT(DISTINCT tid) AS tenants
       FROM ed GROUP BY 1 ORDER BY 1` : null,
+
+    // ── Who enters the time, and how ──────────────────────────────────────────
+    // Three measures of recording behaviour, per tenant, either side of its own
+    // cutover.
+    //
+    // CREATED_BY holds a display NAME, not an id, so "did the technician enter this
+    // themselves?" is a name match against EMPLOYEE.FULL_NAME joined on EMPLOYEE_ID.
+    // That join is exact across the migrated cohort — of 99,004 entries in the
+    // window, zero have a null creator, zero have no employee, and zero fail to
+    // match an employee row — so a name that does not match is a genuine third
+    // party rather than a data gap.
+    //
+    // Live Clock is the presence of any TIMESHEET_EMPLOYEE_ACTION row for the
+    // timesheet. That table's action vocabulary is stable across the cutover
+    // (Working, Traveling, MealBreak, PaidBreak and TravelHome all appear either
+    // side; only the legacy OnABreak and Lunch values fade out, 72 rows between
+    // them), which is what makes this readable as a before/after rather than as a
+    // 2.0-only signal.
+    //
+    // BILLABLE is a CONTROL, not an achievement. It barely moves across the cutover,
+    // and that is the point: it shows the other two are measuring a change in how
+    // time is recorded rather than a general shift in what gets recorded at all. Do
+    // not promote it to a headline.
+    ownership: datedCust.length ? `WITH d AS (SELECT column1 AS tenant_id, column2::date AS enabled FROM VALUES ${datedCustVals}),
+      act AS (SELECT DISTINCT TIMESHEET_ID FROM PROD.APP_REDACTED.TIMESHEET_EMPLOYEE_ACTION
+              WHERE IS_DELETED = FALSE AND TIMESHEET_ID IS NOT NULL)
+      SELECT LEFT(ts.TENANT_ID,8) AS id, IFF(ts.WORK_DATE < d.enabled,'pre','post') AS era,
+        COUNT(*) AS entries,
+        COUNT_IF(TRIM(LOWER(ts.CREATED_BY)) = TRIM(LOWER(e.FULL_NAME))) AS self_created,
+        COUNT_IF(act.TIMESHEET_ID IS NOT NULL) AS live_clock,
+        COUNT_IF(COALESCE(ts.BILLABLE, FALSE)) AS billable
+      FROM d JOIN PROD.APP_REDACTED.TIMESHEET ts ON ts.TENANT_ID = d.tenant_id
+      LEFT JOIN PROD.APP_REDACTED.EMPLOYEE e ON e.ID = ts.EMPLOYEE_ID AND e.TENANT_ID = ts.TENANT_ID
+      LEFT JOIN act ON act.TIMESHEET_ID = ts.ID
+      WHERE ts.IS_DELETED = FALSE AND ts.WORK_DATE < CURRENT_DATE()
+        AND ts.WORK_DATE >= DATEADD(day,-${SCORECARD_WINDOW},d.enabled)
+      GROUP BY 1,2 ORDER BY 1,2` : null,
+
+    // ── Recording coverage ────────────────────────────────────────────────────
+    // Deliberately CURRENT STATE, not a before/after. EMPLOYEE carries only today's
+    // IS_ACTIVE with no history, so a pre-cutover coverage figure would divide past
+    // behaviour by today's roster: on S.E. Mechanical that already yields 45
+    // employees who logged time in the pre-window against 44 active today, i.e. over
+    // 100%. The question worth asking is answerable exactly — what share of the
+    // people a tenant currently calls active logged any time in the last 30 days —
+    // and a tenant sitting at zero is live on 2.0 and recording nothing, which is
+    // the most actionable row on this tab.
+    coverage: custIds.size ? `WITH ids AS (SELECT column1 AS tid FROM VALUES ${[...custIds].map(id => `(${q(id)})`).join(',')}),
+      emp AS (SELECT TENANT_ID, ID, IS_TECH FROM PROD.APP_REDACTED.EMPLOYEE
+              WHERE IS_DELETED = FALSE AND IS_ACTIVE = TRUE AND TENANT_ID IN (SELECT tid FROM ids)),
+      logged AS (SELECT DISTINCT TENANT_ID, EMPLOYEE_ID FROM PROD.APP_REDACTED.EMPLOYEE_TIMESHEET_SHIFT_ENTRY
+                 WHERE IS_DELETED = FALSE AND TENANT_ID IN (SELECT tid FROM ids)
+                   AND WORK_DATE >= DATEADD(day,-30,CURRENT_DATE()) AND WORK_DATE < CURRENT_DATE())
+      SELECT LEFT(e.TENANT_ID,8) AS id, COUNT_IF(e.IS_TECH) AS active_techs,
+        COUNT_IF(e.IS_TECH AND l.EMPLOYEE_ID IS NOT NULL) AS techs_logged,
+        COUNT(*) AS active_all, COUNT_IF(l.EMPLOYEE_ID IS NOT NULL) AS all_logged
+      FROM emp e LEFT JOIN logged l ON l.EMPLOYEE_ID = e.ID AND l.TENANT_ID = e.TENANT_ID
+      GROUP BY 1 ORDER BY 1` : null,
   };
 }
 
@@ -507,6 +565,31 @@ function applyResults(model, r) {
   const reports = (r.reports || []).map(([cohort, t, hi, any, n]) =>
     [cohort, num(t), num(hi), num(any), num(n)]);
 
+  // Per-tenant recording behaviour either side of the cutover. Kept as raw counts so
+  // the page can restrict the comparison to tenants carrying volume in BOTH eras —
+  // the cohort is not the same on both sides (the recent cutovers have no pre-window
+  // at all), and averaging across a shifting cohort is exactly how a change in who
+  // is being measured gets misread as a change in how they behave.
+  const own = {};
+  for (const [id, era, n, self_, live, bill] of (r.ownership || [])) {
+    (own[id] || (own[id] = {}))[era] = {
+      entries: num(n), selfCreated: num(self_), liveClock: num(live), billable: num(bill),
+    };
+  }
+  const ownership = Object.entries(own).map(([id, eras]) => {
+    const c = byPfx[id];
+    return c ? { name: shortName(c.name), pre: eras.pre || null, post: eras.post || null } : null;
+  }).filter(Boolean).sort((a, b) => (b.post ? b.post.entries : 0) - (a.post ? a.post.entries : 0));
+
+  // Current-state coverage. See the query note for why this is not a before/after.
+  const coverage = (r.coverage || []).map(([id, at, tl, aa, al]) => {
+    const c = byPfx[id];
+    return c ? {
+      name: shortName(c.name), activeTechs: num(at), techsLogged: num(tl),
+      activeAll: num(aa), allLogged: num(al),
+    } : null;
+  }).filter(Boolean).sort((a, b) => b.activeTechs - a.activeTechs);
+
   // Headline before/after. Emitted as one object per era plus the window length, so
   // the page can state the comparison it is making rather than assuming one.
   const era = {};
@@ -534,7 +617,7 @@ function applyResults(model, r) {
 
   return {
     weekly, partialWeek: weeks[weeks.length - 1] || null, migration,
-    review, payroll, flows, reports, scorecard, impossible,
+    review, payroll, flows, reports, scorecard, impossible, ownership, coverage,
   };
 }
 
@@ -575,6 +658,8 @@ function writeHtml(html, model, extra) {
   out = sub(out, 'PAYROLL', JSON.stringify(extra.payroll));
   out = sub(out, 'FLOWS', JSON.stringify(extra.flows));
   out = sub(out, 'REPORTS', JSON.stringify(extra.reports));
+  out = sub(out, 'OWNERSHIP', JSON.stringify(extra.ownership));
+  out = sub(out, 'COVERAGE', JSON.stringify(extra.coverage));
   if (extra.scorecard) out = sub(out, 'SCORECARD', JSON.stringify(extra.scorecard));
   if (extra.impossible) out = sub(out, 'IMPOSSIBLE', JSON.stringify(extra.impossible));
   if (extra.partialWeek) out = sub(out, 'PARTIAL_WEEK', `'${extra.partialWeek}'`);
