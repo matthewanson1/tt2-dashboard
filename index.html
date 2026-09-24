@@ -414,6 +414,40 @@
     </div>
 
     <div class="chart-card">
+      <h3>Who enters the time, and how</h3>
+      <p class="chart-sub">The enablement guide's case for 2.0 is that technicians record their own time, as
+        they work it, instead of an office admin typing it in afterwards. That is measurable.
+        <b>Entered by the technician</b> compares the entry's creator against the employee it belongs to.
+        <b>Live Clock</b> is whether the timesheet carries clock in/out events rather than typed hours.
+        <b>Marked billable</b> is neither — it is a <b>control</b>, included so you can tell a real change in
+        behaviour from the cohort simply changing shape. Only tenants that recorded time <b>both before and
+        after their own cutover</b> are counted, so every tenant here is its own control.</p>
+      <div class="chart-wrap"><table id="own-table" style="width:100%"></table></div>
+      <div class="chart-wrap"><svg id="chart-ownership" width="1080" height="300"></svg></div>
+      <div class="legend">
+        <span><i style="background:#c9cad0"></i>Before 2.0</span>
+        <span><i style="background:#2f9e5f"></i>On 2.0</span>
+      </div>
+      <p class="chart-note" id="note-ownership"></p>
+    </div>
+
+    <div class="chart-card">
+      <h3>Are the technicians on 2.0 actually recording time?</h3>
+      <p class="chart-sub">Share of each tenant's <b>currently active technicians</b> who logged at least one
+        time entry in the last 30 days. This is a snapshot, not a before/after: the employee record carries
+        only today's active flag with no history, so a pre-cutover version of this would divide past
+        behaviour by today's roster and can exceed 100%. A tenant at or near zero is switched on to 2.0 and
+        recording nothing through it, which is a rollout conversation rather than a product one.</p>
+      <div class="chart-wrap"><svg id="chart-coverage" width="1080" height="380"></svg></div>
+      <div class="legend">
+        <span><i style="background:#2f9e5f"></i>Half or more recording</span>
+        <span><i style="background:#d8a23a"></i>Under half</span>
+        <span><i style="background:#a32b2b"></i>None recording</span>
+      </div>
+      <p class="chart-note" id="note-coverage"></p>
+    </div>
+
+    <div class="chart-card">
       <h3>Report rate against the 25% confidence gate</h3>
       <p class="chart-sub">By the month a tenant migrated: the share that have since filed a High or Blocker
         Time&nbsp;Tracking&nbsp;&amp;&nbsp;Labor support ticket. The migration plan's gate is that
@@ -1574,6 +1608,16 @@ const FLOWS = [{"name":"Dual Fuel","entries":19126,"generalTime":132,"projectNoV
 // [cohort month, tenants, tenants with High/Blocker, tenants with any, report count]
 const REPORTS = [["2026-06",1,1,1,1],["2026-07",5,0,1,0],["2026-08",8,2,2,2],["2026-09",12,0,1,0]];
 
+// Per-tenant recording behaviour either side of each tenant's own cutover:
+// {name, pre:{entries,selfCreated,liveClock,billable}, post:{…}}. Either side can be
+// null — a tenant that cut over last week has no pre-window. The renderer drops any
+// tenant that is missing one, on purpose; see drawOwnership.
+const OWNERSHIP = [{"name":"Dual Fuel","pre":{"entries":14769,"selfCreated":1070,"liveClock":9818,"billable":11820},"post":{"entries":19416,"selfCreated":15092,"liveClock":17803,"billable":16211}},{"name":"The Management Trust","pre":{"entries":23762,"selfCreated":8443,"liveClock":22053,"billable":23142},"post":{"entries":10928,"selfCreated":9995,"liveClock":10467,"billable":10571}},{"name":"Calray / Omnia","pre":{"entries":7386,"selfCreated":320,"liveClock":1894,"billable":6324},"post":{"entries":3711,"selfCreated":3289,"liveClock":3330,"billable":3462}},{"name":"TJW Industrial","pre":{"entries":7028,"selfCreated":787,"liveClock":5779,"billable":6236},"post":{"entries":2840,"selfCreated":1081,"liveClock":2536,"billable":2721}},{"name":"Eagle Controls","pre":null,"post":{"entries":1485,"selfCreated":1406,"liveClock":1485,"billable":1315}},{"name":"Gunnar Electric","pre":null,"post":{"entries":1209,"selfCreated":630,"liveClock":1209,"billable":1201}},{"name":"LVC Companies","pre":null,"post":{"entries":846,"selfCreated":824,"liveClock":846,"billable":834}},{"name":"S.E. Mechanical Plumbing, Heating & Drain Cleaning","pre":{"entries":3125,"selfCreated":1533,"liveClock":1565,"billable":3116},"post":{"entries":312,"selfCreated":187,"liveClock":128,"billable":311}},{"name":"Elkhorn Mechanical","pre":{"entries":433,"selfCreated":208,"liveClock":337,"billable":433},"post":{"entries":309,"selfCreated":255,"liveClock":268,"billable":309}},{"name":"Empire Heating & Cooling","pre":{"entries":7,"selfCreated":3,"liveClock":7,"billable":7},"post":{"entries":277,"selfCreated":195,"liveClock":277,"billable":270}},{"name":"Cabworks","pre":{"entries":15,"selfCreated":0,"liveClock":0,"billable":15},"post":{"entries":265,"selfCreated":262,"liveClock":265,"billable":265}},{"name":"New England Mechanical","pre":null,"post":{"entries":176,"selfCreated":14,"liveClock":176,"billable":176}},{"name":"Creative Cabling","pre":null,"post":{"entries":161,"selfCreated":1,"liveClock":161,"billable":161}},{"name":"Parc Mechanical","pre":{"entries":490,"selfCreated":62,"liveClock":338,"billable":490},"post":{"entries":38,"selfCreated":23,"liveClock":23,"billable":38}},{"name":"Harvard NDE","pre":null,"post":{"entries":10,"selfCreated":0,"liveClock":10,"billable":10}},{"name":"Connext Security Solutions","pre":null,"post":{"entries":6,"selfCreated":6,"liveClock":6,"billable":6}}];
+
+// Current-state recording coverage, one row per customer tenant on 2.0:
+// {name, activeTechs, techsLogged, activeAll, allLogged}. Last 30 days.
+const COVERAGE = [{"name":"LVC Companies","activeTechs":226,"techsLogged":195,"activeAll":349,"allLogged":199},{"name":"New England Mechanical","activeTechs":113,"techsLogged":48,"activeAll":122,"allLogged":48},{"name":"Dual Fuel","activeTechs":99,"techsLogged":71,"activeAll":139,"allLogged":73},{"name":"TJW Industrial","activeTechs":93,"techsLogged":83,"activeAll":146,"allLogged":83},{"name":"The Management Trust","activeTechs":92,"techsLogged":64,"activeAll":116,"allLogged":65},{"name":"Cabworks","activeTechs":67,"techsLogged":9,"activeAll":75,"allLogged":10},{"name":"Calray / Omnia","activeTechs":59,"techsLogged":32,"activeAll":69,"allLogged":33},{"name":"Gunnar Electric","activeTechs":57,"techsLogged":52,"activeAll":67,"allLogged":53},{"name":"Climate Efficiency Partners - Named Account","activeTechs":46,"techsLogged":0,"activeAll":62,"allLogged":0},{"name":"S.E. Mechanical Plumbing, Heating & Drain Cleaning","activeTechs":42,"techsLogged":29,"activeAll":44,"allLogged":29},{"name":"Eagle Controls","activeTechs":35,"techsLogged":33,"activeAll":38,"allLogged":33},{"name":"Empire Heating & Cooling","activeTechs":31,"techsLogged":29,"activeAll":31,"allLogged":29},{"name":"PPC Partners - Pieper Power","activeTechs":21,"techsLogged":0,"activeAll":22,"allLogged":0},{"name":"Fleming Network & Security","activeTechs":20,"techsLogged":14,"activeAll":36,"allLogged":14},{"name":"Harvard NDE","activeTechs":16,"techsLogged":5,"activeAll":23,"allLogged":5},{"name":"PPC Partners - Carolina Power","activeTechs":15,"techsLogged":0,"activeAll":16,"allLogged":0},{"name":"PPC Partners - Metro Power","activeTechs":14,"techsLogged":0,"activeAll":15,"allLogged":0},{"name":"Elkhorn Mechanical","activeTechs":13,"techsLogged":12,"activeAll":14,"allLogged":12},{"name":"Creative Cabling","activeTechs":8,"techsLogged":4,"activeAll":13,"allLogged":4},{"name":"Connext Security Solutions","activeTechs":6,"techsLogged":2,"activeAll":7,"allLogged":2},{"name":"Trinity Southern","activeTechs":5,"techsLogged":0,"activeAll":11,"allLogged":0},{"name":"Parc Mechanical","activeTechs":5,"techsLogged":4,"activeAll":7,"allLogged":4},{"name":"Entry Solutions","activeTechs":3,"techsLogged":0,"activeAll":5,"allLogged":0},{"name":"Pro Services","activeTechs":1,"techsLogged":0,"activeAll":3,"allLogged":0},{"name":"American Roofing & Metal","activeTechs":1,"techsLogged":0,"activeAll":25,"allLogged":0},{"name":"Pro-Craft Construction","activeTechs":1,"techsLogged":0,"activeAll":2,"allLogged":0},{"name":"MK Plumbing","activeTechs":1,"techsLogged":0,"activeAll":2,"allLogged":0},{"name":"SolidAire","activeTechs":0,"techsLogged":0,"activeAll":3,"allLogged":0},{"name":"Anderson Systems","activeTechs":0,"techsLogged":0,"activeAll":1,"allLogged":0},{"name":"Genset Holdings","activeTechs":0,"techsLogged":0,"activeAll":1,"allLogged":0},{"name":"Best Mechanical","activeTechs":0,"techsLogged":0,"activeAll":4,"allLogged":0}];
+
 // { pre: {entries, approved, dismissed, attested, generalTime, tenants},
 //   post: {...}, windowDays } — the headline before/after. "pre" is the fixed window
 // before each tenant's own cutover, "post" is everything since.
@@ -2024,6 +2068,144 @@ function drawFlows() {
     (rows.length > shown.length ? ' Showing the ' + shown.length + ' largest.' : '');
 }
 
+// ── Who enters the time, and how ──────────────────────────────────────────────
+// Restricted to tenants carrying entries in BOTH eras. The 2.0 cohort grows every
+// week and the newest cutovers have no pre-window at all, so a straight cohort mean
+// would compare one set of companies against a different set and read the change in
+// membership as a change in behaviour. Every tenant drawn here is its own control.
+//
+// Billable share is carried alongside as an explicit control. It is not an
+// achievement and must not be promoted to one: its job is to stay flat while the
+// other two move, which is what tells you the movement is real.
+function drawOwnership() {
+  const svg = document.getElementById('chart-ownership'); if (!svg) return;
+  svg.innerHTML = '';
+  const box = document.getElementById('own-table');
+  const note = document.getElementById('note-ownership');
+  const rows = (OWNERSHIP || []).filter(r =>
+    r.pre && r.post && r.pre.entries > 0 && r.post.entries > 0);
+  if (!rows.length) {
+    if (box) box.innerHTML = '';
+    note.textContent = 'No tenant has yet recorded time both before and after its own cutover.';
+    return;
+  }
+  const sum = (side, key) => rows.reduce((a, r) => a + r[side][key], 0);
+  const preN = sum('pre', 'entries'), postN = sum('post', 'entries');
+  const MEASURES = [
+    ['selfCreated', 'Entered by the technician themselves',
+      'the entry’s creator is the employee it belongs to'],
+    ['liveClock', 'Recorded on the Live Clock',
+      'the timesheet carries clock in/out events, not typed hours'],
+    ['billable', 'Marked billable',
+      'a control — this one should barely move'],
+  ];
+  const GOOD = '#2f9e5f', BAD = '#a32b2b', FLAT = '#77787c';
+  let html = '<thead><tr><th>Measure</th>' +
+    '<th style="text-align:right">Before 2.0</th>' +
+    '<th style="text-align:right">On 2.0</th>' +
+    '<th style="text-align:right">Change</th></tr></thead><tbody>';
+  for (const [key, label, hint] of MEASURES) {
+    const a = pct(sum('pre', key), preN), b = pct(sum('post', key), postN);
+    const pts = Math.round((b - a) * 100);
+    const control = key === 'billable';
+    html += '<tr><td>' + label + ' <span style="color:#a0a1a5">— ' + hint + '</span></td>' +
+      '<td style="text-align:right;color:#77787c">' + Math.round(a * 100) + '%</td>' +
+      '<td style="text-align:right;font-weight:650">' + Math.round(b * 100) + '%</td>' +
+      '<td style="text-align:right;font-weight:650;color:' +
+        (control || pts === 0 ? FLAT : (pts > 0 ? GOOD : BAD)) + '">' +
+      (pts > 0 ? '+' : '') + pts + (Math.abs(pts) === 1 ? ' pt' : ' pts') + '</td></tr>';
+  }
+  box.innerHTML = html + '</tbody>';
+
+  // The bars show the headline measure per tenant. A cohort average can be carried
+  // by one large tenant; showing every tenant is what demonstrates it is not.
+  const shown = rows.slice(0, 12);
+  const W_ = 1080, H = 300, L = 196, R = 96, T = 10, B = 28;
+  const iw = W_ - L - R, ih = H - T - B;
+  const rh = ih / shown.length, bh = Math.min(9, (rh * 0.72) / 2);
+  for (let i = 0; i <= 4; i++) {
+    const gx = L + (i / 4) * iw;
+    svg.appendChild(el('line', { class:'grid', x1:gx, x2:gx, y1:T, y2:T+ih }));
+    svg.appendChild(el('text', { class:'tick', x:gx, y:H-B+14, 'text-anchor':'middle' }, (i * 25) + '%'));
+  }
+  shown.forEach((r, i) => {
+    const top = T + i * rh;
+    svg.appendChild(el('text', { class:'tick', x:L-9, y:top+rh/2+3, 'text-anchor':'end' }, r.name.slice(0, 30)));
+    [['pre', '#c9cad0', 'before'], ['post', '#2f9e5f', 'on']].forEach(([side, colour, word], j) => {
+      const p = pct(r[side].selfCreated, r[side].entries);
+      const by = top + (rh - bh * 2) / 2 + j * bh;
+      const bar = el('rect', { x:L, y:by, width:Math.max(p > 0 ? 1 : 0, p * iw), height:bh-1, fill:colour });
+      bar.appendChild(el('title', {}, r.name + ' — ' + word + ' 2.0: ' +
+        r[side].selfCreated.toLocaleString() + ' of ' + r[side].entries.toLocaleString() +
+        ' entries entered by the technician (' + pctTxt(r[side].selfCreated, r[side].entries) + ')'));
+      svg.appendChild(bar);
+    });
+    svg.appendChild(el('text', { class:'tick', x:L+iw+7, y:top+rh/2+3 }, r.post.entries.toLocaleString()));
+  });
+
+  const up = rows.filter(r =>
+    pct(r.post.selfCreated, r.post.entries) > pct(r.pre.selfCreated, r.pre.entries)).length;
+  const ctl = Math.round((pct(sum('post', 'billable'), postN) - pct(sum('pre', 'billable'), preN)) * 100);
+  note.textContent = up + ' of ' + rows.length + ' tenants that recorded time either side of their own ' +
+    'cutover now have a higher share of entries entered by the technician who worked them. The bars are ' +
+    'that measure per tenant, grey before and green after; the right-hand number is the tenant’s ' +
+    'post-cutover entry count. Base: ' + preN.toLocaleString() + ' entries before, ' +
+    postN.toLocaleString() + ' since, in the ' + (SCORECARD ? SCORECARD.windowDays : 60) +
+    ' days either side. Billable share moved ' + (ctl > 0 ? '+' : '') + ctl +
+    (Math.abs(ctl) === 1 ? ' point' : ' points') + ' across the same ' +
+    'entries — that is the check worth making: a cohort that had simply changed shape would have ' +
+    'moved the control too.' +
+    (rows.length > shown.length ? ' Showing the ' + shown.length + ' largest.' : '');
+}
+
+// Current-state coverage. Not a before/after — the employee record has no history of
+// its active flag, so any pre-cutover version divides past behaviour by today's
+// roster and can exceed 100%. Reported as a snapshot instead, which is both honest
+// and the question the enablement guide actually asks.
+function drawCoverage() {
+  const svg = document.getElementById('chart-coverage'); if (!svg) return;
+  svg.innerHTML = '';
+  const note = document.getElementById('note-coverage');
+  const rows = (COVERAGE || []).filter(r => r.activeTechs > 0);
+  if (!rows.length) { note.textContent = 'No tenant on 2.0 has an active technician on its roster yet.'; return; }
+  // Every tenant, never a top-N slice: the rows worth acting on are the ones sitting
+  // at zero, and those are exactly the small tenants a "largest 18" cut would hide.
+  const shown = rows;
+  const W_ = 1080, L = 196, R = 116, T = 10, B = 28;
+  const rh = 19, H = T + B + rh * shown.length;
+  const iw = W_ - L - R, ih = H - T - B;
+  svg.setAttribute('height', H);
+  const bh = Math.min(13, rh * 0.62);
+  for (let i = 0; i <= 4; i++) {
+    const gx = L + (i / 4) * iw;
+    svg.appendChild(el('line', { class:'grid', x1:gx, x2:gx, y1:T, y2:T+ih }));
+    svg.appendChild(el('text', { class:'tick', x:gx, y:H-B+14, 'text-anchor':'middle' }, (i * 25) + '%'));
+  }
+  shown.forEach((r, i) => {
+    const top = T + i * rh, p = pct(r.techsLogged, r.activeTechs);
+    const colour = r.techsLogged === 0 ? '#a32b2b' : (p < 0.5 ? '#d8a23a' : '#2f9e5f');
+    svg.appendChild(el('text', { class:'tick', x:L-9, y:top+rh/2+3, 'text-anchor':'end' }, r.name.slice(0, 30)));
+    const bar = el('rect', { x:L, y:top+(rh-bh)/2, width:Math.max(p > 0 ? 1 : 0, p * iw), height:bh, fill:colour });
+    bar.appendChild(el('title', {}, r.name + ' — ' + r.techsLogged + ' of ' + r.activeTechs +
+      ' active technicians logged time in the last 30 days (' + pctTxt(r.techsLogged, r.activeTechs) + ')' +
+      '; across all roles, ' + r.allLogged + ' of ' + r.activeAll));
+    svg.appendChild(bar);
+    svg.appendChild(el('text', { class:'tick', x:L+iw+7, y:top+rh/2+3 },
+      r.techsLogged + ' of ' + r.activeTechs));
+  });
+  const silent = rows.filter(r => r.techsLogged === 0);
+  const techs = rows.reduce((a, r) => a + r.activeTechs, 0);
+  const logged = rows.reduce((a, r) => a + r.techsLogged, 0);
+  note.textContent = 'Across every customer tenant on 2.0, ' + logged.toLocaleString() + ' of ' +
+    techs.toLocaleString() + ' active technicians (' + pctTxt(logged, techs) + ') logged time in the last ' +
+    '30 days. ' + (silent.length
+      ? silent.length + ' tenant' + (silent.length === 1 ? ' is' : 's are') + ' on 2.0 with none of ' +
+        (silent.length === 1 ? 'its' : 'their') + ' active technicians recording anything: ' +
+        silent.map(r => r.name + ' (' + r.activeTechs + ')').join(', ') + '. That is the list to work ' +
+        'through — a tenant can be flagged on and still be running payroll somewhere else entirely.'
+      : 'Every tenant on 2.0 has at least one technician recording time.');
+}
+
 function drawReports() {
   const svg = document.getElementById('chart-reports'); if (!svg) return;
   svg.innerHTML = '';
@@ -2068,7 +2250,8 @@ function drawReports() {
 }
 
 function renderAnalytics() {
-  drawAnalyticsStats(); drawScorecard(); drawTrend(); drawImpossible(); drawReview(); drawPayroll(); drawFlows(); drawReports();
+  drawAnalyticsStats(); drawScorecard(); drawTrend(); drawImpossible(); drawReview(); drawPayroll(); drawFlows();
+  drawOwnership(); drawCoverage(); drawReports();
   drawStack(); drawHpd(); drawEmps(); drawMigration(); drawCumulative();
 }
 
