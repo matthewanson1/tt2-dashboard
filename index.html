@@ -682,7 +682,7 @@
 //
 // SNAPSHOT_DATE — bumped by the unattended GitHub Actions job, which syncs ONLY
 // the tenant ID list from LaunchDarkly. Cheap and reliable; runs every day.
-const SNAPSHOT_DATE = '2026-09-23';
+const SNAPSHOT_DATE = '2026-09-29';
 
 // LAST_ENRICHED_DATE — bumped ONLY by the Snowflake enrichment job, which is the
 // sole source of names, industry, segment, hours and usage. It needs an
@@ -824,7 +824,7 @@ const CUSTOMER_ACCOUNTS = [
   {"id":"045462c4-bf8a-4340-bba7-55b5d6b06e4a","name":"SolidAire","industry":null,"segment":"Strategic","goLiveDate":"2026-10-01","ttEnabledDate":"2026-09-17","webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"activeTechs":0,"techsTotal":0,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
   {"id":"3b008a2d-b0ea-4e88-9b19-a3b37c83f5c6","name":"The Management Trust","industry":null,"segment":"Strategic","goLiveDate":"2025-08-29","ttEnabledDate":"2026-07-21","webViews":92548,"mobileEvents":1262,"hours30d":10319,"employees30d":65,"hoursOn20":26073,"employeesOn20":74,"activeTechs":93,"techsTotal":127,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
   {"id":"8d38df5b-8946-4763-ac2d-b43f82806d49","name":"TJW Industrial, Inc.","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-02-23","ttEnabledDate":"2026-08-19","webViews":11288,"mobileEvents":4326,"hours30d":9692,"employees30d":82,"hoursOn20":14661,"employeesOn20":84,"activeTechs":93,"techsTotal":110,"attestation":true,"autoGenerateTimeEntries":false,"requireStartEndTimes":false},
-  {"id":"2eb374f1-8cb6-467c-8d7d-6e720eabad1f","name":"Trinity Southern","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":null,"webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null,"activeTechs":5,"techsTotal":5,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true}
+  {"id":"2eb374f1-8cb6-467c-8d7d-6e720eabad1f","name":"Trinity Southern","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":null,"webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null,"activeTechs":5,"techsTotal":5,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
 ];
 
 // ── "Next Up for TT 2.0" ─────────────────────────────────────────────────────────
@@ -890,7 +890,6 @@ const NEXT_UP_TENANTS = [
   {"id":"35ee516f-820e-4349-8fd2-47de5b410716","name":"Greater San Diego Air Conditioning Training","industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"fc8bfadc-bfb5-4b7a-974e-a9753f37f4a9","name":"INTEGRITY ENVIRONMENTAL SOLUTIONS, LLC","industry":null,"segment":"Enterprise","coreGoLiveDate":"2025-12-15","doubleWriteEnabledDate":null},
   {"id":"de6f9b2c-1744-42a7-873f-bba8f064d88c","name":"Keyes North Atlantic, Inc.","industry":"Electrical","segment":"Enterprise","coreGoLiveDate":"2024-08-01","doubleWriteEnabledDate":null},
-  {"id":"35a01bab-90fc-4ad6-a11e-56627fcbaaa8","name":"Pfd Electric","industry":"Electrical","segment":"Commercial","coreGoLiveDate":"2026-10-19","doubleWriteEnabledDate":null}
 ];
 
 // ── Embedded training/test tenant snapshot ───────────────────────────────────────
@@ -1028,7 +1027,16 @@ const SNAPSHOT_TENANTS = [
   {"id":"f4757d58-9125-44df-84a0-de3fe2fe069b","name":"Excel Service, Inc. Training","enabledDate":"2026-09-21","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"b7150321-aeac-4574-9528-7ecca35fe14d","name":"K2 Development Companies","enabledDate":"2026-09-22","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"segment":"1-10"},
   {"id":"29061a79-76d5-4196-8575-e43817f50f30","name":"G Tab","enabledDate":"2026-09-22","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"segment":"Commercial"},
-  {"id":"892b17d6-ce7f-4295-bff5-74a78e6a6238","name":"Dee Cramer","enabledDate":"2026-09-23","webViews":0,"mobileEvents":0,"hours30d":13,"employees30d":2,"hoursOn20":13,"employeesOn20":2,"industry":"HVAC/Mechanical","segment":"Enterprise"}
+  {"id":"892b17d6-ce7f-4295-bff5-74a78e6a6238","name":"Dee Cramer","enabledDate":"2026-09-23","webViews":0,"mobileEvents":0,"hours30d":13,"employees30d":2,"hoursOn20":13,"employeesOn20":2,"industry":"HVAC/Mechanical","segment":"Enterprise"},
+  {"id":"2db57a37-dd10-42f9-be79-e6f11494c7ff","name":null,"enabledDate":"2026-09-28","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"af72cd77-b264-4d61-9a19-a5ec40854fd1","name":null,"enabledDate":"2026-09-29","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"78c34fb2-c1d1-46ee-83e9-2980da3b18f5","name":null,"enabledDate":"2026-09-26","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"164bbb8b-8846-4304-9563-f5a414177913","name":null,"enabledDate":"2026-09-24","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"7dcc2ab5-d223-4ba4-967c-2dab34653b41","name":null,"enabledDate":"2026-09-24","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"765b39d1-799d-49fc-9928-40f6dc288af9","name":null,"enabledDate":"2026-09-24","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"35a01bab-90fc-4ad6-a11e-56627fcbaaa8","name":null,"enabledDate":"2026-09-23","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"cf41f62c-b514-47dc-99b3-5492cddb23a4","name":null,"enabledDate":"2026-09-23","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"819aae4c-8da0-48ff-b322-bf0ab47f2e34","name":null,"enabledDate":"2026-09-24","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
