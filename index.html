@@ -682,7 +682,7 @@
 //
 // SNAPSHOT_DATE — bumped by the unattended GitHub Actions job, which syncs ONLY
 // the tenant ID list from LaunchDarkly. Cheap and reliable; runs every day.
-const SNAPSHOT_DATE = '2026-09-29';
+const SNAPSHOT_DATE = '2026-09-30';
 
 // LAST_ENRICHED_DATE — bumped ONLY by the Snowflake enrichment job, which is the
 // sole source of names, industry, segment, hours and usage. It needs an
@@ -835,6 +835,7 @@ const NEXT_UP_TENANTS = [
   {"id":"49481e06-417b-44f6-8367-b3e88937dbbc","name":"North Shore Tech Electric LLC","industry":null,"segment":"1-10","coreGoLiveDate":"2026-07-15","doubleWriteEnabledDate":"2026-08-05"},
   {"id":"2bbf5f68-c662-40b7-8c60-eca36b451682","name":"D & H Refrigeration, Inc.","industry":"HVAC/Mechanical","segment":"Commercial","coreGoLiveDate":"2026-08-31","doubleWriteEnabledDate":"2026-09-01"},
   {"id":"5379128a-9c3c-4303-b334-7eb6c19e50f8","name":"Muska Electric","industry":"Electrical","segment":"Enterprise","coreGoLiveDate":"2025-07-14","doubleWriteEnabledDate":"2026-09-03"},
+  {"id":"df90b0fa-d3f4-48ae-8f76-b9821681be86","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-09-29"},
   {"id":"d25c1969-74e2-4fc6-874b-dc1f0c7e8714","name":"Revolt Electric","industry":"Electrical","segment":"Commercial","coreGoLiveDate":"2023-08-21","doubleWriteEnabledDate":null},
   {"id":"a586c5fe-31a9-4749-9c8d-4c0290ba7f43","name":"Seidel Electric Services","industry":"Electrical","segment":"Commercial","coreGoLiveDate":"2025-06-03","doubleWriteEnabledDate":null},
   {"id":"f6404381-b016-4cc9-a196-189ecc302749","name":"METRO POWER SOLUTIONS, LLC","industry":"Electrical","segment":"1-10","coreGoLiveDate":"2025-04-28","doubleWriteEnabledDate":null},
@@ -1037,6 +1038,8 @@ const SNAPSHOT_TENANTS = [
   {"id":"35a01bab-90fc-4ad6-a11e-56627fcbaaa8","name":null,"enabledDate":"2026-09-23","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"cf41f62c-b514-47dc-99b3-5492cddb23a4","name":null,"enabledDate":"2026-09-23","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"819aae4c-8da0-48ff-b322-bf0ab47f2e34","name":null,"enabledDate":"2026-09-24","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"eaf3f271-257d-4ddd-aafe-3b53c1371f1e","name":null,"enabledDate":"2026-09-29","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"0635684b-4a5f-460c-82e9-b18be08e3217","name":null,"enabledDate":"2026-09-30","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
