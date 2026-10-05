@@ -522,9 +522,10 @@
     <h3>Where the rollout stands against the committed schedule</h3>
     <p class="chart-sub" style="margin-bottom:14px">
       Measured against the <a id="plan-src" href="#" target="_blank" rel="noopener">Migration Plan (Rollout Schedule)</a>,
-      revised <span id="plan-asof">&mdash;</span>. That plan sequences <b id="plan-total">&mdash;</b> tenants into weekly
+      revised <span id="plan-asof">&mdash;</span>. That plan sequences <b id="plan-total">&mdash;</b> non-API tenants into weekly
       tranches &mdash; double-writes on Monday, migrate on Saturday &mdash; finishing
-      <span id="plan-sunset">&mdash;</span>, the TT 1.0 sunset date.
+      <span id="plan-sunset">&mdash;</span>. The <span id="plan-api">&mdash;</span> public-API tenants are not yet
+      scheduled; TT 1.0 sunsets once they migrate.
     </p>
     <div class="stats" style="margin-bottom:0">
       <div class="stat-card">
@@ -555,21 +556,18 @@
     carrying the <code>time-tracking-redesign</code> flag &mdash; the same set the Tenants tab lists &mdash;
     counted <b>from the plan's own start date</b>. <span id="cav-baseline">&mdash;</span> tenants were already on 2.0 before
     then (the original reference cohort, which sits outside the <span id="cav-total">&mdash;</span> population); counting
-    them would show the pilot weeks running ahead of a schedule that never claimed them.
+    them would show the first weeks running ahead of a schedule that never claimed them.
     Also excluded: the <span id="cav-training">&mdash;</span> internal training/demo tenants on the flag, which are
     sandboxes belonging to customers scheduled later, not migrations.
     <br><br>
-    Two things cut the other way, and neither rescues the number. The plan's first 15 pilot
-    entries include DNU/QA tenants with no Salesforce account, so they are invisible here &mdash;
-    worth up to ~15. And a stricter reading, tenants actually logging hours on 2.0, gives
-    <b><span id="cav-producing">&mdash;</span></b> rather than <span id="cav-flagon">&mdash;</span> on the flag. The shortfall is an order of
-    magnitude larger than either adjustment.
+    A stricter reading, tenants actually logging hours on 2.0, gives
+    <b><span id="cav-producing">&mdash;</span></b> rather than <span id="cav-flagon">&mdash;</span> on the flag.
   </div>
 
   <div class="chart-card">
     <h3>Burn-down &mdash; tenants still on TT 1.0</h3>
     <p class="chart-sub">
-      The plan line has to reach zero on the sunset date. The projection continues the trailing
+      The plan line has to reach zero on the last scheduled migration Saturday. The projection continues the trailing
       eight-week rate; where it lands on that date is the size of the problem.
     </p>
     <svg id="chart-burn" viewBox="0 0 1080 320" style="width:100%;height:auto"></svg>
@@ -579,8 +577,8 @@
   <div class="chart-card">
     <h3>Weekly pace &mdash; planned vs achieved</h3>
     <p class="chart-sub" id="pace-sub">
-      The schedule ramps out of the pilot rather than stepping straight to full rate. Reaching
-      and holding that rate is the whole plan; every downstream date depends on it.
+      The schedule runs at a regular weekly rate and then ramps once the database migration ships. Reaching
+      and holding those rates is the whole plan; every downstream date depends on it.
     </p>
     <svg id="chart-pace" viewBox="0 0 1080 260" style="width:100%;height:auto"></svg>
     <p class="chart-sub" id="note-pace" style="margin:10px 0 0"></p>
@@ -589,7 +587,7 @@
   <div class="chart-card">
     <h3>Tranche ledger</h3>
     <p class="chart-sub">
-      Plan cumulative is the schedule's own published column. Actual cumulative counts customer
+      Plan cumulative is the schedule's published column less the pre-plan Tranche 0 cohort. Actual cumulative counts customer
       tenants migrated since the plan began, excluding the <span id="pl-baseline">&mdash;</span>-tenant pre-plan cohort
       (<span id="pl-undated">&mdash;</span> of which have no recoverable enable date and are treated as present throughout).
     </p>
@@ -747,35 +745,29 @@ const RUNWAY = {
 // `cum` is the plan's own cumulative column, NOT a running total of `n` computed
 // here — keep them as published so a transcription error shows up as a mismatch
 // rather than being silently smoothed over.
-const PLAN_AS_OF = '2026-09-23';
+const PLAN_AS_OF = '2026-10-05';
 const PLAN_SRC = 'https://buildops.atlassian.net/wiki/spaces/BPD/pages/4851826814';
-const SUNSET_DATE = '2027-02-27';   // last migrate date; TT 1.0 sunset target
-const PLAN_TOTAL = 988;             // every tenant the plan sequences, incl. the pre-plan cohort
+const SUNSET_DATE = '2026-12-26';   // last scheduled migrate date; the 73 public-API tenants are unscheduled
+const PLAN_TOTAL = 915;             // the plan's final cumulative: Tranche 0 plus every scheduled non-API tenant
+const PLAN_PRE = 26;                // Tranche 0 — already live, inside `cum` but outside the scheduled population
+const PLAN_SCHED = PLAN_TOTAL - PLAN_PRE;   // tenants the schedule actually migrates
+const PLAN_API = 73;                // public-API tenants, not yet scheduled
 const PLAN_GROUPS = [
-  { label: 'Clear to schedule', n: 860 },
+  { label: 'Clear to schedule', n: 889 },
   { label: 'Blocked — public API', n: 73 },
-  { label: 'Blocked — scale / prior rollback', n: 36 },
 ];
 const PLAN = [
-  { week: '2026-09-28', migrate: '2026-10-03', group: 'Clear to schedule', n: 50, cum: 76 },
-  { week: '2026-10-05', migrate: '2026-10-10', group: 'Clear to schedule', n: 40, cum: 116 },
-  { week: '2026-10-12', migrate: '2026-10-17', group: 'Clear to schedule', n: 51, cum: 167 },
-  { week: '2026-10-19', migrate: '2026-10-24', group: 'Clear to schedule', n: 51, cum: 218 },
-  { week: '2026-10-26', migrate: '2026-10-31', group: 'Clear to schedule', n: 51, cum: 269 },
-  { week: '2026-11-02', migrate: '2026-11-07', group: 'Clear to schedule', n: 51, cum: 320 },
-  { week: '2026-11-09', migrate: '2026-11-14', group: 'Clear to schedule', n: 51, cum: 371 },
-  { week: '2026-11-16', migrate: '2026-11-21', group: 'Clear to schedule', n: 51, cum: 422 },
-  { week: '2026-11-30', migrate: '2026-12-05', group: 'Clear to schedule', n: 51, cum: 473 },
-  { week: '2026-12-07', migrate: '2026-12-12', group: 'Clear to schedule', n: 51, cum: 524 },
-  { week: '2026-12-14', migrate: '2026-12-19', group: 'Clear to schedule', n: 51, cum: 575 },
-  { week: '2027-01-04', migrate: '2027-01-09', group: 'Clear to schedule', n: 51, cum: 626 },
-  { week: '2027-01-11', migrate: '2027-01-16', group: 'Clear to schedule', n: 51, cum: 677 },
-  { week: '2027-01-18', migrate: '2027-01-23', group: 'Clear to schedule', n: 51, cum: 728 },
-  { week: '2027-01-25', migrate: '2027-01-30', group: 'Clear to schedule', n: 51, cum: 779 },
-  { week: '2027-02-01', migrate: '2027-02-06', group: 'Clear to schedule', n: 51, cum: 830 },
-  { week: '2027-02-08', migrate: '2027-02-13', group: 'Clear to schedule', n: 49, cum: 879 },
-  { week: '2027-02-15', migrate: '2027-02-20', group: 'Blocked — public API', n: 73, cum: 952 },
-  { week: '2027-02-22', migrate: '2027-02-27', group: 'Blocked — scale / prior rollback', n: 36, cum: 988 },
+  { week: '2026-10-05', migrate: '2026-10-10', group: 'Clear to schedule', n: 49, cum: 75 },
+  { week: '2026-10-12', migrate: '2026-10-17', group: 'Clear to schedule', n: 40, cum: 115 },
+  { week: '2026-10-19', migrate: '2026-10-24', group: 'Clear to schedule', n: 52, cum: 167 },
+  { week: '2026-10-26', migrate: '2026-10-31', group: 'Clear to schedule', n: 51, cum: 218 },
+  { week: '2026-11-02', migrate: '2026-11-07', group: 'Clear to schedule', n: 51, cum: 269 },
+  { week: '2026-11-09', migrate: '2026-11-14', group: 'Clear to schedule', n: 51, cum: 320 },
+  { week: '2026-11-16', migrate: '2026-11-21', group: 'Clear to schedule', n: 51, cum: 371 },
+  { week: '2026-11-30', migrate: '2026-12-05', group: 'Clear to schedule', n: 136, cum: 507 },
+  { week: '2026-12-07', migrate: '2026-12-12', group: 'Clear to schedule', n: 136, cum: 643 },
+  { week: '2026-12-14', migrate: '2026-12-19', group: 'Clear to schedule', n: 136, cum: 779 },
+  { week: '2026-12-21', migrate: '2026-12-26', group: 'Clear to schedule', n: 136, cum: 915 },
 ];
 
 // Pace grade rubric. Deliberately explicit and rendered on the page next to the
@@ -2366,7 +2358,7 @@ function achievedRate(weeks) {
 function planSummary() {
   const a = planActuals();
   const done = PLAN.filter(p => p.migrate && p.migrate <= SNAPSHOT_DATE);
-  const plannedToDate = done.length ? done[done.length - 1].cum : 0;
+  const plannedToDate = done.length ? done[done.length - 1].cum - PLAN_PRE : 0;
 
   // Like-for-like: the schedule's cumulative column starts at zero on its own start
   // date and counts only tenants it sequences. Tenants already on 2.0 before then —
@@ -2379,7 +2371,7 @@ function planSummary() {
   const ratio = plannedToDate ? actual / plannedToDate : 1;
   const band = GRADE_BANDS.find(b => ratio >= b.min);
   const future = PLAN.filter(p => p.migrate && p.migrate > SNAPSHOT_DATE);
-  const remaining = PLAN_TOTAL - actual;
+  const remaining = PLAN_SCHED - actual;
   const rate8 = achievedRate(8);
   return {
     ...a, plannedToDate, actual, ratio, band, remaining, baseline, inPlan,
@@ -2406,29 +2398,29 @@ function drawBurn() {
   const iw = W_ - L - R, ih = H - T - B;
   const t0 = asUTC(PLAN[0].migrate), t1 = asUTC(SUNSET_DATE);
   const x = t => L + ((t - t0) / (t1 - t0)) * iw;
-  const y = v => T + ih - (v / PLAN_TOTAL) * ih;
+  const y = v => T + ih - (v / PLAN_SCHED) * ih;
 
   for (let i = 0; i <= 4; i++) {
-    const v = PLAN_TOTAL * i / 4;
+    const v = PLAN_SCHED * i / 4;
     svg.appendChild(el('line', { class: 'grid', x1: L, x2: L + iw, y1: y(v), y2: y(v) }));
     svg.appendChild(el('text', { class: 'tick', x: L - 8, y: y(v) + 3, 'text-anchor': 'end' }, Math.round(v)));
   }
 
-  // Planned remaining — steps down on each migrate date, reaching zero at sunset.
-  let pd = 'M' + x(t0) + ' ' + y(PLAN_TOTAL);
+  // Planned remaining — steps down on each migrate date, reaching zero on the last scheduled date.
+  let pd = 'M' + x(t0) + ' ' + y(PLAN_SCHED);
   PLAN.filter(p => p.migrate).forEach(p => {
     const px = x(asUTC(p.migrate));
-    pd += ' L' + px + ' ' + y(PLAN_TOTAL - (p.cum - p.n)) + ' L' + px + ' ' + y(PLAN_TOTAL - p.cum);
+    pd += ' L' + px + ' ' + y(PLAN_SCHED - (p.cum - p.n - PLAN_PRE)) + ' L' + px + ' ' + y(PLAN_SCHED - (p.cum - PLAN_PRE));
   });
   svg.appendChild(el('path', { d: pd, fill: 'none', stroke: '#1a1a2e', 'stroke-width': 2.2 }));
 
   // Actual remaining, to today only — plan-window progress, so the pre-plan cohort
   // does not show up as a head start the schedule never claimed.
   const now = asUTC(SNAPSHOT_DATE);
-  let ad = 'M' + x(t0) + ' ' + y(PLAN_TOTAL - s.inPlan(PLAN[0].migrate));
+  let ad = 'M' + x(t0) + ' ' + y(PLAN_SCHED - s.inPlan(PLAN[0].migrate));
   s.dates.filter(d => asUTC(d) >= t0).forEach(d => {
     const px = x(asUTC(d));
-    ad += ' L' + px + ' ' + y(PLAN_TOTAL - s.inPlan(d));
+    ad += ' L' + px + ' ' + y(PLAN_SCHED - s.inPlan(d));
   });
   ad += ' L' + x(now) + ' ' + y(s.remaining);
   svg.appendChild(el('path', { d: ad, fill: 'none', stroke: '#2f9e5f', 'stroke-width': 2.8 }));
@@ -2462,7 +2454,9 @@ function drawBurn() {
   [0, .25, .5, .75, 1].forEach(f => {
     const t = t0 + (t1 - t0) * f;
     svg.appendChild(el('text', { class: 'tick', x: x(t), y: H - B + 16, 'text-anchor': 'middle' },
-      new Date(t).toLocaleDateString('en-US', { month: 'short', year: '2-digit', timeZone: 'UTC' })));
+      new Date(t).toLocaleDateString('en-US', (t1 - t0) < 200 * dayMs
+        ? { month: 'short', day: 'numeric', timeZone: 'UTC' }
+        : { month: 'short', year: '2-digit', timeZone: 'UTC' })));
   });
   svg.appendChild(el('line', { class: 'axis', x1: L, x2: L + iw, y1: T + ih, y2: T + ih }));
   svg.appendChild(el('text', { class: 'lbl', x: L, y: H - 8 }, 'Migrate date (Saturdays)'));
@@ -2540,13 +2534,13 @@ function renderPlanTable() {
   PLAN.forEach(p => {
     const past = p.migrate && p.migrate <= SNAPSHOT_DATE;
     const act = past ? s.inPlan(p.migrate) : null;
-    const v = past ? act - p.cum : null;
+    const v = past ? act - (p.cum - PLAN_PRE) : null;
     h += '<tr' + (past ? '' : ' style="opacity:.55"') + '>' +
       '<td>' + fmtWk(p.week) + '</td>' +
       '<td>' + (p.migrate ? fmtWk(p.migrate) : '—') + '</td>' +
       '<td>' + p.group + '</td>' +
       '<td style="text-align:right">' + (p.n || '—') + '</td>' +
-      '<td style="text-align:right">' + p.cum + '</td>' +
+      '<td style="text-align:right">' + (p.cum - PLAN_PRE) + '</td>' +
       '<td style="text-align:right">' + (past ? act : '—') + '</td>' +
       '<td style="text-align:right;color:' + (v === null ? '#bbb' : v < 0 ? '#a32b2b' : '#1a7f5a') + '">' +
         (v === null ? '—' : (v > 0 ? '+' : '') + v) + '</td></tr>';
@@ -2581,11 +2575,12 @@ function renderPlan() {
   const put = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
   const src = document.getElementById('plan-src'); if (src) src.href = PLAN_SRC;
   put('plan-asof', fmtWk(PLAN_AS_OF));
-  put('plan-total', PLAN_TOTAL.toLocaleString('en-US'));
+  put('plan-total', PLAN_SCHED.toLocaleString('en-US'));
+  put('plan-api', PLAN_API);
   put('plan-sunset', fmtWk(SUNSET_DATE));
   put('pl-actual', s.actual);
-  put('pl-actual-sub', s.actual + ' of ' + PLAN_TOTAL.toLocaleString('en-US') + ' (' +
-    (s.actual / PLAN_TOTAL * 100).toFixed(1) + '%). ' + s.onFlagTotal +
+  put('pl-actual-sub', s.actual + ' of ' + PLAN_SCHED.toLocaleString('en-US') + ' (' +
+    (s.actual / PLAN_SCHED * 100).toFixed(1) + '%). ' + s.onFlagTotal +
     ' on 2.0 in total, incl. ' + s.baseline + ' from before the plan began');
   put('pl-planned', s.plannedToDate);
   const lastDone = PLAN.filter(p => p.migrate && p.migrate <= SNAPSHOT_DATE).slice(-1)[0];
@@ -2599,7 +2594,7 @@ function renderPlan() {
   put('pl-baseline', s.baseline);
   put('cav-training', SNAPSHOT_TENANTS.length);
   put('cav-baseline', s.baseline);
-  put('cav-total', PLAN_TOTAL.toLocaleString('en-US'));
+  put('cav-total', PLAN_SCHED.toLocaleString('en-US'));
   put('cav-producing', CUSTOMER_ACCOUNTS.filter(c => (c.hoursOn20 || 0) > 0).length + ' tenants');
   put('cav-flagon', s.onFlagTotal);
   const g = document.getElementById('pl-grade');
