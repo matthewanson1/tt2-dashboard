@@ -681,7 +681,7 @@
 //
 // SNAPSHOT_DATE — bumped by the unattended GitHub Actions job, which syncs ONLY
 // the tenant ID list from LaunchDarkly. Cheap and reliable; runs every day.
-const SNAPSHOT_DATE = '2026-10-04';
+const SNAPSHOT_DATE = '2026-10-05';
 
 // LAST_ENRICHED_DATE — bumped ONLY by the Snowflake enrichment job, which is the
 // sole source of names, industry, segment, hours and usage. It needs an
@@ -818,7 +818,7 @@ const CUSTOMER_ACCOUNTS = [
   {"id":"045462c4-bf8a-4340-bba7-55b5d6b06e4a","name":"SolidAire","industry":null,"segment":"Strategic","goLiveDate":"2026-10-01","ttEnabledDate":"2026-09-17","webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"activeTechs":0,"techsTotal":0,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
   {"id":"3b008a2d-b0ea-4e88-9b19-a3b37c83f5c6","name":"The Management Trust","industry":null,"segment":"Strategic","goLiveDate":"2025-08-29","ttEnabledDate":"2026-07-21","webViews":92548,"mobileEvents":1262,"hours30d":10276,"employees30d":67,"hoursOn20":28394,"employeesOn20":76,"activeTechs":92,"techsTotal":126,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
   {"id":"8d38df5b-8946-4763-ac2d-b43f82806d49","name":"TJW Industrial, Inc.","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-02-23","ttEnabledDate":"2026-08-19","webViews":11288,"mobileEvents":4326,"hours30d":9477,"employees30d":83,"hoursOn20":17007,"employeesOn20":85,"activeTechs":93,"techsTotal":110,"attestation":true,"autoGenerateTimeEntries":false,"requireStartEndTimes":false},
-  {"id":"2eb374f1-8cb6-467c-8d7d-6e720eabad1f","name":"Trinity Southern","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":null,"webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null,"activeTechs":5,"techsTotal":5,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true}
+  {"id":"2eb374f1-8cb6-467c-8d7d-6e720eabad1f","name":"Trinity Southern","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":null,"webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null,"activeTechs":5,"techsTotal":5,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
 ];
 
 // ── "Next Up for TT 2.0" ─────────────────────────────────────────────────────────
@@ -884,7 +884,7 @@ const NEXT_UP_TENANTS = [
   {"id":"b6a99f21-25af-464f-b22f-81e00bb6c6b2","name":"Regency Plumbing & Piping","industry":"Plumbing","segment":"Commercial","coreGoLiveDate":"2026-09-16","doubleWriteEnabledDate":null},
   {"id":"35ee516f-820e-4349-8fd2-47de5b410716","name":"Greater San Diego Air Conditioning Training","industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"fc8bfadc-bfb5-4b7a-974e-a9753f37f4a9","name":"INTEGRITY ENVIRONMENTAL SOLUTIONS, LLC","industry":null,"segment":"Enterprise","coreGoLiveDate":"2025-12-15","doubleWriteEnabledDate":null},
-  {"id":"de6f9b2c-1744-42a7-873f-bba8f064d88c","name":"Keyes North Atlantic, Inc.","industry":"Electrical","segment":"Enterprise","coreGoLiveDate":"2024-08-01","doubleWriteEnabledDate":null}
+  {"id":"de6f9b2c-1744-42a7-873f-bba8f064d88c","name":"Keyes North Atlantic, Inc.","industry":"Electrical","segment":"Enterprise","coreGoLiveDate":"2024-08-01","doubleWriteEnabledDate":null},
 ];
 
 // ── Embedded training/test tenant snapshot ───────────────────────────────────────
@@ -1044,7 +1044,7 @@ const SNAPSHOT_TENANTS = [
   {"id":"ceffc777-c8fa-4310-bf66-3e41f066f09f","name":"Lighting Maintenance","enabledDate":"2026-10-03","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"industry":"Electrical","segment":"Enterprise"},
   {"id":"cbee3b9d-f0ec-4599-825f-ae6a19338d7e","name":"Lighting Maintenance Training","enabledDate":"2026-10-03","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"c8da7a72-a96f-461d-8d3f-328483060606","name":"Foundry Rock","enabledDate":"2026-10-03","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"segment":"1-10"},
-  {"id":"fa8afa4a-b0fa-43ec-893c-0cf5ee6dacb0","name":"Foundry Rock Training","enabledDate":"2026-10-03","webViews":0,"mobileEvents":0,"hours30d":6,"employees30d":1,"hoursOn20":0,"employeesOn20":0}
+  {"id":"fa8afa4a-b0fa-43ec-893c-0cf5ee6dacb0","name":"Foundry Rock Training","enabledDate":"2026-10-03","webViews":0,"mobileEvents":0,"hours30d":6,"employees30d":1,"hoursOn20":0,"employeesOn20":0},
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
