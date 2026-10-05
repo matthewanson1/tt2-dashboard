@@ -37,6 +37,7 @@ const iso = d => { const m = d.match(/^(\w{3}) (\d{1,2}), (\d{4})$/); return m ?
     if (c.length !== 7) continue;
     const [tr, wk, mg, grp, n, cum] = c.slice(0, 6).map(strip);
     if (tr === '0' || tr === '—' || n === '0') continue;
+    if (!iso(mg)) continue;   // undated tranche (public API) is outside the burn-down
     want.push({ week: iso(wk), migrate: iso(mg), group: grp, n: +n, cum: +cum });
   }
 
