@@ -613,8 +613,8 @@
     <p class="chart-sub" style="margin-bottom:14px">
       A separate profiling study compared the tenants running real production volume on TT 2.0 against every
       live 1.0 tenant, across fourteen dimensions of how a customer actually records time. The cohort between
-      them already covers essentially every way the product gets used &mdash; so what still blocks a migration is
-      <b>structural, not behavioral</b>.
+      them already covers essentially every way the product gets used &mdash; so what is left is
+      <b>structural, not behavioral</b>: moving integrations onto the 2.0 endpoints.
     </p>
     <div class="stats" style="margin-bottom:0">
       <div class="stat-card">
@@ -628,9 +628,9 @@
         <div class="sub">No blocking attribute</div>
       </div>
       <div class="stat-card">
-        <div class="label">Genuinely blocked</div>
-        <div class="value" id="rw-blocked" style="color:#a32b2b">&mdash;</div>
-        <div class="sub">Needs an integration plan before scheduling</div>
+        <div class="label">Moving to 2.0 endpoints</div>
+        <div class="value" id="rw-blocked" style="color:#2f6e8f">&mdash;</div>
+        <div class="sub">Move to the 2.0 endpoints, then get a migration date</div>
       </div>
       <div class="stat-card">
         <div class="label">Workflow dimensions</div>
@@ -641,15 +641,15 @@
   </div>
 
   <div class="chart-card">
-    <h3>What actually blocks the <span id="rw-blocked-2">&mdash;</span></h3>
-    <p class="chart-sub">Not one of the fourteen workflow dimensions gates a single tenant. This one does:
-      these tenants have no migration date until an integration plan is agreed with them.</p>
+    <h3>The <span id="rw-blocked-2">&mdash;</span> moving to the 2.0 endpoints</h3>
+    <p class="chart-sub">Not one of the fourteen workflow dimensions holds a tenant back. These tenants integrate over the
+      TT 1.0 public API, which sunsets under 2.0, so each moves its integration onto the 2.0 endpoints and then gets a migration date.</p>
     <div class="chart-wrap"><svg id="chart-blockers" width="1080" height="160"></svg></div>
   </div>
 
   <div class="chart-card">
     <h3>Among the clear, worth briefing a CSM on</h3>
-    <p class="chart-sub">Not blockers &mdash; these tenants can all be scheduled. Each is something true of a group
+    <p class="chart-sub">None of these hold a tenant back &mdash; these tenants can all be scheduled. Each is something true of a group
       that someone should know going in. <b>A tenant can carry more than one, so these do not sum to the total.</b></p>
     <div class="chart-wrap"><svg id="chart-flags" width="1080" height="215"></svg></div>
   </div>
@@ -707,9 +707,9 @@ const RUNWAY = {
   window: '90 days to 2026-10-05',
   cohortWindow: '90 days to 2026-09-09',
   total: 962, clear: 889, blocked: 73, dims: 14, cohort: 9, noFlags: 692,
-  // mutually exclusive — these sum to `blocked`
+  // tenants moving to the 2.0 endpoints — these sum to `blocked`
   blockers: [
-    { label: 'Integrate over the TT 1.0 public API', n: 73 },
+    { label: 'Integrate over the TT 1.0 public API — moving to 2.0 endpoints', n: 73 },
   ],
   // OVERLAPPING — a tenant can carry several, so these do NOT sum to `clear`
   // Counted over the 885 of the 889 scheduled tenants that carry a tenant id in the tranche sheet.
@@ -756,7 +756,7 @@ const PLAN_SCHED = PLAN_TOTAL - PLAN_PRE;   // tenants the schedule actually mig
 const PLAN_API = 73;                // public-API tenants, not yet scheduled
 const PLAN_GROUPS = [
   { label: 'Clear to schedule', n: 889 },
-  { label: 'Blocked — public API', n: 73 },
+  { label: 'Public API — moving to 2.0 endpoints', n: 73 },
 ];
 const PLAN = [
   { week: '2026-10-05', migrate: '2026-10-10', group: 'Clear to schedule', n: 49, cum: 75 },
@@ -1321,7 +1321,7 @@ function checkStaleness() {
   const rwAge = Math.floor((Date.now() - new Date(RUNWAY_AS_OF + 'T00:00:00Z').getTime()) / 86400000);
   if (rwAge >= 45) {
     msgs.push(`⚠ The Runway tab's study is ${rwAge} days old (${formatDate(RUNWAY_AS_OF)}). `
-      + `Tenant counts and blockers will have moved — re-run it before quoting them.`);
+      + `Tenant counts and flags will have moved — re-run it before quoting them.`);
   }
 
   if (!msgs.length) return;
@@ -2642,7 +2642,7 @@ function renderRunway() {
       svg.appendChild(el('text', { class: 'tick', x: L + w + 9, y: y + 15 }, n(r.n)));
     });
   };
-  bars('chart-blockers', RUNWAY.blockers, () => '#a32b2b');
+  bars('chart-blockers', RUNWAY.blockers, () => '#2f6e8f');
   bars('chart-flags', RUNWAY.flags, r => r.tone === 'good' ? '#1a7f5a' : '#b4670a');
 
   const t = document.getElementById('rw-cohort');
