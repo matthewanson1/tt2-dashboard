@@ -109,6 +109,14 @@ ok(ownRows === 4, 'ownership table has header + 3 rows', `${ownRows} rows`);
 const deep = run('#analytics');
 ok(deep.visible().join() === 'panel-analytics', 'deep link #analytics opens Analytics', deep.visible().join());
 ok(deep.nodes.get('chart-review').kids.length > 0, 'deep link renders the tab it lands on');
+// #plan and #runway render immediately on load and read consts declared late in the
+// script; they threw in the temporal dead zone for weeks while #analytics passed.
+const deepPlan = run('#plan');
+ok(deepPlan.visible().join() === 'panel-plan', 'deep link #plan opens Plan vs Actual', deepPlan.visible().join());
+ok(!!(deepPlan.nodes.get('plan-total') && deepPlan.nodes.get('plan-total').text), 'deep link #plan fills in the Plan tab');
+const deepRunway = run('#runway');
+ok(deepRunway.visible().join() === 'panel-runway', 'deep link #runway opens Runway', deepRunway.visible().join());
+ok(!!(deepRunway.nodes.get('rw-total') && deepRunway.nodes.get('rw-total').text), 'deep link #runway fills in the Runway tab');
 const bad = run('#nonsense');
 ok(bad.visible().join() === 'panel-tenants', 'unknown hash falls back to Tenants');
 ok(bad.loc.hash === '#tenants', 'unknown hash is rewritten', bad.loc.hash);
