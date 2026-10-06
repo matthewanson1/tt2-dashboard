@@ -2284,7 +2284,7 @@ function renderAnalytics() {
 // Slugs deliberately differ from the panel element ids (`analytics`, not
 // `panel-analytics`): if a hash matched an element id the browser would scroll to
 // that element on load, jumping past the header.
-(function initTabs(){
+function initTabs(){
   const PANELS = ['panel-tenants', 'panel-analytics', 'panel-plan', 'panel-runway'];
   const DEFAULT_SLUG = 'tenants';
   const slugOf = id => id.replace(/^panel-/, '');
@@ -2330,7 +2330,7 @@ function renderAnalytics() {
     history.replaceState(null, '', location.pathname + location.search + '#' + DEFAULT_SLUG);
     activate(DEFAULT_SLUG);
   }
-})();
+}
 
 // ── Plan vs Actual tab ─────────────────────────────────────────────────────────
 // Everything here is derived at render time from PLAN + CUSTOMER_ACCOUNTS. Do not
@@ -2704,6 +2704,11 @@ function renderRunway() {
   put('cav-tab-hrs', n(tabOn2));
   put('cav-undated', String(undated));
 })();
+
+// Runs here, not where it is declared: a deep link (#plan, #runway) renders its tab
+// immediately, and those renderers read consts declared further down. Called earlier,
+// they throw in the temporal dead zone and the tab stays blank until clicked.
+initTabs();
 
 checkStaleness();
 </script>
