@@ -681,7 +681,7 @@
 //
 // SNAPSHOT_DATE — bumped by the unattended GitHub Actions job, which syncs ONLY
 // the tenant ID list from LaunchDarkly. Cheap and reliable; runs every day.
-const SNAPSHOT_DATE = '2026-10-06';
+const SNAPSHOT_DATE = '2026-10-07';
 
 // LAST_ENRICHED_DATE — bumped ONLY by the Snowflake enrichment job, which is the
 // sole source of names, industry, segment, hours and usage. It needs an
@@ -830,6 +830,8 @@ const NEXT_UP_TENANTS = [
   {"id":"2bbf5f68-c662-40b7-8c60-eca36b451682","name":"D & H Refrigeration, Inc.","industry":"HVAC/Mechanical","segment":"Commercial","coreGoLiveDate":"2026-08-31","doubleWriteEnabledDate":"2026-09-01"},
   {"id":"5379128a-9c3c-4303-b334-7eb6c19e50f8","name":"Muska Electric","industry":"Electrical","segment":"Enterprise","coreGoLiveDate":"2025-07-14","doubleWriteEnabledDate":"2026-09-03"},
   {"id":"df90b0fa-d3f4-48ae-8f76-b9821681be86","name":"Integrity Fire Protection","industry":"Fire Life Safety","segment":"Commercial","coreGoLiveDate":"2026-09-17","doubleWriteEnabledDate":"2026-09-29"},
+  {"id":"b547cf27-e223-480a-884f-0ec69be62e76","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-10-06"},
+  {"id":"bec5dfd2-c008-4077-b40c-f814756ee218","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-10-07"},
   {"id":"d25c1969-74e2-4fc6-874b-dc1f0c7e8714","name":"Revolt Electric","industry":"Electrical","segment":"Commercial","coreGoLiveDate":"2023-08-21","doubleWriteEnabledDate":null},
   {"id":"a586c5fe-31a9-4749-9c8d-4c0290ba7f43","name":"Seidel Electric Services","industry":"Electrical","segment":"Commercial","coreGoLiveDate":"2025-06-03","doubleWriteEnabledDate":null},
   {"id":"f6404381-b016-4cc9-a196-189ecc302749","name":"METRO POWER SOLUTIONS, LLC","industry":"Electrical","segment":"1-10","coreGoLiveDate":"2025-04-28","doubleWriteEnabledDate":null},
@@ -880,7 +882,6 @@ const NEXT_UP_TENANTS = [
   {"id":"00ffaa70-22c7-41ec-ad1a-61ef327559f1","name":"SS Grading","industry":"Excavation/Site Prep","segment":"Commercial","coreGoLiveDate":"2025-04-28","doubleWriteEnabledDate":null},
   {"id":"b3636b36-c4c8-44eb-8cbb-889ce81ecddd","name":"ControlAir Systems, Inc.","industry":"HVAC/Mechanical","segment":"Strategic","coreGoLiveDate":"2024-11-01","doubleWriteEnabledDate":null},
   {"id":"4f7e67eb-2fc1-4353-8dfb-88c792e6922b","name":"Timco Heating and Air, Inc.","industry":"HVAC/Mechanical","segment":"Strategic","coreGoLiveDate":"2021-10-13","doubleWriteEnabledDate":null},
-  {"id":"7a4a935f-d04d-438a-a140-27d481d1df0c","name":"Connect Technology Group","industry":"Electrical","segment":"Commercial","coreGoLiveDate":"2026-09-02","doubleWriteEnabledDate":null},
   {"id":"b6a99f21-25af-464f-b22f-81e00bb6c6b2","name":"Regency Plumbing & Piping","industry":"Plumbing","segment":"Commercial","coreGoLiveDate":"2026-09-16","doubleWriteEnabledDate":null},
   {"id":"35ee516f-820e-4349-8fd2-47de5b410716","name":"Greater San Diego Air Conditioning Training","industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"fc8bfadc-bfb5-4b7a-974e-a9753f37f4a9","name":"INTEGRITY ENVIRONMENTAL SOLUTIONS, LLC","industry":null,"segment":"Enterprise","coreGoLiveDate":"2025-12-15","doubleWriteEnabledDate":null},
@@ -1048,6 +1049,8 @@ const SNAPSHOT_TENANTS = [
   {"id":"1c59e72d-14f9-4735-8ad8-ea75325a688b","name":null,"enabledDate":"2026-10-06","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"2ce67821-41a6-49a8-868d-6b167b6b9541","name":null,"enabledDate":"2026-10-05","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"23d7f2a7-ba4a-4cc3-93be-c845ea7fb60f","name":null,"enabledDate":"2026-10-05","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"7a4a935f-d04d-438a-a140-27d481d1df0c","name":null,"enabledDate":"2026-10-07","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"52aee36b-118a-422f-bfdd-be2c70137178","name":null,"enabledDate":"2026-10-06","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
