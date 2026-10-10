@@ -134,6 +134,78 @@
   svg text.tick { font-size:10px; fill:#8a8b8f; }
   svg text.lbl { font-size:11px; fill:#55565a; }
   svg .cut { stroke:#c9463c; stroke-width:1.5; stroke-dasharray:4 3; }
+
+  /* ── Scorecard tab ─────────────────────────────────────────────────── */
+  .sc-bar { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; margin-top:10px; }
+  .sc-field { display:flex; flex-direction:column; gap:3px; font-size:11px; color:#77787c; }
+  .sc-field select { font:inherit; font-size:13px; color:#1b1b1f; background:#fff; border:1px solid #e0e0e0; border-radius:6px; padding:5px 8px; }
+  .sc-spacer { flex:1; }
+  .sc-btn { font:inherit; font-size:13px; font-weight:500; color:#1b1b1f; background:#fff; border:1px solid #e0e0e0; border-radius:6px; padding:6px 13px; cursor:pointer; }
+  .sc-btn:hover { border-color:#4f8ef7; }
+  .sc-btn-primary { background:#4f8ef7; border-color:#4f8ef7; color:#fff; }
+  .sc-btn-primary:hover { background:#3a7de0; }
+  .sc-btn:focus-visible, .sc-field select:focus-visible, #panel-scorecard tbody tr:focus-visible, .sc-thr input:focus-visible { outline:2px solid #4f8ef7; outline-offset:2px; }
+  .sc-msg { font-size:12px; margin-top:8px; }
+  .sc-msg:empty { display:none; }
+  .sc-msg.err { color:#a32b2b; }
+  .sc-msg.ok { color:#1a7f5a; }
+  .sc-cols { font-size:12px; color:#77787c; margin:4px 0 10px 18px; }
+  .sc-cols code { color:#1b1b1f; }
+  #panel-scorecard pre { background:#fafafa; border:1px solid #eee; border-radius:6px; padding:8px 10px; font-size:11.5px; overflow-x:auto; margin:0 0 10px; }
+  #panel-scorecard textarea { width:100%; min-height:130px; font:12px/1.45 monospace; color:#1b1b1f; border:1px solid #e0e0e0; border-radius:6px; padding:8px 10px; resize:vertical; }
+  .sc-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .sc-thr { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }
+  .sc-thr fieldset { border:1px solid #eee; border-radius:6px; padding:8px 11px 10px; }
+  .sc-thr legend { font-size:12.5px; font-weight:600; color:#1b1b1f; padding:0 4px; }
+  .sc-thr label { display:flex; flex-direction:column; gap:3px; font-size:11px; color:#77787c; }
+  .sc-thr input { width:84px; font:inherit; font-size:13px; color:#1b1b1f; border:1px solid #e0e0e0; border-radius:6px; padding:5px 8px; }
+
+  /* The matrix scrolls inside its own box on narrow screens rather than widening the page. */
+  .sc-matrix-wrap { overflow-x:auto; }
+  .sc-matrix { min-width:840px; }
+  .sc-matrix th.num, .sc-matrix td.num { text-align:right; }
+  .sc-matrix td { padding:0; }
+  .sc-matrix tbody tr { cursor:pointer; }
+  .sc-matrix tbody tr.sel td.sc-tn { box-shadow:inset 3px 0 0 #4f8ef7; }
+  .sc-tn { padding:9px 10px !important; font-weight:500; color:#1a1a2e; }
+  .sc-score { padding:9px 10px !important; text-align:right; font-size:17px; font-weight:700; color:#1a1a2e; }
+  .sc-cell { display:block; margin:3px; padding:6px 9px; border-radius:5px; text-align:right; line-height:1.25; }
+  .sc-cell b { display:block; font-size:14.5px; font-weight:650; }
+  .sc-cell small { font-size:10.5px; opacity:.85; }
+  .sc-good  { background:#e6f9ee; color:#1a7f5a; }
+  .sc-watch { background:#fff3e0; color:#b4670a; }
+  .sc-flag  { background:#ffebee; color:#a32b2b; }
+  .sc-na    { background:#f4f4f5; color:#999; }
+  .sc-matrix tbody tr.sc-all td { background:#f7f9fc; border-bottom:2px solid #e3e6ec; }
+  .sc-sub { display:block; font-size:10.5px; font-weight:400; color:#999; }
+  .sc-off { display:inline-block; margin-left:6px; padding:1px 7px; border-radius:9px; font-size:10px; font-weight:500; background:#f0f0f0; color:#888; vertical-align:1px; }
+  .sc-empty { padding:24px; text-align:center; color:#999; }
+  .sc-xref summary { cursor:pointer; font-weight:600; color:#4a3c22; }
+  .sc-xref ul { margin:6px 0 0 18px; columns:3 220px; font-size:12px; }
+
+  .sc-detail-head { display:flex; flex-wrap:wrap; align-items:baseline; gap:12px; margin:4px 0 9px; }
+  .sc-detail-head h2 { font-size:16px; font-weight:650; color:#1b1b1f; }
+  .sc-detail-head span { font-size:12.5px; color:#77787c; }
+  .sc-detail-head span b { font-size:18px; color:#1a1a2e; }
+  .sc-charts { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:11px; }
+  .sc-charts .chart-card { margin-bottom:0; }
+  .sc-chart-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .sc-pill { font-size:11px; font-weight:600; padding:1px 8px; border-radius:9px; white-space:nowrap; }
+  .sc-val { font-size:23px; font-weight:700; color:#1a1a2e; margin:2px 0 1px; }
+  .sc-charts svg { display:block; width:100%; height:auto; overflow:visible; }
+  .sc-delta { font-size:12px; font-weight:600; color:#77787c; margin:0 0 3px; }
+  .sc-delta span { font-weight:400; color:#999; }
+  .sc-delta-good { color:#1a7f5a; }
+  .sc-delta-bad { color:#a32b2b; }
+  .sc-hit { cursor:pointer; outline:none; }
+  .sc-hit:focus-visible { stroke:#4f8ef7; stroke-width:2; }
+  .sc-tip { position:fixed; z-index:60; transform:translate(-50%, -100%); background:#1a1a2e; color:#fff;
+    font-size:11.5px; line-height:1.4; padding:6px 9px; border-radius:6px; pointer-events:none; white-space:nowrap;
+    box-shadow:0 2px 8px rgba(0,0,0,.18); }
+  .sc-tip b { font-weight:600; }
+  @media (max-width:720px) { .sc-charts { grid-template-columns:1fr; } }
+  /* Five tabs no longer fit a phone; let the tab row scroll rather than widen the page. */
+  @media (max-width:720px) { .tabs { overflow-x:auto; scrollbar-width:none; } .tab-btn { flex:none; white-space:nowrap; } }
   </style>
 </head>
 <body>
@@ -155,8 +227,9 @@
   <div class="tabs">
     <button class="tab-btn active" data-panel="panel-tenants">Tenants</button>
     <button class="tab-btn" data-panel="panel-analytics">Analytics</button>
-    <button class="tab-btn" data-panel="panel-plan">Plan vs Actual</button>
+    <button class="tab-btn" data-panel="panel-plan">Migration Schedule</button>
     <button class="tab-btn" data-panel="panel-runway">Runway</button>
+    <button class="tab-btn" data-panel="panel-scorecard">Scorecard</button>
   </div>
 
   <div id="panel-tenants">
@@ -333,9 +406,7 @@
       <h3>Approved and dismissed, week by week on 2.0</h3>
       <p class="chart-sub">Share of each week's time entries that have reached Approved and that were
         Dismissed, across every tenant on 2.0, from the first production cutover in June. Flat-to-rising
-        approved with flat-to-falling dismissed is the shape you want. <b>Read the last week or two with
-        care</b> — approval happens days after the work date, so the most recent weeks always under-read
-        until review catches up; the final segment is dashed for that reason.</p>
+        approved with flat-to-falling dismissed is the shape you want.</p>
       <div class="chart-wrap"><svg id="chart-trend" width="1080" height="270"></svg></div>
       <div class="legend">
         <span><i style="background:#2f9e5f"></i>Approved</span>
@@ -519,29 +590,29 @@
 <div id="panel-plan" hidden>
 
   <div class="chart-card" style="border-left:3px solid #a32b2b">
-    <h3>Where the rollout stands against the committed schedule</h3>
+    <h3>Where the migration stands against the schedule</h3>
     <p class="chart-sub" style="margin-bottom:14px">
       Measured against the <a id="plan-src" href="#" target="_blank" rel="noopener">Migration Plan (Rollout Schedule)</a>,
-      revised <span id="plan-asof">&mdash;</span>. That plan sequences <b id="plan-total">&mdash;</b> non-API tenants into weekly
-      tranches &mdash; double-writes on Monday, migrate on Saturday &mdash; finishing
-      <span id="plan-sunset">&mdash;</span>. The <span id="plan-api">&mdash;</span> public-API tenants are not yet
-      scheduled; TT 1.0 sunsets once they migrate.
+      revised <span id="plan-asof">&mdash;</span>. It covers <b id="plan-total">&mdash;</b> tenants:
+      <span id="plan-live">&mdash;</span> already live (Tranche 0), <span id="plan-sched">&mdash;</span> in weekly tranches
+      &mdash; double-writes on Monday, migrate on Saturday &mdash; finishing <span id="plan-sunset">&mdash;</span>, and
+      <span id="plan-api">&mdash;</span> public-API tenants not yet scheduled. TT 1.0 sunsets once they migrate.
     </p>
     <div class="stats" style="margin-bottom:0">
       <div class="stat-card">
-        <div class="label">Migrated since plan start</div>
+        <div class="label">Migrated to 2.0</div>
         <div class="value" id="pl-actual">&mdash;</div>
         <div class="sub" id="pl-actual-sub">&mdash;</div>
       </div>
       <div class="stat-card">
-        <div class="label">Plan says by now</div>
+        <div class="label">Schedule says by now</div>
         <div class="value" id="pl-planned">&mdash;</div>
         <div class="sub" id="pl-planned-sub">&mdash;</div>
       </div>
       <div class="stat-card">
-        <div class="label">Attainment vs plan</div>
+        <div class="label">Attainment vs schedule</div>
         <div class="value" id="pl-ratio">&mdash;</div>
-        <div class="sub">Migrated &divide; plan-to-date</div>
+        <div class="sub">Migrated &divide; scheduled to date</div>
       </div>
       <div class="stat-card">
         <div class="label">Pace grade</div>
@@ -552,13 +623,10 @@
   </div>
 
   <div class="caveat" id="plan-caveat">
-    <b>What counts as &ldquo;migrated&rdquo; here.</b> The numerator is production Salesforce customer tenants
-    carrying the <code>time-tracking-redesign</code> flag &mdash; the same set the Tenants tab lists &mdash;
-    counted <b>from the plan's own start date</b>. <span id="cav-baseline">&mdash;</span> tenants were already on 2.0 before
-    then (the original reference cohort, which sits outside the <span id="cav-total">&mdash;</span> population); counting
-    them would show the first weeks running ahead of a schedule that never claimed them.
-    Also excluded: the <span id="cav-training">&mdash;</span> internal training/demo tenants on the flag, which are
-    sandboxes belonging to customers scheduled later, not migrations.
+    <b>What counts as &ldquo;migrated&rdquo; here.</b> Production Salesforce customer tenants carrying the
+    <code>time-tracking-redesign</code> flag &mdash; the same set the Tenants tab lists. The
+    <span id="cav-training">&mdash;</span> internal training/demo tenants on the flag are excluded: they are sandboxes
+    belonging to customers scheduled later, not migrations.
     <br><br>
     A stricter reading, tenants actually logging hours on 2.0, gives
     <b><span id="cav-producing">&mdash;</span></b> rather than <span id="cav-flagon">&mdash;</span> on the flag.
@@ -567,8 +635,8 @@
   <div class="chart-card">
     <h3>Burn-down &mdash; tenants still on TT 1.0</h3>
     <p class="chart-sub">
-      The plan line has to reach zero on the last scheduled migration Saturday. The projection continues the trailing
-      eight-week rate; where it lands on that date is the size of the problem.
+      Out of all tenants in the plan. The plan line steps down on each migration Saturday and ends at the public-API
+      tenants, which have no date yet. The projection continues the trailing eight-week rate.
     </p>
     <svg id="chart-burn" viewBox="0 0 1080 320" style="width:100%;height:auto"></svg>
     <p class="chart-sub" id="note-burn" style="margin:10px 0 0"></p>
@@ -587,9 +655,8 @@
   <div class="chart-card">
     <h3>Tranche ledger</h3>
     <p class="chart-sub">
-      Plan cumulative is the schedule's published column less the pre-plan Tranche 0 cohort. Actual cumulative counts customer
-      tenants migrated since the plan began, excluding the <span id="pl-baseline">&mdash;</span>-tenant pre-plan cohort
-      (<span id="pl-undated">&mdash;</span> of which have no recoverable enable date and are treated as present throughout).
+      Plan cumulative is the schedule's published column, Tranche 0 included. Actual cumulative counts customer tenants
+      on 2.0 by each migrate date (<span id="pl-undated">&mdash;</span> have no recoverable enable date and are counted from the start).
     </p>
     <div class="table-scroll">
       <table id="plan-table"></table>
@@ -674,6 +741,93 @@
 
 </div>
 
+<div id="panel-scorecard" hidden>
+
+  <div class="chart-card">
+    <h3>Tenant scorecard</h3>
+    <p class="chart-sub" id="sc-subline" style="margin-bottom:0">Loading data/scorecard.csv&hellip;</p>
+    <div class="sc-bar">
+      <label class="sc-field">Scoring window
+        <select id="sc-win">
+          <option value="1">Latest period</option>
+          <option value="4" selected>Last 4 periods</option>
+          <option value="all">All periods</option>
+        </select>
+      </label>
+      <label class="sc-field">Sort
+        <select id="sc-sort">
+          <option value="score-asc">Lowest score first</option>
+          <option value="score-desc">Highest score first</option>
+          <option value="name">Tenant name</option>
+        </select>
+      </label>
+      <span class="sc-spacer"></span>
+      <button class="sc-btn" id="sc-btn-thr" aria-expanded="false" aria-controls="sc-thr-panel">Thresholds</button>
+      <button class="sc-btn sc-btn-primary" id="sc-btn-load" aria-expanded="false" aria-controls="sc-load-panel">Load data</button>
+    </div>
+    <div class="sc-msg" id="sc-source-msg" role="status"></div>
+  </div>
+
+  <div class="chart-card" id="sc-load-panel" hidden>
+    <h3>Preview a CSV</h3>
+    <p class="chart-sub">Paste or upload a CSV with one row per tenant per period. It replaces <code>data/scorecard.csv</code> in this
+      browser only, until you clear it. To change what everyone sees, commit a new <code>data/scorecard.csv</code>. Columns:</p>
+    <ul class="sc-cols">
+      <li><code>tenant</code> tenant name</li>
+      <li><code>period_start</code> YYYY-MM-DD</li>
+      <li><code>time_entries</code> all time entries in the period, dismissed entries included</li>
+      <li><code>approved_entries</code> entries in an approved state that were not dismissed</li>
+      <li><code>submitted_entries</code> optional: entries in any status other than Unsubmitted</li>
+      <li><code>edited_entries</code> entries edited in any way after creation (any count may be left blank when it is not measured)</li>
+      <li><code>timesheets</code> tech-days with any time (one technician&rsquo;s time for one day)</li>
+      <li><code>timesheets_20h_plus</code> tech-days totaling 20 hours or more</li>
+      <li><code>active_technicians</code> technicians with at least one entry in the period</li>
+      <li><code>tenant_id</code> optional: the tenant&rsquo;s UUID, which matches against LaunchDarkly exactly instead of by name</li>
+    </ul>
+    <pre id="sc-tpl"></pre>
+    <div class="sc-row" style="margin-bottom:10px">
+      <button class="sc-btn" id="sc-btn-copy">Copy header row</button>
+      <label class="sc-btn">Upload CSV<input id="sc-file" type="file" accept=".csv,text/csv" hidden></label>
+    </div>
+    <textarea id="sc-csv" placeholder="Paste CSV here, header row included"></textarea>
+    <div class="sc-row" style="margin-top:9px">
+      <button class="sc-btn sc-btn-primary" id="sc-btn-apply">Load pasted data</button>
+      <button class="sc-btn" id="sc-btn-clear">Clear uploaded data</button>
+    </div>
+    <div class="sc-msg" id="sc-load-msg" role="status"></div>
+  </div>
+
+  <div class="chart-card" id="sc-thr-panel" hidden>
+    <h3>Thresholds</h3>
+    <p class="chart-sub">Each metric scores Good, Watch or Flag against these cutoffs. Changes apply immediately and are saved in this browser.</p>
+    <div class="sc-thr" id="sc-thr-form"></div>
+    <div class="sc-row" style="margin-top:10px"><button class="sc-btn" id="sc-btn-thr-reset">Reset to defaults</button></div>
+  </div>
+
+  <div class="card">
+    <div class="sc-matrix-wrap">
+      <table class="sc-matrix">
+        <thead><tr>
+          <th>Tenant</th><th class="num">Score</th>
+          <th class="num">Submission rate</th><th class="num">Approval rate</th><th class="num">20h+ days</th><th class="num">Edit rate</th><th class="num">Technicians</th>
+        </tr></thead>
+        <tbody id="sc-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="legend" style="margin:-4px 0 11px">
+    <span><i style="background:#1a7f5a"></i>Good</span><span><i style="background:#b4670a"></i>Watch</span>
+    <span><i style="background:#a32b2b"></i>Flag</span><span>Score averages the metrics that have data: Good 100, Watch 50, Flag 0</span>
+  </div>
+
+  <div class="caveat sc-xref" id="sc-xref"></div>
+
+  <section id="sc-detail" aria-live="polite"></section>
+  <div class="sc-tip" id="sc-tip" role="tooltip" hidden></div>
+
+</div>
+
+
 <script>
 // ── Dates ────────────────────────────────────────────────────────────────────────
 // TWO dates, deliberately separate. Do not collapse them into one, and do not
@@ -681,7 +835,7 @@
 //
 // SNAPSHOT_DATE — bumped by the unattended GitHub Actions job, which syncs ONLY
 // the tenant ID list from LaunchDarkly. Cheap and reliable; runs every day.
-const SNAPSHOT_DATE = '2026-10-09';
+const SNAPSHOT_DATE = '2026-10-05';
 
 // LAST_ENRICHED_DATE — bumped ONLY by the Snowflake enrichment job, which is the
 // sole source of names, industry, segment, hours and usage. It needs an
@@ -747,29 +901,29 @@ const RUNWAY = {
 // `cum` is the plan's own cumulative column, NOT a running total of `n` computed
 // here — keep them as published so a transcription error shows up as a mismatch
 // rather than being silently smoothed over.
-const PLAN_AS_OF = '2026-10-05';
+const PLAN_AS_OF = '2026-10-09';
 const PLAN_SRC = 'https://buildops.atlassian.net/wiki/spaces/BPD/pages/4851826814';
-const SUNSET_DATE = '2026-12-26';   // last scheduled migrate date; the 73 public-API tenants are unscheduled
-const PLAN_TOTAL = 915;             // the plan's final cumulative: Tranche 0 plus every scheduled non-API tenant
-const PLAN_PRE = 26;                // Tranche 0 — already live, inside `cum` but outside the scheduled population
-const PLAN_SCHED = PLAN_TOTAL - PLAN_PRE;   // tenants the schedule actually migrates
-const PLAN_API = 73;                // public-API tenants, not yet scheduled
+const SUNSET_DATE = '2026-12-26';   // last scheduled migrate date
+const PLAN_TOTAL = 997;             // every tenant in the plan: Tranche 0, the dated tranches, the undated public-API tranche
 const PLAN_GROUPS = [
-  { label: 'Clear to schedule', n: 889 },
-  { label: 'Public API — moving to 2.0 endpoints', n: 73 },
+  { label: 'Already live — enabled on request', n: 26 },
+  { label: 'Clear to schedule', n: 900 },
+  { label: 'Public API — moving to 2.0 endpoints', n: 71 },
 ];
 const PLAN = [
-  { week: '2026-10-05', migrate: '2026-10-10', group: 'Clear to schedule', n: 49, cum: 75 },
-  { week: '2026-10-12', migrate: '2026-10-17', group: 'Clear to schedule', n: 40, cum: 115 },
-  { week: '2026-10-19', migrate: '2026-10-24', group: 'Clear to schedule', n: 52, cum: 167 },
-  { week: '2026-10-26', migrate: '2026-10-31', group: 'Clear to schedule', n: 51, cum: 218 },
-  { week: '2026-11-02', migrate: '2026-11-07', group: 'Clear to schedule', n: 51, cum: 269 },
-  { week: '2026-11-09', migrate: '2026-11-14', group: 'Clear to schedule', n: 51, cum: 320 },
-  { week: '2026-11-16', migrate: '2026-11-21', group: 'Clear to schedule', n: 51, cum: 371 },
-  { week: '2026-11-30', migrate: '2026-12-05', group: 'Clear to schedule', n: 136, cum: 507 },
-  { week: '2026-12-07', migrate: '2026-12-12', group: 'Clear to schedule', n: 136, cum: 643 },
-  { week: '2026-12-14', migrate: '2026-12-19', group: 'Clear to schedule', n: 136, cum: 779 },
-  { week: '2026-12-21', migrate: '2026-12-26', group: 'Clear to schedule', n: 136, cum: 915 },
+  { tranche: 0, week: '2026-06-15', migrate: '2026-09-17', weekLabel: 'Already live', migrateLabel: 'Jun 15 – Sep 17', group: 'Already live — enabled on request', n: 26, cum: 26 },
+  { tranche: 1, week: '2026-10-05', migrate: '2026-10-10', group: 'Clear to schedule', n: 50, cum: 76 },
+  { tranche: 2, week: '2026-10-12', migrate: '2026-10-17', group: 'Clear to schedule', n: 41, cum: 117 },
+  { tranche: 3, week: '2026-10-19', migrate: '2026-10-24', group: 'Clear to schedule', n: 53, cum: 170 },
+  { tranche: 4, week: '2026-10-26', migrate: '2026-10-31', group: 'Clear to schedule', n: 51, cum: 221 },
+  { tranche: 5, week: '2026-11-02', migrate: '2026-11-07', group: 'Clear to schedule', n: 51, cum: 272 },
+  { tranche: 6, week: '2026-11-09', migrate: '2026-11-14', group: 'Clear to schedule', n: 49, cum: 321 },
+  { tranche: 7, week: '2026-11-16', migrate: '2026-11-21', group: 'Clear to schedule', n: 52, cum: 373 },
+  { tranche: 8, week: '2026-11-30', migrate: '2026-12-05', group: 'Clear to schedule', n: 136, cum: 509 },
+  { tranche: 9, week: '2026-12-07', migrate: '2026-12-12', group: 'Clear to schedule', n: 134, cum: 643 },
+  { tranche: 10, week: '2026-12-14', migrate: '2026-12-19', group: 'Clear to schedule', n: 149, cum: 792 },
+  { tranche: 11, week: '2026-12-21', migrate: '2026-12-26', group: 'Clear to schedule', n: 134, cum: 926 },
+  { tranche: 12, week: null, migrate: null, weekLabel: 'Not yet scheduled', migrateLabel: 'TBD', group: 'Public API — moving to 2.0 endpoints', n: 71, cum: 997 },
 ];
 
 // Pace grade rubric. Deliberately explicit and rendered on the page next to the
@@ -818,7 +972,7 @@ const CUSTOMER_ACCOUNTS = [
   {"id":"045462c4-bf8a-4340-bba7-55b5d6b06e4a","name":"SolidAire","industry":null,"segment":"Strategic","goLiveDate":"2026-10-01","ttEnabledDate":"2026-09-17","webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"activeTechs":0,"techsTotal":0,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
   {"id":"3b008a2d-b0ea-4e88-9b19-a3b37c83f5c6","name":"The Management Trust","industry":null,"segment":"Strategic","goLiveDate":"2025-08-29","ttEnabledDate":"2026-07-21","webViews":92548,"mobileEvents":1262,"hours30d":10276,"employees30d":67,"hoursOn20":28394,"employeesOn20":76,"activeTechs":92,"techsTotal":126,"attestation":true,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
   {"id":"8d38df5b-8946-4763-ac2d-b43f82806d49","name":"TJW Industrial, Inc.","industry":"HVAC/Mechanical","segment":"Enterprise","goLiveDate":"2026-02-23","ttEnabledDate":"2026-08-19","webViews":11288,"mobileEvents":4326,"hours30d":9477,"employees30d":83,"hoursOn20":17007,"employeesOn20":85,"activeTechs":93,"techsTotal":110,"attestation":true,"autoGenerateTimeEntries":false,"requireStartEndTimes":false},
-  {"id":"2eb374f1-8cb6-467c-8d7d-6e720eabad1f","name":"Trinity Southern","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":null,"webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null,"activeTechs":5,"techsTotal":5,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true},
+  {"id":"2eb374f1-8cb6-467c-8d7d-6e720eabad1f","name":"Trinity Southern","industry":null,"segment":"1-10","goLiveDate":null,"ttEnabledDate":null,"webViews":2,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":null,"employeesOn20":null,"activeTechs":5,"techsTotal":5,"attestation":false,"autoGenerateTimeEntries":true,"requireStartEndTimes":true}
 ];
 
 // ── "Next Up for TT 2.0" ─────────────────────────────────────────────────────────
@@ -830,9 +984,6 @@ const NEXT_UP_TENANTS = [
   {"id":"2bbf5f68-c662-40b7-8c60-eca36b451682","name":"D & H Refrigeration, Inc.","industry":"HVAC/Mechanical","segment":"Commercial","coreGoLiveDate":"2026-08-31","doubleWriteEnabledDate":"2026-09-01"},
   {"id":"5379128a-9c3c-4303-b334-7eb6c19e50f8","name":"Muska Electric","industry":"Electrical","segment":"Enterprise","coreGoLiveDate":"2025-07-14","doubleWriteEnabledDate":"2026-09-03"},
   {"id":"df90b0fa-d3f4-48ae-8f76-b9821681be86","name":"Integrity Fire Protection","industry":"Fire Life Safety","segment":"Commercial","coreGoLiveDate":"2026-09-17","doubleWriteEnabledDate":"2026-09-29"},
-  {"id":"b547cf27-e223-480a-884f-0ec69be62e76","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-10-06"},
-  {"id":"bec5dfd2-c008-4077-b40c-f814756ee218","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-10-07"},
-  {"id":"fbc4ec9d-e553-414d-bd3b-269caf3e34b2","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-10-08"},
   {"id":"d25c1969-74e2-4fc6-874b-dc1f0c7e8714","name":"Revolt Electric","industry":"Electrical","segment":"Commercial","coreGoLiveDate":"2023-08-21","doubleWriteEnabledDate":null},
   {"id":"a586c5fe-31a9-4749-9c8d-4c0290ba7f43","name":"Seidel Electric Services","industry":"Electrical","segment":"Commercial","coreGoLiveDate":"2025-06-03","doubleWriteEnabledDate":null},
   {"id":"f6404381-b016-4cc9-a196-189ecc302749","name":"METRO POWER SOLUTIONS, LLC","industry":"Electrical","segment":"1-10","coreGoLiveDate":"2025-04-28","doubleWriteEnabledDate":null},
@@ -883,10 +1034,11 @@ const NEXT_UP_TENANTS = [
   {"id":"00ffaa70-22c7-41ec-ad1a-61ef327559f1","name":"SS Grading","industry":"Excavation/Site Prep","segment":"Commercial","coreGoLiveDate":"2025-04-28","doubleWriteEnabledDate":null},
   {"id":"b3636b36-c4c8-44eb-8cbb-889ce81ecddd","name":"ControlAir Systems, Inc.","industry":"HVAC/Mechanical","segment":"Strategic","coreGoLiveDate":"2024-11-01","doubleWriteEnabledDate":null},
   {"id":"4f7e67eb-2fc1-4353-8dfb-88c792e6922b","name":"Timco Heating and Air, Inc.","industry":"HVAC/Mechanical","segment":"Strategic","coreGoLiveDate":"2021-10-13","doubleWriteEnabledDate":null},
+  {"id":"7a4a935f-d04d-438a-a140-27d481d1df0c","name":"Connect Technology Group","industry":"Electrical","segment":"Commercial","coreGoLiveDate":"2026-09-02","doubleWriteEnabledDate":null},
   {"id":"b6a99f21-25af-464f-b22f-81e00bb6c6b2","name":"Regency Plumbing & Piping","industry":"Plumbing","segment":"Commercial","coreGoLiveDate":"2026-09-16","doubleWriteEnabledDate":null},
   {"id":"35ee516f-820e-4349-8fd2-47de5b410716","name":"Greater San Diego Air Conditioning Training","industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"fc8bfadc-bfb5-4b7a-974e-a9753f37f4a9","name":"INTEGRITY ENVIRONMENTAL SOLUTIONS, LLC","industry":null,"segment":"Enterprise","coreGoLiveDate":"2025-12-15","doubleWriteEnabledDate":null},
-  {"id":"de6f9b2c-1744-42a7-873f-bba8f064d88c","name":"Keyes North Atlantic, Inc.","industry":"Electrical","segment":"Enterprise","coreGoLiveDate":"2024-08-01","doubleWriteEnabledDate":null},
+  {"id":"de6f9b2c-1744-42a7-873f-bba8f064d88c","name":"Keyes North Atlantic, Inc.","industry":"Electrical","segment":"Enterprise","coreGoLiveDate":"2024-08-01","doubleWriteEnabledDate":null}
 ];
 
 // ── Embedded training/test tenant snapshot ───────────────────────────────────────
@@ -1032,85 +1184,21 @@ const SNAPSHOT_TENANTS = [
   {"id":"7dcc2ab5-d223-4ba4-967c-2dab34653b41","name":"Very Good Building & Construction Co.","enabledDate":"2026-09-24","webViews":0,"mobileEvents":0,"hours30d":34,"employees30d":4,"hoursOn20":34,"employeesOn20":4},
   {"id":"765b39d1-799d-49fc-9928-40f6dc288af9","name":"Jennifer's Demo Account","enabledDate":"2026-09-24","webViews":0,"mobileEvents":0,"hours30d":1,"employees30d":1,"hoursOn20":1,"employeesOn20":1},
   {"id":"35a01bab-90fc-4ad6-a11e-56627fcbaaa8","name":"Pfd Electric","enabledDate":"2026-09-23","webViews":0,"mobileEvents":0,"hours30d":1264,"employees30d":11,"hoursOn20":291,"employeesOn20":10,"industry":"Electrical","segment":"Commercial"},
-  {"id":"cf41f62c-b514-47dc-99b3-5492cddb23a4","name":null,"enabledDate":"2026-09-23","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"cf41f62c-b514-47dc-99b3-5492cddb23a4","name":"Solidaire - BCI V3 Data Staging","enabledDate":"2026-09-23","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"819aae4c-8da0-48ff-b322-bf0ab47f2e34","name":"Integrity Fire Protection Training","enabledDate":"2026-09-24","webViews":0,"mobileEvents":0,"hours30d":10,"employees30d":4,"hoursOn20":8,"employeesOn20":4},
-  {"id":"eaf3f271-257d-4ddd-aafe-3b53c1371f1e","name":null,"enabledDate":"2026-09-29","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"eaf3f271-257d-4ddd-aafe-3b53c1371f1e","name":"SolidAire / Percheron Sandbox","enabledDate":"2026-09-29","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"0635684b-4a5f-460c-82e9-b18be08e3217","name":"Copperhead Electrical Contractors Training","enabledDate":"2026-09-30","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"53b56d6c-9e03-435f-87ea-092e1d23411a","name":"Silicon Valley Mechanical Training","enabledDate":"2026-10-01","webViews":0,"mobileEvents":0,"hours30d":35,"employees30d":2,"hoursOn20":10,"employeesOn20":2},
   {"id":"f042f997-7b60-4509-a5e3-935d807db1a7","name":"ABE Electrical Installations Training","enabledDate":"2026-10-01","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"421131cc-c452-44af-a7f3-9ac08fcfc905","name":"El Paso Electric Training","enabledDate":"2026-10-01","webViews":0,"mobileEvents":0,"hours30d":1,"employees30d":1,"hoursOn20":0,"employeesOn20":0},
   {"id":"940bc990-ba27-4c93-b076-af71165ea507","name":"De-Cal, Inc. Training","enabledDate":"2026-09-30","webViews":0,"mobileEvents":0,"hours30d":22,"employees30d":1,"hoursOn20":0,"employeesOn20":0},
   {"id":"08ce5b9c-6d9f-44de-a2dd-9d38ef144f9f","name":"Jonathan's Mechanical LLC","enabledDate":"2026-10-02","webViews":0,"mobileEvents":0,"hours30d":10,"employees30d":2,"hoursOn20":10,"employeesOn20":2},
-  {"id":"62a920be-ea16-4240-854b-f6dd53045278","name":null,"enabledDate":"2026-10-02","webViews":0,"mobileEvents":0,"hours30d":13,"employees30d":3,"hoursOn20":13,"employeesOn20":3},
+  {"id":"62a920be-ea16-4240-854b-f6dd53045278","name":"Simpson Controls Ltd.","enabledDate":"2026-10-02","webViews":0,"mobileEvents":0,"hours30d":13,"employees30d":3,"hoursOn20":13,"employeesOn20":3},
   {"id":"4f3940dc-69d6-43f5-bec8-2e0443d26962","name":"Mng Engineering & Maintenance Training","enabledDate":"2026-10-01","webViews":0,"mobileEvents":0,"hours30d":10,"employees30d":4,"hoursOn20":9,"employeesOn20":3},
   {"id":"ceffc777-c8fa-4310-bf66-3e41f066f09f","name":"Lighting Maintenance","enabledDate":"2026-10-03","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"industry":"Electrical","segment":"Enterprise"},
   {"id":"cbee3b9d-f0ec-4599-825f-ae6a19338d7e","name":"Lighting Maintenance Training","enabledDate":"2026-10-03","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"c8da7a72-a96f-461d-8d3f-328483060606","name":"Foundry Rock","enabledDate":"2026-10-03","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0,"segment":"1-10"},
-  {"id":"fa8afa4a-b0fa-43ec-893c-0cf5ee6dacb0","name":"Foundry Rock Training","enabledDate":"2026-10-03","webViews":0,"mobileEvents":0,"hours30d":6,"employees30d":1,"hoursOn20":0,"employeesOn20":0},
-  {"id":"1c59e72d-14f9-4735-8ad8-ea75325a688b","name":null,"enabledDate":"2026-10-06","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"2ce67821-41a6-49a8-868d-6b167b6b9541","name":null,"enabledDate":"2026-10-05","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"23d7f2a7-ba4a-4cc3-93be-c845ea7fb60f","name":null,"enabledDate":"2026-10-05","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"7a4a935f-d04d-438a-a140-27d481d1df0c","name":null,"enabledDate":"2026-10-07","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"52aee36b-118a-422f-bfdd-be2c70137178","name":null,"enabledDate":"2026-10-06","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"6eded5b9-c971-4522-8ff0-8a8b57639531","name":null,"enabledDate":"2026-10-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"73cec282-10ad-41d2-9ab4-fab88f8a7b51","name":null,"enabledDate":"2026-10-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"2cc5800e-32f5-4274-a24d-160e4e38d008","name":null,"enabledDate":"2026-10-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"98e8b85c-b935-4319-8436-16df56ccd2e7","name":null,"enabledDate":"2026-10-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"8d9a1202-e2db-49a2-baa2-b92f2d6ed65a","name":null,"enabledDate":"2026-10-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"179132a9-7e1a-4efa-bc25-bdf5ba5d7c05","name":null,"enabledDate":"2026-10-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"0e09153f-6c89-4914-9bdd-dd38764c0690","name":null,"enabledDate":"2026-10-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"91150e11-b9e2-4e69-ac67-89b786a6cbf4","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"2d645c67-cd9f-45b4-8f21-3e8cb36d797f","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"c00e6cbf-eaf3-4710-881f-f7104efeb10c","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"56a2c97a-91df-4a91-86ea-8c827b30cb25","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"ab5adb63-aa10-489f-b703-e1278631e65d","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"cd11af5d-539c-43ce-a0a5-c684b59f7f91","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"b5e0cef2-e036-4a85-bb9c-aed02349d1e9","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"c3273707-ac40-49ee-b885-1c5addbdc9c2","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"f09b079a-11ae-40b2-ba7b-394fe6ecd819","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"f354dc99-0cdd-4505-ab3e-5723e743466c","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"536cadf1-63ef-4b8e-9d93-1983305c983d","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"8fa1f509-c3b1-4b4b-8fa9-669164ede711","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"4a8ad8cb-8c89-49ea-bee4-c1b27ecd9da7","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"f9fcacd9-bd2a-41e3-b4db-1cea85468ea2","name":null,"enabledDate":"2026-10-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"cbb32077-400d-4ad0-a4ba-77058b6f8819","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"bb9ef463-1a0f-4ddd-909e-f8df513308de","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"f4acc61b-4660-41e5-bb54-bb1a80156daa","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"bc0b1587-03b4-41e8-a7ff-3b9e97375e3a","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"0cb63b7d-7272-44c3-a127-1955521d32bd","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"ee455610-2f68-48f8-98fd-18c81d04a401","name":null,"enabledDate":"2026-10-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"7d7282cc-62e7-48c6-a00b-15a70ac82db2","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"f1251573-c354-4d1f-af62-f446678b3c77","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"a2f973ed-3f41-4451-8dc7-fa2cf1d01616","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"ef8efe9b-fcc8-423c-a796-98050a03d380","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"735b45ac-bd8b-42bf-952b-680b244b712e","name":null,"enabledDate":"2026-10-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"836a1309-e073-4d1d-918a-1f7e73f96c20","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"bf69ecae-cf67-45af-a2d5-50c7e1bd4b0b","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"ea60d1d8-4081-4f0e-a3b6-a65060a4702a","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"f0c7e23f-3bd2-4c0d-89ed-63fd66c3ded0","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"ddf1639d-2fa8-4c0f-b929-d2b4cecd158c","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"e52756a8-8eac-4c27-a756-01f8359de105","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"159aabb9-5e41-47e0-96c4-697f9b98c506","name":null,"enabledDate":"2026-10-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"5f7795d0-a1e2-4e91-a17a-ed82cac9cdf3","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"45a46a59-468d-422b-b14a-78a0b354b57b","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"7dfcb1e2-a866-4ddc-b20e-62e0b0ba9526","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"dd2e43c3-ab1c-41c5-a3be-4e865ae7c54d","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"a2363da5-d535-4b9e-848d-97b98d105c4f","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"1ff099f7-1078-437b-a27e-062655c13e7e","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"12071034-1e97-48c6-bb94-fbe842c0f5f0","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"d3a6adbb-8649-49da-a365-a6771b476f10","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"474431a8-981a-413f-a929-f865c9f3cab3","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"1f883686-22fa-40f7-85d0-d1fa7f9e0c05","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"5c652968-3c5d-485f-815b-df5929c8495a","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"85220405-cd75-4efe-8e74-cfc932efe212","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"d3d6e0f8-b025-441b-b1d8-93a9a791ad62","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"35dc019e-d8ab-48ce-8ac4-c13513801505","name":null,"enabledDate":"2026-10-09","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"ac300726-ded0-4f35-8123-e0fc32a90df9","name":null,"enabledDate":"2026-10-09","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"104ff56e-d592-408d-b404-634fa422e38a","name":null,"enabledDate":"2026-10-09","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"7528b2d4-7165-45c3-b1ed-5c8e607177b7","name":null,"enabledDate":"2026-10-09","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"da81cd2a-0b91-497b-b44a-476488a5b489","name":null,"enabledDate":"2026-10-09","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"bda9ab00-33ed-487b-823a-ab37764e9c71","name":null,"enabledDate":"2026-10-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
-  {"id":"f48ddcd5-b73f-4a2a-951c-7816bcdcecf6","name":null,"enabledDate":"2026-10-08","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"fa8afa4a-b0fa-43ec-893c-0cf5ee6dacb0","name":"Foundry Rock Training","enabledDate":"2026-10-03","webViews":0,"mobileEvents":0,"hours30d":6,"employees30d":1,"hoursOn20":0,"employeesOn20":0}
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -2351,19 +2439,22 @@ function renderAnalytics() {
 // `panel-analytics`): if a hash matched an element id the browser would scroll to
 // that element on load, jumping past the header.
 function initTabs(){
-  const PANELS = ['panel-tenants', 'panel-analytics', 'panel-plan', 'panel-runway'];
+  const PANELS = ['panel-tenants', 'panel-analytics', 'panel-plan', 'panel-runway', 'panel-scorecard'];
   const DEFAULT_SLUG = 'tenants';
   const slugOf = id => id.replace(/^panel-/, '');
   const known = slug => PANELS.includes('panel-' + slug);
   // Panels render lazily. A deep link has to trigger the same render a click would,
   // so this is keyed off the slug rather than repeated as a branch per tab.
-  const RENDERERS = { analytics: renderAnalytics, plan: renderPlan, runway: renderRunway };
+  const RENDERERS = { analytics: renderAnalytics, plan: renderPlan, runway: renderRunway, scorecard: renderScorecard };
   const drawn = {};
 
   function activate(slug) {
     if (!known(slug)) slug = DEFAULT_SLUG;
     document.querySelectorAll('.tab-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.panel === 'panel-' + slug);
+      const on = b.dataset.panel === 'panel-' + slug;
+      b.classList.toggle('active', on);
+      // On a phone the tab row scrolls sideways; keep the active tab in view.
+      if (on && b.scrollIntoView) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     });
     PANELS.forEach(id => {
       const p = document.getElementById(id);
@@ -2398,10 +2489,14 @@ function initTabs(){
   }
 }
 
-// ── Plan vs Actual tab ─────────────────────────────────────────────────────────
+// ── Migration Schedule tab ─────────────────────────────────────────────────────
 // Everything here is derived at render time from PLAN + CUSTOMER_ACCOUNTS. Do not
 // hardcode a figure into the prose: the whole point of this tab is that it cannot
 // quietly disagree with the tenant data sitting next to it.
+//
+// Migration is counted in total: every customer tenant on 2.0, Tranche 0 included,
+// against the plan's own cumulative column, which also starts with Tranche 0. Both
+// sides count the same population, so no baseline is subtracted from either.
 
 const dayMs = 86400000;
 const asUTC = d => new Date(d + 'T00:00:00Z').getTime();
@@ -2425,27 +2520,25 @@ function achievedRate(weeks) {
 
 function planSummary() {
   const a = planActuals();
-  const done = PLAN.filter(p => p.migrate && p.migrate <= SNAPSHOT_DATE);
-  const plannedToDate = done.length ? done[done.length - 1].cum - PLAN_PRE : 0;
-
-  // Like-for-like: the schedule's cumulative column starts at zero on its own start
-  // date and counts only tenants it sequences. Tenants already on 2.0 before then —
-  // the original reference cohort — are outside the plan population entirely, so
-  // comparing the raw total against the plan would flatter the early weeks. Measure
-  // progress made *inside* the plan window instead.
-  const baseline = a.at(PLAN[0].week);
-  const inPlan = iso => Math.max(0, a.at(iso) - baseline);
-  const actual = inPlan(SNAPSHOT_DATE);
+  const dated = PLAN.filter(p => p.migrate);
+  const done = dated.filter(p => p.migrate <= SNAPSHOT_DATE);
+  const plannedToDate = done.length ? done[done.length - 1].cum : 0;
+  const actual = a.at(SNAPSHOT_DATE);
   const ratio = plannedToDate ? actual / plannedToDate : 1;
   const band = GRADE_BANDS.find(b => ratio >= b.min);
-  const future = PLAN.filter(p => p.migrate && p.migrate > SNAPSHOT_DATE);
-  const remaining = PLAN_SCHED - actual;
+  const future = dated.filter(p => p.migrate > SNAPSHOT_DATE);
+  // The last dated cumulative is where the schedule ends; the undated public-API
+  // tranche sits above it and is still on 1.0 when the dated tranches finish.
+  const datedTotal = dated[dated.length - 1].cum;
+  const remaining = PLAN_TOTAL - actual;
+  const remainingDated = Math.max(0, datedTotal - actual);
   const rate8 = achievedRate(8);
   return {
-    ...a, plannedToDate, actual, ratio, band, remaining, baseline, inPlan,
+    ...a, plannedToDate, actual, ratio, band, remaining, remainingDated, datedTotal,
+    lastDone: done[done.length - 1], next: future[0],
     onFlagTotal: a.total,
     tranchesLeft: future.length,
-    required: future.length ? remaining / future.length : remaining,
+    required: future.length ? remainingDated / future.length : remainingDated,
     rate8,
     bestWeek: (() => {
       const by = {};
@@ -2464,31 +2557,32 @@ function drawBurn() {
   const s = planSummary();
   const W_ = 1080, H = 320, L = 62, R = 120, T = 16, B = 46;
   const iw = W_ - L - R, ih = H - T - B;
-  const t0 = asUTC(PLAN[0].migrate), t1 = asUTC(SUNSET_DATE);
+  // Starts where Tranche 0 opened, so the opt-in cohort shows as real progress.
+  const t0 = asUTC(PLAN[0].week), t1 = asUTC(SUNSET_DATE);
   const x = t => L + ((t - t0) / (t1 - t0)) * iw;
-  const y = v => T + ih - (v / PLAN_SCHED) * ih;
+  const y = v => T + ih - (v / PLAN_TOTAL) * ih;
 
   for (let i = 0; i <= 4; i++) {
-    const v = PLAN_SCHED * i / 4;
+    const v = PLAN_TOTAL * i / 4;
     svg.appendChild(el('line', { class: 'grid', x1: L, x2: L + iw, y1: y(v), y2: y(v) }));
     svg.appendChild(el('text', { class: 'tick', x: L - 8, y: y(v) + 3, 'text-anchor': 'end' }, Math.round(v)));
   }
 
-  // Planned remaining — steps down on each migrate date, reaching zero on the last scheduled date.
-  let pd = 'M' + x(t0) + ' ' + y(PLAN_SCHED);
+  // Planned remaining — steps down on each migrate date and ends at the undated
+  // public-API tranche.
+  let pd = 'M' + x(t0) + ' ' + y(PLAN_TOTAL);
   PLAN.filter(p => p.migrate).forEach(p => {
     const px = x(asUTC(p.migrate));
-    pd += ' L' + px + ' ' + y(PLAN_SCHED - (p.cum - p.n - PLAN_PRE)) + ' L' + px + ' ' + y(PLAN_SCHED - (p.cum - PLAN_PRE));
+    pd += ' L' + px + ' ' + y(PLAN_TOTAL - (p.cum - p.n)) + ' L' + px + ' ' + y(PLAN_TOTAL - p.cum);
   });
   svg.appendChild(el('path', { d: pd, fill: 'none', stroke: '#1a1a2e', 'stroke-width': 2.2 }));
 
-  // Actual remaining, to today only — plan-window progress, so the pre-plan cohort
-  // does not show up as a head start the schedule never claimed.
+  // Actual remaining, to today only.
   const now = asUTC(SNAPSHOT_DATE);
-  let ad = 'M' + x(t0) + ' ' + y(PLAN_SCHED - s.inPlan(PLAN[0].migrate));
+  let ad = 'M' + x(t0) + ' ' + y(PLAN_TOTAL - s.at(PLAN[0].week));
   s.dates.filter(d => asUTC(d) >= t0).forEach(d => {
     const px = x(asUTC(d));
-    ad += ' L' + px + ' ' + y(PLAN_SCHED - s.inPlan(d));
+    ad += ' L' + px + ' ' + y(PLAN_TOTAL - s.at(d));
   });
   ad += ' L' + x(now) + ' ' + y(s.remaining);
   svg.appendChild(el('path', { d: ad, fill: 'none', stroke: '#2f9e5f', 'stroke-width': 2.8 }));
@@ -2505,10 +2599,11 @@ function drawBurn() {
 
   // Anchor each key entry to where its line ends, then push apart any that would
   // overlap — actual and the projection sit within a few tenants of each other.
+  const planEnd = PLAN_TOTAL - s.datedTotal;
   const key = [
     { col: '#2f9e5f', label: 'Actual', at: y(s.remaining) },
     { col: '#c07a00', label: 'At current pace', at: y(projEnd) },
-    { col: '#1a1a2e', label: 'Plan', at: y(0) },
+    { col: '#1a1a2e', label: 'Plan', at: y(planEnd) },
   ].sort((a, b) => a.at - b.at);
   const GAP = 15;
   key.forEach((k, i) => { if (i && k.at - key[i - 1].at < GAP) k.at = key[i - 1].at + GAP; });
@@ -2531,9 +2626,9 @@ function drawBurn() {
 
   const n = v => Math.round(v).toLocaleString('en-US');
   document.getElementById('note-burn').textContent =
-    'Plan reaches zero on ' + fmtWk(SUNSET_DATE) + '. At the trailing eight-week rate of ' +
-    s.rate8.toFixed(1) + ' tenants/week, ' + n(projEnd) + ' tenants would still be on TT 1.0 that day — ' +
-    'clearing them at that rate takes a further ' + n(projEnd / Math.max(0.1, s.rate8) / 52) + ' years.';
+    'The plan leaves ' + n(planEnd) + ' tenants on TT 1.0 on ' + fmtWk(SUNSET_DATE) +
+    ': the public-API tenants, which have no migration date yet. At the trailing eight-week rate of ' +
+    s.rate8.toFixed(1) + ' tenants/week, ' + n(projEnd) + ' would still be on TT 1.0 that day.';
 }
 
 function drawPace() {
@@ -2545,8 +2640,9 @@ function drawPace() {
     const t = new Date(asUTC(d)); t.setUTCDate(t.getUTCDate() - ((t.getUTCDay() + 6) % 7));
     const k = t.toISOString().slice(0, 10); byWeek[k] = (byWeek[k] || 0) + 1;
   });
-  const rows = PLAN.map(p => ({ week: p.week, planned: p.n, actual: byWeek[p.week] || 0,
-                                future: !p.migrate || p.migrate > SNAPSHOT_DATE }));
+  // Weekly tranches only: Tranche 0 spans three months and the API tranche has no week.
+  const rows = PLAN.filter(p => p.tranche > 0 && p.migrate)
+    .map(p => ({ week: p.week, planned: p.n, actual: byWeek[p.week] || 0, future: p.migrate > SNAPSHOT_DATE }));
   const W_ = 1080, H = 260, L = 52, R = 14, T = 14, B = 46;
   const iw = W_ - L - R, ih = H - T - B;
   const max = Math.max(...rows.map(r => r.planned)) * 1.12 || 1;
@@ -2580,14 +2676,14 @@ function drawPace() {
   // Describe the ramp from the schedule itself, so re-cutting the plan cannot leave
   // a stale rate quoted in the prose underneath the chart.
   const sum = planSummary();
-  const fut = PLAN.filter(p => p.migrate && p.migrate > SNAPSHOT_DATE);
-  const peak = Math.max(...PLAN.filter(p => p.group === 'Clear to schedule').map(p => p.n));
-  const firstFull = PLAN.find(p => p.group === 'Clear to schedule' && p.n === peak);
+  const fut = rows.filter(r => r.future);
+  const peak = Math.max(...rows.map(r => r.planned));
+  const firstFull = PLAN.find(p => p.tranche > 0 && p.n === peak);
   document.getElementById('note-pace').textContent =
     'Best week achieved so far: ' + sum.bestWeek + ' tenants. The schedule opens at ' +
-    (fut[0] ? fut[0].n : 0) + ' a week and reaches its full rate of ' + peak +
+    (fut[0] ? fut[0].planned : 0) + ' a week and reaches its full rate of ' + peak +
     ' by ' + (firstFull ? fmtWk(firstFull.migrate) : 'n/a') + '. To finish on ' + fmtWk(SUNSET_DATE) +
-    ', the remaining ' + sum.remaining.toLocaleString('en-US') + ' have to go at an average of ' +
+    ', the remaining ' + sum.remainingDated.toLocaleString('en-US') + ' scheduled tenants have to go at an average of ' +
     Math.ceil(sum.required) + ' a week across the ' + sum.tranchesLeft +
     ' migration Saturdays left — about ' + Math.round(sum.required / Math.max(0.1, sum.rate8)) +
     '× the current rate.';
@@ -2596,19 +2692,20 @@ function drawPace() {
 function renderPlanTable() {
   const s = planSummary();
   const t = document.getElementById('plan-table'); if (!t) return;
-  let h = '<thead><tr><th>Week of</th><th>Migrate (Sat)</th><th>Group</th>' +
+  let h = '<thead><tr><th>Tranche</th><th>Week of</th><th>Migrate (Sat)</th><th>Group</th>' +
           '<th style="text-align:right">Planned</th><th style="text-align:right">Plan cum.</th>' +
           '<th style="text-align:right">Actual cum.</th><th style="text-align:right">Variance</th></tr></thead><tbody>';
   PLAN.forEach(p => {
     const past = p.migrate && p.migrate <= SNAPSHOT_DATE;
-    const act = past ? s.inPlan(p.migrate) : null;
-    const v = past ? act - (p.cum - PLAN_PRE) : null;
+    const act = past ? s.at(p.migrate) : null;
+    const v = past ? act - p.cum : null;
     h += '<tr' + (past ? '' : ' style="opacity:.55"') + '>' +
-      '<td>' + fmtWk(p.week) + '</td>' +
-      '<td>' + (p.migrate ? fmtWk(p.migrate) : '—') + '</td>' +
+      '<td>' + p.tranche + '</td>' +
+      '<td>' + (p.weekLabel || fmtWk(p.week)) + '</td>' +
+      '<td>' + (p.migrateLabel || (p.migrate ? fmtWk(p.migrate) : '—')) + '</td>' +
       '<td>' + p.group + '</td>' +
       '<td style="text-align:right">' + (p.n || '—') + '</td>' +
-      '<td style="text-align:right">' + (p.cum - PLAN_PRE) + '</td>' +
+      '<td style="text-align:right">' + p.cum + '</td>' +
       '<td style="text-align:right">' + (past ? act : '—') + '</td>' +
       '<td style="text-align:right;color:' + (v === null ? '#bbb' : v < 0 ? '#a32b2b' : '#1a7f5a') + '">' +
         (v === null ? '—' : (v > 0 ? '+' : '') + v) + '</td></tr>';
@@ -2619,7 +2716,7 @@ function renderPlanTable() {
 function renderGradeTable() {
   const s = planSummary();
   const t = document.getElementById('grade-table'); if (!t) return;
-  let h = '<thead><tr><th>Grade</th><th>Attainment vs plan-to-date</th><th>Reading</th></tr></thead><tbody>';
+  let h = '<thead><tr><th>Grade</th><th>Attainment vs schedule</th><th>Reading</th></tr></thead><tbody>';
   GRADE_BANDS.forEach((b, i) => {
     const hi = i === 0 ? '' : ' – ' + Math.round(GRADE_BANDS[i - 1].min * 100 - 1) + '%';
     const on = b.g === s.band.g;
@@ -2630,39 +2727,37 @@ function renderGradeTable() {
   });
   t.innerHTML = h + '</tbody>';
   document.getElementById('grade-explain').textContent = s.plannedToDate
-    ? 'Attainment is migrated-to-date divided by what the schedule called for by the most recent migrate ' +
-      'date that has passed (' + s.actual + ' ÷ ' + s.plannedToDate + ' = ' + Math.round(s.ratio * 100) + '%). ' +
-      'It measures delivery against the committed schedule, not effort or difficulty — a plan that was ' +
-      'always going to be re-cut will grade badly here until it is re-cut.'
-    : 'No migrate date in the schedule has passed yet, so there is nothing to grade. Attainment starts ' +
-      'reporting after the first cutover on ' + fmtWk(PLAN[0].migrate) + '.';
+    ? 'Attainment is customer tenants on 2.0 divided by the schedule’s cumulative total at the most recent ' +
+      'migrate date that has passed (' + s.actual + ' ÷ ' + s.plannedToDate + ' = ' + Math.round(s.ratio * 100) + '%). ' +
+      'Tranche 0 counts on both sides. It measures delivery against the committed schedule, not effort or difficulty.'
+    : 'No migrate date in the schedule has passed yet, so there is nothing to grade.';
 }
 
 function renderPlan() {
   const s = planSummary();
   const put = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  const n = v => v.toLocaleString('en-US');
+  const t0 = PLAN.find(p => p.tranche === 0);
+  const api = PLAN.find(p => !p.migrate);
   const src = document.getElementById('plan-src'); if (src) src.href = PLAN_SRC;
   put('plan-asof', fmtWk(PLAN_AS_OF));
-  put('plan-total', PLAN_SCHED.toLocaleString('en-US'));
-  put('plan-api', PLAN_API);
+  put('plan-total', n(PLAN_TOTAL));
+  put('plan-live', t0 ? t0.n : 0);
+  put('plan-sched', n(s.datedTotal - (t0 ? t0.n : 0)));
+  put('plan-api', api ? api.n : 0);
   put('plan-sunset', fmtWk(SUNSET_DATE));
   put('pl-actual', s.actual);
-  put('pl-actual-sub', s.actual + ' of ' + PLAN_SCHED.toLocaleString('en-US') + ' (' +
-    (s.actual / PLAN_SCHED * 100).toFixed(1) + '%). ' + s.onFlagTotal +
-    ' on 2.0 in total, incl. ' + s.baseline + ' from before the plan began');
+  put('pl-actual-sub', (s.actual / PLAN_TOTAL * 100).toFixed(1) + '% of all ' + n(PLAN_TOTAL) + ' tenants');
   put('pl-planned', s.plannedToDate);
-  const lastDone = PLAN.filter(p => p.migrate && p.migrate <= SNAPSHOT_DATE).slice(-1)[0];
-  put('pl-planned-sub', lastDone
-    ? 'Cumulative through ' + fmtWk(lastDone.migrate)
-    : 'Plan has not started — first cutover ' + fmtWk(PLAN[0].migrate));
+  put('pl-planned-sub', s.lastDone
+    ? 'Through ' + (s.lastDone.tranche === 0 ? 'Tranche 0' : 'Tranche ' + s.lastDone.tranche + ' (' + fmtWk(s.lastDone.migrate) + ')') +
+      (s.next ? ' · next cutover ' + fmtWk(s.next.migrate) : '')
+    : 'First cutover ' + fmtWk(PLAN.find(p => p.migrate).migrate));
   put('pl-ratio', Math.round(s.ratio * 100) + '%');
   put('pl-grade', s.band.g);
   put('pl-grade-sub', s.band.say);
   put('pl-undated', s.undated);
-  put('pl-baseline', s.baseline);
   put('cav-training', SNAPSHOT_TENANTS.length);
-  put('cav-baseline', s.baseline);
-  put('cav-total', PLAN_SCHED.toLocaleString('en-US'));
   put('cav-producing', CUSTOMER_ACCOUNTS.filter(c => (c.hoursOn20 || 0) > 0).length + ' tenants');
   put('cav-flagon', s.onFlagTotal);
   const g = document.getElementById('pl-grade');
@@ -2670,6 +2765,517 @@ function renderPlan() {
   const r = document.getElementById('pl-ratio');
   if (r) r.style.color = s.band.tone === 'bad' ? '#a32b2b' : s.band.tone === 'warn' ? '#c07a00' : '#1a7f5a';
   drawBurn(); drawPace(); renderPlanTable(); renderGradeTable();
+}
+
+// ── Scorecard tab ──────────────────────────────────────────────────────────────
+// Per-tenant health from a CSV of one row per tenant per period: data/scorecard.csv
+// by default, or a pasted/uploaded CSV that overrides it in this browser until
+// cleared. Ported from the "TT 2.0 Tenant Scorecard" prototype artifact. Nothing here
+// runs at load: the tab router calls renderScorecard() the first time the tab opens,
+// so the daily jobs that execute this script with stubs never reach fetch,
+// localStorage or the DOM listeners below.
+
+const SC_CSV_PATH = 'data/scorecard.csv';
+const SC_COLS = ['tenant', 'period_start', 'time_entries', 'approved_entries', 'edited_entries',
+  'timesheets', 'timesheets_20h_plus', 'active_technicians'];
+// Optional: a CSV without it still loads, and the metric shows No data.
+const SC_OPTIONAL = ['submitted_entries'];
+// Column order for the template and the Copy header button.
+const SC_TEMPLATE_COLS = ['tenant', 'period_start', 'time_entries', 'approved_entries', 'submitted_entries', 'edited_entries',
+  'timesheets', 'timesheets_20h_plus', 'active_technicians'];
+const SC_DEFAULT_THR = { submit: { good: 90, watch: 75 }, approval: { good: 90, watch: 75 }, long: { good: 2, watch: 5 },
+  edit: { good: 15, watch: 30 }, growth: { good: 1, watch: -2 } };
+const SC_METRICS = [
+  { key: 'submit', name: 'Submission rate', dir: 'up', def: 'Entries in any status other than Unsubmitted ÷ all time entries' },
+  { key: 'approval', name: 'Approval rate', dir: 'up', def: 'Approved entries ÷ all time entries. Dismissed entries count in the total, so a dismissed entry lowers the rate' },
+  { key: 'long', name: '20h+ days', dir: 'down', def: 'Tech-days totaling 20+ hours ÷ all tech-days (a tech-day is one technician\u2019s time for one day)' },
+  { key: 'edit', name: 'Edit rate', dir: 'down', def: 'Entries edited after creation ÷ all time entries' },
+  { key: 'growth', name: 'Technician growth', dir: 'up', def: 'Change in active technicians across the scoring window' },
+];
+const SC_POINTS = { good: 100, watch: 50, flag: 0 };
+const SC_LABEL = { good: 'Good', watch: 'Watch', flag: 'Flag', na: 'No data' };
+const SC_COLOR = { good: '#1a7f5a', watch: '#b4670a', flag: '#a32b2b' };
+const SC_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+// localStorage can be missing or throw (private windows, blocked storage); the tab
+// has to work without it.
+const scStore = {
+  get(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* not persisted */ } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) { /* nothing to clear */ } },
+};
+const scEsc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const scDate = p => { const [, m, d] = p.split('-'); return SC_MON[+m - 1] + ' ' + (+d); };
+const scPct = v => v == null ? '–' : (Math.abs(v) < 10 ? v.toFixed(1) : Math.round(v)) + '%';
+const scSigned = v => v == null ? '–' : (v > 0 ? '+' : '') + (Math.abs(v) < 10 ? v.toFixed(1) : Math.round(v)) + '%';
+
+function scSplitLine(line) {
+  const out = []; let cur = '', q = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (q) { if (c === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true; else if (c === ',') { out.push(cur); cur = ''; } else cur += c;
+  }
+  out.push(cur); return out.map(s => s.trim());
+}
+
+// Returns { rows, bad } where bad lists the 1-based file line numbers skipped, or
+// { error } when the file cannot be used at all.
+function scParseCSV(text) {
+  const lines = String(text).replace(/\r/g, '').split('\n');
+  const nonEmpty = lines.map((l, i) => ({ l, n: i + 1 })).filter(x => x.l.trim());
+  if (nonEmpty.length < 2) return { error: 'Add a header row and at least one data row.' };
+  const head = scSplitLine(nonEmpty[0].l).map(h => h.toLowerCase().replace(/\s+/g, '_'));
+  const missing = SC_COLS.filter(c => !head.includes(c));
+  if (missing.length) return { error: 'Missing columns: ' + missing.join(', ') + '.' };
+  const idx = Object.fromEntries(SC_COLS.map(c => [c, head.indexOf(c)]));
+  const idCol = head.indexOf('tenant_id');
+  const rows = [], bad = [];
+  nonEmpty.slice(1).forEach(({ l, n }) => {
+    const f = scSplitLine(l);
+    const r = { tenant: f[idx.tenant], period_start: f[idx.period_start] };
+    if (idCol >= 0 && f[idCol]) r.tenant_id = f[idCol].toLowerCase();
+    let ok = !!r.tenant && /^\d{4}-\d{2}-\d{2}$/.test(r.period_start || '');
+    SC_OPTIONAL.forEach(c => {
+      const at = head.indexOf(c), raw = at >= 0 ? f[at] : '';
+      if (raw == null || raw === '') { r[c] = null; return; }
+      const v = Number(String(raw).replace(/,/g, ''));
+      if (!isFinite(v)) ok = false;
+      r[c] = v;
+    });
+    // A blank count means "not measured": that metric shows No data and drops out of
+    // the score. Anything else that is not a number makes the row invalid.
+    SC_COLS.slice(2).forEach(c => {
+      const raw = f[idx[c]];
+      if (raw == null) { ok = false; return; }
+      if (raw === '') { r[c] = null; return; }
+      const v = Number(String(raw).replace(/,/g, ''));
+      if (!isFinite(v)) ok = false;
+      r[c] = v;
+    });
+    if (ok) rows.push(r); else bad.push(n);
+  });
+  if (!rows.length) return { error: 'No valid rows. Check dates are YYYY-MM-DD and counts are numbers.', bad };
+  return { rows, bad };
+}
+
+function scStatus(key, v, thr) {
+  if (v == null || !isFinite(v)) return 'na';
+  const t = thr[key], m = SC_METRICS.find(x => x.key === key);
+  if (m.dir === 'up') return v >= t.good ? 'good' : v >= t.watch ? 'watch' : 'flag';
+  return v <= t.good ? 'good' : v <= t.watch ? 'watch' : 'flag';
+}
+
+// Numerators and denominators are summed across the window before dividing, so a
+// big week counts for more than a small one.
+const SC_ALL = '__all__';
+const SC_COUNT_COLS = ['time_entries', 'approved_entries', 'submitted_entries', 'edited_entries',
+  'timesheets', 'timesheets_20h_plus', 'active_technicians'];
+
+function scStatuses(vals, thr) {
+  const st = {}; SC_METRICS.forEach(m => { st[m.key] = scStatus(m.key, vals[m.key], thr); });
+  // Metrics with no data are left out of the average, not scored as zero.
+  const scored = Object.values(st).filter(s => s !== 'na');
+  const score = scored.length ? Math.round(scored.reduce((s, x) => s + SC_POINTS[x], 0) / scored.length) : null;
+  return { st, score };
+}
+
+function scScoreOne(name, rs, winSet, n, thr) {
+  rs.sort((a, b) => a.period_start.localeCompare(b.period_start));
+  const w = rs.filter(r => winSet.has(r.period_start));
+  // null when no row in the window measured this column at all.
+  const sum = k => w.some(r => r[k] != null) ? w.reduce((s, r) => s + (r[k] || 0), 0) : null;
+  const pct = (a, b) => a != null && b > 0 ? a / b * 100 : null;
+  const end = w[w.length - 1];
+  // Latest-period window: compare to the tenant's own previous period. Wider windows:
+  // first period in the window to the last.
+  let start = null;
+  if (end) { if (n === 1) { const i = rs.indexOf(end); start = i > 0 ? rs[i - 1] : null; } else start = w.length > 1 ? w[0] : null; }
+  const vals = {
+    submit: pct(sum('submitted_entries'), sum('time_entries')),
+    approval: pct(sum('approved_entries'), sum('time_entries')),
+    long: pct(sum('timesheets_20h_plus'), sum('timesheets')),
+    edit: pct(sum('edited_entries'), sum('time_entries')),
+    growth: start && start.active_technicians > 0
+      ? (end.active_technicians - start.active_technicians) / start.active_technicians * 100 : null,
+  };
+  const { st, score } = scStatuses(vals, thr);
+  return { name, id: (rs.find(r => r.tenant_id) || {}).tenant_id || null, rs, w, vals, st, score,
+    techEnd: end ? end.active_technicians : null, techStart: start ? start.active_technicians : null,
+    entries: sum('time_entries') || 0, ts: sum('timesheets') || 0,
+    // Numerators, so each cell can say "X of Y" for its own metric.
+    n: { submit: sum('submitted_entries'), approval: sum('approved_entries'), long: sum('timesheets_20h_plus'), edit: sum('edited_entries') } };
+}
+
+// "All tenants": every tenant's counts added together period by period, then scored
+// exactly like one tenant. Technician growth is the exception — summed headcount
+// rises just because more tenants are on 2.0, so the overall figure compares only
+// tenants with data at both ends of the window.
+function scOverall(rows, tenants, winSet, n, thr) {
+  if (!rows.length) return null;
+  const byP = {};
+  rows.forEach(r => {
+    const a = byP[r.period_start] = byP[r.period_start] || { tenant: SC_ALL, period_start: r.period_start, tenants: 0 };
+    a.tenants++;
+    SC_COUNT_COLS.forEach(c => { if (r[c] != null) a[c] = (a[c] || 0) + r[c]; else if (!(c in a)) a[c] = null; });
+  });
+  const o = scScoreOne(SC_ALL, Object.values(byP), winSet, n, thr);
+  const both = tenants.filter(t => t.techStart != null && t.techEnd != null);
+  const s0 = both.reduce((s, t) => s + t.techStart, 0), s1 = both.reduce((s, t) => s + t.techEnd, 0);
+  o.vals.growth = both.length && s0 > 0 ? (s1 - s0) / s0 * 100 : null;
+  o.same = { count: both.length, start: s0, end: s1 };
+  Object.assign(o, scStatuses(o.vals, thr));
+  // Count only tenants that contribute something inside the window.
+  o.all = true; o.tenantCount = tenants.filter(t => t.w.length).length; o.id = null;
+  return o;
+}
+
+function scBuild(rows, win, thr) {
+  const periods = [...new Set(rows.map(r => r.period_start))].sort();
+  const byT = {};
+  rows.forEach(r => { (byT[r.tenant] = byT[r.tenant] || []).push(r); });
+  const n = win === 'all' ? periods.length : +win;
+  const winSet = new Set(periods.slice(-n));
+  const tenants = Object.entries(byT).map(([name, rs]) => scScoreOne(name, rs, winSet, n, thr));
+  return { periods, tenants, n, overall: scOverall(rows, tenants, winSet, n, thr) };
+}
+
+// Cross-reference with the flag data already on this page. The CSV carries names; the
+// page keys tenants by LaunchDarkly UUID. Match on tenant_id when the CSV has one,
+// otherwise on the name with case, punctuation and company suffixes ignored.
+const scNorm = s => String(s || '').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9 ]+/g, ' ')
+  .replace(/\b(the|inc|llc|ltd|co|corp|corporation|company|incorporated)\b/g, ' ').replace(/\s+/g, ' ').trim();
+
+function scCrossRef(tenants) {
+  const enabled = [...CUSTOMER_ACCOUNTS, ...SNAPSHOT_TENANTS].filter(a => a.id);
+  const byId = new Map(enabled.map(a => [a.id.toLowerCase(), a]));
+  const byName = new Map();
+  enabled.forEach(a => { const k = scNorm(a.name); if (k && !byName.has(k)) byName.set(k, a); });
+  const matched = new Set();
+  const status = {};
+  tenants.forEach(t => {
+    const hit = (t.id && byId.get(t.id)) || byName.get(scNorm(t.name)) || null;
+    status[t.name] = hit ? { on: true, via: t.id && byId.get(t.id) ? 'id' : 'name', account: hit } : { on: false };
+    if (hit) matched.add(hit.id);
+  });
+  const missing = CUSTOMER_ACCOUNTS.filter(c => !matched.has(c.id)).map(c => c.name || ('Unknown (' + c.id.slice(0, 8) + '…)'));
+  return { status, missing };
+}
+
+let scState = null;
+
+function scInitState() {
+  const saved = scStore.get('tt2sc.data');
+  scState = {
+    rows: [], source: 'loading', fileBad: [], fileError: null,
+    override: saved && Array.isArray(saved.rows) ? saved : null,
+    thr: Object.assign(JSON.parse(JSON.stringify(SC_DEFAULT_THR)), scStore.get('tt2sc.thr') || {}),
+    win: scStore.get('tt2sc.win') || '4', sort: scStore.get('tt2sc.sort') || 'score-asc', sel: null,
+  };
+}
+
+function scActiveRows() {
+  return scState.override ? scState.override.rows : scState.rows;
+}
+
+function scRender() {
+  const $ = id => document.getElementById(id);
+  const rows = scActiveRows();
+  const { periods, tenants, n, overall } = scBuild(rows, scState.win, scState.thr);
+  const xr = scCrossRef(tenants);
+  const s = scState.sort;
+  // Tenants with nothing to score sit at the bottom in either score order, so the
+  // default selection is always a tenant with data.
+  tenants.sort((a, b) => s === 'name' ? a.name.localeCompare(b.name)
+    : ((a.score == null) - (b.score == null))
+      || ((s === 'score-asc' ? 1 : -1) * ((a.score || 0) - (b.score || 0))) || a.name.localeCompare(b.name));
+  // The overall view is the default; a tenant stays selected until the data no longer has it.
+  if (!scState.sel || (scState.sel !== SC_ALL && !tenants.find(t => t.name === scState.sel)))
+    scState.sel = overall ? SC_ALL : null;
+
+  const sub = $('sc-subline');
+  if (sub) {
+    if (!rows.length) {
+      sub.innerHTML = scState.source === 'loading' ? 'Loading ' + SC_CSV_PATH + '&hellip;'
+        : 'No scorecard data. ' + scEsc(scState.fileError || '') + ' Use Load data to preview a CSV.';
+    } else {
+      const last = periods[periods.length - 1];
+      const winTxt = scState.win === '1' || periods.length === 1 ? 'the period starting ' + scDate(last)
+        : scState.win === 'all' ? 'all ' + periods.length + ' periods' : 'the last ' + Math.min(n, periods.length) + ' periods';
+      const isSample = tenants.length && tenants.every(t => /^sample tenant/i.test(t.name));
+      const src = scState.override ? '<b>Uploaded data, this browser only.</b> Clear it under Load data to go back to ' + SC_CSV_PATH + '. '
+        : isSample ? '<b>Sample tenants.</b> ' + SC_CSV_PATH + ' holds generated sample data, not real tenants. ' : '';
+      sub.innerHTML = src + tenants.length + ' tenant' + (tenants.length === 1 ? '' : 's') + ' scored on ' + scEsc(winTxt)
+        + (periods.length > 1 ? ' (' + scDate(periods[0]) + ' to ' + scDate(last) + ' overall).' : '.');
+    }
+  }
+  const srcMsg = $('sc-source-msg');
+  if (srcMsg) {
+    const bad = scState.override ? (scState.override.bad || []) : scState.fileBad;
+    const where = scState.override ? 'Uploaded CSV' : SC_CSV_PATH;
+    srcMsg.textContent = bad.length ? where + ': skipped line' + (bad.length > 1 ? 's ' : ' ') + bad.slice(0, 12).join(', ')
+      + (bad.length > 12 ? ' and ' + (bad.length - 12) + ' more' : '') + ' (invalid values).' : '';
+    srcMsg.className = 'sc-msg' + (bad.length ? ' err' : '');
+  }
+
+  const tb = $('sc-tbody');
+  if (tb) {
+    tb.innerHTML = [overall, ...tenants].filter(Boolean).map(t => {
+      const c = (k, main, small) => '<td class="num"><span class="sc-cell sc-' + t.st[k] + '" title="' + SC_LABEL[t.st[k]] + '"><b>'
+        + main + '</b><small>' + small + '</small></span></td>';
+      const techSmall = t.vals.growth == null ? 'no prior period'
+        : scSigned(t.vals.growth) + (t.all ? ' same tenants' : ' from ' + t.techStart);
+      const x = t.all ? null : xr.status[t.name];
+      const off = x && !x.on ? '<span class="sc-off" title="No tenant with this name or id has time-tracking-redesign on in LaunchDarkly">Not TT 2.0-enabled</span>' : '';
+      return '<tr data-t="' + scEsc(t.name) + '" class="' + [t.all ? 'sc-all' : '', t.name === scState.sel ? 'sel' : ''].join(' ').trim() + '" tabindex="0">'
+        + '<td class="sc-tn">' + (t.all ? 'All tenants<span class="sc-sub">' + t.tenantCount + ' combined</span>' : scEsc(t.name) + off) + '</td>'
+        + '<td class="sc-score">' + (t.score == null ? '–' : t.score) + '</td>'
+        + c('submit', scPct(t.vals.submit), scOf(t, 'submit', t.entries, 'entries submitted'))
+        + c('approval', scPct(t.vals.approval), scOf(t, 'approval', t.entries, 'entries approved'))
+        + c('long', scPct(t.vals.long), scOf(t, 'long', t.ts, 'tech-days'))
+        + c('edit', scPct(t.vals.edit), scOf(t, 'edit', t.entries, 'entries edited'))
+        + c('growth', t.techEnd == null ? '–' : t.techEnd, techSmall)
+        + '</tr>';
+    }).join('') || '<tr><td colspan="7" class="sc-empty">' + (scState.source === 'loading' ? 'Loading&hellip;' : 'No tenants yet. Use Load data to add a CSV.') + '</td></tr>';
+  }
+
+  const xe = $('sc-xref');
+  if (xe) {
+    if (!tenants.length) { xe.innerHTML = ''; xe.hidden = true; }
+    else {
+      xe.hidden = false;
+      const on = tenants.filter(t => xr.status[t.name].on);
+      const byId = on.filter(t => xr.status[t.name].via === 'id').length;
+      xe.innerHTML = '<b>Against LaunchDarkly.</b> ' + on.length + ' of ' + tenants.length + ' scorecard tenants have <code>time-tracking-redesign</code> on'
+        + (on.length ? ' (' + (byId ? byId + ' matched by tenant_id, ' + (on.length - byId) + ' by name' : 'matched by name') + ')' : '')
+        + (on.length < tenants.length ? '; the rest are marked &ldquo;Not TT 2.0-enabled&rdquo;' : '')
+        + '. Names match ignoring case, punctuation and Inc/LLC/Ltd/Co, so add a '
+        + '<code>tenant_id</code> column for an exact match.'
+        + (xr.missing.length ? '<details style="margin-top:7px"><summary>' + xr.missing.length + ' TT 2.0 customer tenant' + (xr.missing.length > 1 ? 's have' : ' has')
+          + ' no scorecard data</summary><ul>' + xr.missing.map(m => '<li>' + scEsc(m) + '</li>').join('') + '</ul></details>'
+          : '<br>Every TT 2.0 customer tenant has scorecard data.');
+    }
+  }
+  scRenderDetail(scState.sel === SC_ALL ? overall : tenants.find(t => t.name === scState.sel));
+}
+
+// "1,234 of 5,678 entries approved" — the metric's own count over its own base.
+function scOf(t, key, base, what) {
+  if (t.vals[key] == null) return t.n[key] == null ? 'not measured' : 'none in window';
+  const f = v => v.toLocaleString('en-US');
+  return f(t.n[key]) + ' of ' + f(base) + ' ' + what;
+}
+
+function scSeries(t, k) {
+  return t.rs.map(r => {
+    if (k === 'submit') return r.time_entries && r.submitted_entries != null ? r.submitted_entries / r.time_entries * 100 : null;
+    if (k === 'approval') return r.time_entries ? r.approved_entries / r.time_entries * 100 : null;
+    if (k === 'long') return r.timesheets ? r.timesheets_20h_plus / r.timesheets * 100 : null;
+    if (k === 'edit') return r.time_entries && r.edited_entries != null ? r.edited_entries / r.time_entries * 100 : null;
+    return r.active_technicians;
+  });
+}
+
+// "+1.2 pts" for percentages, "+3" for counts; colored by whether the move is good
+// for this metric (up for approval, down for 20h+ days).
+function scChange(d, opt) {
+  const mag = opt.pct ? (Math.abs(d) < 10 ? Math.abs(d).toFixed(1) : String(Math.round(Math.abs(d)))) : String(Math.abs(Math.round(d)));
+  if (Number(mag) === 0) return 'no change';
+  return (d > 0 ? '+' : '−') + mag + (opt.pct ? ' pts' : '');
+}
+
+// Change from the first to the last week plotted, for the line under each headline value.
+function scDelta(vals, labels, opt) {
+  const pts = vals.map((v, i) => ({ v, i })).filter(p => p.v != null);
+  if (pts.length < 2) return '';
+  const a = pts[0], b = pts[pts.length - 1], d = b.v - a.v;
+  const fmt = v => opt.pct ? v.toFixed(1) + '%' : String(v);
+  const better = d === 0 ? null : (opt.dir === 'down' ? d < 0 : d > 0);
+  const cls = better == null ? '' : better ? ' sc-delta-good' : ' sc-delta-bad';
+  const chg = scChange(d, opt);
+  const arrow = chg === 'no change' ? '' : d > 0 ? '▲ ' : '▼ ';
+  const rel = !opt.pct && a.v > 0 && chg !== 'no change' ? ' (' + scSigned((b.v - a.v) / a.v * 100) + ')' : '';
+  return '<div class="sc-delta' + (chg === 'no change' ? '' : cls) + '">' + arrow + chg.replace(/^[+−]/, '') + rel + ' since ' + scDate(labels[a.i])
+    + ' <span>(' + fmt(a.v) + ' → ' + fmt(b.v) + ')</span></div>';
+}
+
+function scChart(vals, labels, opt) {
+  const W = 340, H = 150, L = 34, R = 12, T = 12, B = 24;
+  const pts = vals.map((v, i) => ({ v, i })).filter(p => p.v != null);
+  if (!pts.length) return '<div class="sc-empty">No data</div>';
+  let lo = Math.min(...pts.map(p => p.v)), hi = Math.max(...pts.map(p => p.v));
+  if (opt.thr) { lo = Math.min(lo, opt.thr.good, opt.thr.watch); hi = Math.max(hi, opt.thr.good, opt.thr.watch); }
+  const pad = Math.max((hi - lo) * .15, 1); lo -= pad; hi += pad;
+  if (opt.pct) { lo = Math.max(0, lo); hi = Math.min(100, hi); } else lo = Math.max(0, lo);
+  if (hi === lo) hi = lo + 1;
+  const x = i => L + (vals.length > 1 ? i / (vals.length - 1) : .5) * (W - L - R);
+  const y = v => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+  let g = '';
+  if (opt.thr) {
+    const gy = y(opt.thr.good), wy = y(opt.thr.watch);
+    const top = opt.dir === 'up' ? T : gy, bot = opt.dir === 'up' ? gy : H - B;
+    g += '<rect x="' + L + '" y="' + Math.max(T, Math.min(top, bot)) + '" width="' + (W - L - R) + '" height="' + Math.max(0, Math.abs(bot - top)) + '" fill="#e6f9ee"/>';
+    g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + gy + '" y2="' + gy + '" stroke="' + SC_COLOR.good + '" stroke-dasharray="3 3" stroke-width="1"><title>Good threshold</title></line>';
+    g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + wy + '" y2="' + wy + '" stroke="' + SC_COLOR.watch + '" stroke-dasharray="3 3" stroke-width="1"><title>Watch threshold</title></line>';
+  }
+  [lo, (lo + hi) / 2, hi].forEach(v => {
+    g += '<text class="tick" x="' + (L - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + (opt.pct ? Math.round(v) + '%' : Math.round(v)) + '</text>';
+  });
+  g += '<line class="axis" x1="' + L + '" x2="' + (W - R) + '" y1="' + (H - B) + '" y2="' + (H - B) + '"/>';
+  g += '<text class="tick" x="' + x(0) + '" y="' + (H - 6) + '">' + scDate(labels[0]) + '</text>';
+  if (labels.length > 1) g += '<text class="tick" x="' + x(labels.length - 1) + '" y="' + (H - 6) + '" text-anchor="end">' + scDate(labels[labels.length - 1]) + '</text>';
+  g += '<polyline fill="none" stroke="#4f8ef7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="' + pts.map(p => x(p.i) + ',' + y(p.v)).join(' ') + '"/>';
+  g += pts.map(p => '<circle cx="' + x(p.i) + '" cy="' + y(p.v) + '" r="2.6" fill="#fff" stroke="#4f8ef7" stroke-width="1.6" pointer-events="none"/>').join('');
+  // Invisible, larger targets carry the tooltip text, so a dot does not have to be hit exactly.
+  g += pts.map((p, k) => {
+    const prev = k > 0 ? pts[k - 1] : null;
+    const val = opt.pct ? p.v.toFixed(1) + '%' : p.v + ' technicians';
+    const chg = prev ? scChange(p.v - prev.v, opt) + ' vs ' + scDate(labels[prev.i]) : 'first week shown';
+    return '<circle class="sc-hit" cx="' + x(p.i) + '" cy="' + y(p.v) + '" r="11" fill="transparent" tabindex="0" role="img"'
+      + ' aria-label="' + scEsc(scDate(labels[p.i]) + ': ' + val + ', ' + chg) + '"'
+      + ' data-tip="' + scEsc('<b>' + scDate(labels[p.i]) + '</b> · ' + val + '<br>' + chg) + '"/>';
+  }).join('');
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + scEsc(opt.label) + ' trend">' + g + '</svg>';
+}
+
+function scRenderDetail(t) {
+  const el = document.getElementById('sc-detail'); if (!el) return;
+  if (!t) { el.innerHTML = ''; return; }
+  const labels = t.rs.map(r => r.period_start);
+  const card = (m, valTxt, opt) => {
+    const series = scSeries(t, m.key);
+    return '<div class="chart-card"><div class="sc-chart-top"><h3>' + m.name + '</h3><span class="sc-pill sc-' + t.st[m.key] + '">'
+      + SC_LABEL[t.st[m.key]] + '</span></div><div class="sc-val">' + valTxt + '</div>'
+      // Summed headcount across tenants rises as tenants join 2.0; its first-to-last change
+      // would contradict the same-tenant growth this card is scored on.
+      + (t.all && m.key === 'growth' ? '' : scDelta(series, labels, opt))
+      + '<p class="chart-sub">' + m.def + '</p>' + scChart(series, labels, opt) + '</div>';
+  };
+  const M = k => SC_METRICS.find(m => m.key === k);
+  const growthDef = t.vals.growth == null ? 'no prior period'
+    : t.all ? scSigned(t.vals.growth) + ' across the ' + t.same.count + ' tenants with data at both ends (' + t.same.start + ' to ' + t.same.end + ')'
+    : scSigned(t.vals.growth) + ' (' + t.techStart + ' to ' + t.techEnd + ')';
+  el.innerHTML = '<div class="sc-detail-head"><h2>' + (t.all ? 'All tenants' : scEsc(t.name)) + '</h2><span>Score <b>' + (t.score == null ? '–' : t.score) + '</b>'
+    + (t.all ? ' &middot; ' + t.tenantCount + ' tenants combined, counts added together each period' : '') + '</span></div>'
+    + '<div class="sc-charts">'
+    + card(M('submit'), scPct(t.vals.submit), { pct: true, thr: scState.thr.submit, dir: 'up', label: 'Submission rate' })
+    + card(M('approval'), scPct(t.vals.approval), { pct: true, thr: scState.thr.approval, dir: 'up', label: 'Approval rate' })
+    + card(M('long'), scPct(t.vals.long), { pct: true, thr: scState.thr.long, dir: 'down', label: '20h+ days' })
+    + card(M('edit'), scPct(t.vals.edit), { pct: true, thr: scState.thr.edit, dir: 'down', label: 'Edit rate' })
+    + card({ name: 'Active technicians', key: 'growth', def: 'Scored on change across the window: ' + growthDef },
+      t.techEnd == null ? '–' : t.techEnd, { pct: false, dir: 'up', label: 'Active technicians' })
+    + '</div>';
+}
+
+function scRenderThr() {
+  const f = document.getElementById('sc-thr-form'); if (!f) return;
+  f.innerHTML = SC_METRICS.map(m => {
+    const w = m.dir === 'up' ? 'at or above' : 'at or below';
+    return '<fieldset><legend>' + m.name + '</legend><div class="sc-row">'
+      + '<label>Good ' + w + '<input type="number" step="0.5" data-k="' + m.key + '" data-f="good" value="' + scState.thr[m.key].good + '"></label>'
+      + '<label>Watch ' + w + '<input type="number" step="0.5" data-k="' + m.key + '" data-f="watch" value="' + scState.thr[m.key].watch + '"></label>'
+      + '</div></fieldset>';
+  }).join('');
+}
+
+function scLoadMsg(t, cls) { const m = document.getElementById('sc-load-msg'); if (m) { m.textContent = t; m.className = 'sc-msg ' + (cls || ''); } }
+
+function scApplyUpload(text) {
+  const r = scParseCSV(text);
+  if (r.error) { scLoadMsg(r.error + (r.bad && r.bad.length ? ' Bad lines: ' + r.bad.slice(0, 12).join(', ') + '.' : ''), 'err'); return; }
+  scState.override = { rows: r.rows, bad: r.bad };
+  scState.sel = null;
+  scStore.set('tt2sc.data', scState.override);
+  const tc = new Set(r.rows.map(x => x.tenant)).size;
+  scLoadMsg('Loaded ' + r.rows.length + ' rows for ' + tc + ' tenants. It replaces ' + SC_CSV_PATH + ' in this browser until you clear it.'
+    + (r.bad.length ? ' Skipped line' + (r.bad.length > 1 ? 's ' : ' ') + r.bad.slice(0, 12).join(', ') + (r.bad.length > 12 ? '…' : '') + ' (invalid values).' : ''),
+    r.bad.length ? 'err' : 'ok');
+  scRender();
+}
+
+function scWire() {
+  const $ = id => document.getElementById(id);
+  const toggle = (btn, panel) => { const p = $(panel), open = p.hidden; p.hidden = !open; $(btn).setAttribute('aria-expanded', String(open)); };
+  $('sc-btn-load').addEventListener('click', () => toggle('sc-btn-load', 'sc-load-panel'));
+  $('sc-btn-thr').addEventListener('click', () => toggle('sc-btn-thr', 'sc-thr-panel'));
+  $('sc-win').value = scState.win; $('sc-sort').value = scState.sort;
+  $('sc-win').addEventListener('change', e => { scState.win = e.target.value; scStore.set('tt2sc.win', scState.win); scRender(); });
+  $('sc-sort').addEventListener('change', e => { scState.sort = e.target.value; scStore.set('tt2sc.sort', scState.sort); scRender(); });
+  $('sc-thr-form').addEventListener('input', e => {
+    const i = e.target; if (!i.dataset || !i.dataset.k) return;
+    const v = parseFloat(i.value); if (!isFinite(v)) return;
+    scState.thr[i.dataset.k][i.dataset.f] = v; scStore.set('tt2sc.thr', scState.thr); scRender();
+  });
+  $('sc-btn-thr-reset').addEventListener('click', () => {
+    scState.thr = JSON.parse(JSON.stringify(SC_DEFAULT_THR)); scStore.del('tt2sc.thr'); scRenderThr(); scRender();
+  });
+  const header = SC_TEMPLATE_COLS.join(',');
+  $('sc-tpl').textContent = header + '\nAcme Mechanical,2026-09-21,412,388,401,51,96,2,24';
+  $('sc-btn-copy').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(header); scLoadMsg('Header row copied.', 'ok'); }
+    catch (e) { scLoadMsg('Copy blocked by the browser. Select the first line above and copy it manually.', 'err'); }
+  });
+  $('sc-btn-apply').addEventListener('click', () => scApplyUpload($('sc-csv').value));
+  $('sc-file').addEventListener('change', e => {
+    const f = e.target.files[0]; if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => { $('sc-csv').value = rd.result; scApplyUpload(rd.result); };
+    rd.onerror = () => scLoadMsg('Could not read that file.', 'err');
+    rd.readAsText(f); e.target.value = '';
+  });
+  $('sc-btn-clear').addEventListener('click', () => {
+    scState.override = null; scState.sel = null; scStore.del('tt2sc.data');
+    scLoadMsg('Uploaded data cleared. Showing ' + SC_CSV_PATH + '.', 'ok'); scRender();
+  });
+  const pick = tr => {
+    if (!tr || !tr.dataset || !tr.dataset.t) return;
+    scState.sel = tr.dataset.t; scRender();
+    const row = document.querySelector('#sc-tbody tr[data-t="' + CSS.escape(scState.sel) + '"]');
+    if (row) row.focus();
+    if (window.matchMedia && matchMedia('(max-width:720px)').matches)
+      $('sc-detail').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  };
+  $('sc-tbody').addEventListener('click', e => pick(e.target.closest('tr')));
+  // One tooltip for every chart point; positioned against the viewport, so it is
+  // hidden on scroll rather than left floating in the wrong place.
+  const tip = $('sc-tip');
+  const showTip = el => {
+    if (!el || !el.dataset || !el.dataset.tip) return;
+    tip.innerHTML = el.dataset.tip; tip.hidden = false;
+    const r = el.getBoundingClientRect();
+    tip.style.left = Math.min(window.innerWidth - 8, Math.max(8, r.left + r.width / 2)) + 'px';
+    tip.style.top = (r.top + r.height / 2 - 14) + 'px';
+  };
+  const hideTip = () => { tip.hidden = true; };
+  $('sc-detail').addEventListener('pointerover', e => showTip(e.target.closest('.sc-hit')));
+  $('sc-detail').addEventListener('pointerout', e => { if (e.target.closest('.sc-hit')) hideTip(); });
+  $('sc-detail').addEventListener('focusin', e => showTip(e.target.closest('.sc-hit')));
+  $('sc-detail').addEventListener('focusout', hideTip);
+  window.addEventListener('scroll', hideTip, { passive: true });
+  $('sc-tbody').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e.target.closest('tr')); } });
+}
+
+function renderScorecard() {
+  scInitState();
+  scRenderThr();
+  try { scWire(); } catch (e) { /* controls unavailable outside a browser */ }
+  scRender();
+  // The committed file is always fetched, even when an upload overrides it, so
+  // clearing the upload has something to fall back to without a reload.
+  let req;
+  try { req = fetch(SC_CSV_PATH, { cache: 'no-store' }); } catch (e) { req = Promise.reject(e); }
+  Promise.resolve(req)
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then(text => {
+      const r = scParseCSV(text);
+      if (r.error) { scState.fileError = SC_CSV_PATH + ': ' + r.error; scState.fileBad = r.bad || []; scState.rows = []; }
+      else { scState.rows = r.rows; scState.fileBad = r.bad; }
+      scState.source = 'file'; scRender();
+    })
+    .catch(e => {
+      scState.source = 'error'; scState.fileError = 'Could not load ' + SC_CSV_PATH + ' (' + (e && e.message || e) + ').';
+      scRender();
+    });
 }
 
 // ── Runway tab ─────────────────────────────────────────────────────────────────
