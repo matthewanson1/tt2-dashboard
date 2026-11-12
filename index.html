@@ -835,7 +835,7 @@
 //
 // SNAPSHOT_DATE — bumped by the unattended GitHub Actions job, which syncs ONLY
 // the tenant ID list from LaunchDarkly. Cheap and reliable; runs every day.
-const SNAPSHOT_DATE = '2026-11-11';
+const SNAPSHOT_DATE = '2026-11-12';
 
 // LAST_ENRICHED_DATE — bumped ONLY by the Snowflake enrichment job, which is the
 // sole source of names, industry, segment, hours and usage. It needs an
@@ -1078,6 +1078,7 @@ const NEXT_UP_TENANTS = [
   {"id":"25c5251c-c2c3-48f3-9345-ea5a722157b0","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-11-10"},
   {"id":"681167b4-10fa-4864-abc4-ceaaca43de56","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-11-10"},
   {"id":"21f0d0b6-4dd5-4bdb-9a98-fee403d14c40","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-11-10"},
+  {"id":"22c2c565-f101-4879-bb94-3083ecd4381c","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-11-12"},
   {"id":"3f30e69f-6563-434f-8237-ea5c0d87b02d","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"ff0ff35d-ba02-403f-be4f-41c5d71c6776","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"efdcda05-06e3-4264-ba49-a6f962618759","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
@@ -2888,6 +2889,9 @@ const SNAPSHOT_TENANTS = [
   {"id":"e95c325f-3e5f-4e27-9716-f9720eecf26d","name":null,"enabledDate":"2026-11-10","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"b740d12d-0dcf-454b-98d3-7f44ca670ea7","name":null,"enabledDate":"2026-11-10","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"33e65d24-5614-4989-b51b-3f04d1319375","name":null,"enabledDate":"2026-11-10","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"a64250fd-e84e-41ef-a7a4-7b019f414591","name":null,"enabledDate":"2026-11-12","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"882df089-7c61-49c0-a998-e0433841e218","name":null,"enabledDate":"2026-11-12","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"701004f8-cc42-4d9e-8e6a-6d62ab62a68e","name":null,"enabledDate":"2026-11-11","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
