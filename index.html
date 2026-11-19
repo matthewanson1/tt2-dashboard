@@ -835,7 +835,7 @@
 //
 // SNAPSHOT_DATE — bumped by the unattended GitHub Actions job, which syncs ONLY
 // the tenant ID list from LaunchDarkly. Cheap and reliable; runs every day.
-const SNAPSHOT_DATE = '2026-11-18';
+const SNAPSHOT_DATE = '2026-11-19';
 
 // LAST_ENRICHED_DATE — bumped ONLY by the Snowflake enrichment job, which is the
 // sole source of names, industry, segment, hours and usage. It needs an
@@ -1093,6 +1093,8 @@ const NEXT_UP_TENANTS = [
   {"id":"98561bdd-4cd2-4585-a6ee-e42502c75a13","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-11-14"},
   {"id":"5446c7fd-3a3f-4f77-b913-64cded1c4550","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-11-17"},
   {"id":"b1716404-da7a-4a84-9b5f-3d398fb6ff3b","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-11-17"},
+  {"id":"075f29c1-dcc4-4286-8b94-539f36a9293a","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-11-18"},
+  {"id":"3321f582-4355-45d5-a052-7574684b1a7b","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-11-19"},
   {"id":"1daecc9a-1dac-468d-95ca-857e0f6e135c","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"215aaabe-eeab-4c57-bc9e-c12c0cdd9387","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"25be1508-5e89-4be5-a37d-2a9ceec39ad4","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
@@ -1206,7 +1208,6 @@ const NEXT_UP_TENANTS = [
   {"id":"40568b32-2da8-4ea6-81c2-031e921e7ede","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"40a7b9d0-6191-4a7b-a334-0fddbb8a1697","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"42508805-b2b0-4d2e-a96a-a1f9cf330208","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
-  {"id":"425c9fc7-5c6a-433f-912e-4f2c3c0faef2","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"447f8328-35bc-4189-9cc5-f65cfd220fa1","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"4b7b1180-61b4-4fe6-b1cf-7ec9d3884d08","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"4dbe347d-c72e-4c46-b093-674a16a1b5d2","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
@@ -1227,7 +1228,6 @@ const NEXT_UP_TENANTS = [
   {"id":"5f99b0f6-e55e-4e19-a8be-0832eaaaabc8","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"626e5b01-0b70-44ce-9d18-73147d404cc9","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"62a2dc74-f0d6-4b5e-a998-1d9744144eb6","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
-  {"id":"63ef0753-f8b4-4a2c-b3d4-44e5e42747a6","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"64174884-5c1e-4877-ae8f-e82c96d0999f","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"646ce76f-b865-49ec-b2cd-9f132707c745","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"68acfd2f-fc94-4e70-a7e4-9b8171ccb5a6","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
@@ -1298,7 +1298,6 @@ const NEXT_UP_TENANTS = [
   {"id":"cd01e265-1594-4701-9c78-2c6b97f0d22e","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"d1c48c33-910f-463b-ad45-8fe25dd96142","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"d1f46180-0e2f-4647-b844-addc8dc65984","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
-  {"id":"d2141d26-17de-4254-85cf-c795ec6194fa","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"d3182452-70b9-449d-9851-34660f7154c0","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"d3e5b14a-5166-477c-9d89-93e48bb56701","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"d4a663b4-a522-4575-b72f-64f882666568","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
@@ -1311,7 +1310,6 @@ const NEXT_UP_TENANTS = [
   {"id":"dd564ed0-cce3-4802-96bd-cfed8fd50b53","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"e20b0300-211c-4d22-a279-74122e850f71","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"e2b98589-e8dc-42e1-8111-56b62e0b5d52","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
-  {"id":"e3c25e09-5cdb-421b-a174-a94bd58c286d","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"e83760e6-4f14-41f2-858d-3016f06f2a61","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"e8ab549a-6ba0-4b8a-bbc9-7d6378b3424f","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"ebcfa6c5-c823-4265-b346-789e56340226","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
@@ -3423,6 +3421,17 @@ const SNAPSHOT_TENANTS = [
   {"id":"27384f52-e969-4980-b23a-660c953f8110","name":null,"enabledDate":"2026-11-17","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"3073d619-8f2b-4639-b41d-5a59edcfc25b","name":null,"enabledDate":"2026-11-17","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"80d69bae-ebc5-4087-b790-1732ec24b921","name":null,"enabledDate":"2026-11-17","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"3319885d-fc04-41bc-804b-5b3baaf8adff","name":null,"enabledDate":"2026-11-19","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"d6fd7fb0-0ed9-43b7-b097-2649cf7afa11","name":null,"enabledDate":"2026-11-19","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"c954e085-dcba-4289-a355-6704a94cc4d8","name":null,"enabledDate":"2026-11-19","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"e3c25e09-5cdb-421b-a174-a94bd58c286d","name":null,"enabledDate":"2026-11-19","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"3096ea31-c62f-4282-a055-c81f5a0b95e9","name":null,"enabledDate":"2026-11-18","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"ace73a38-651b-44cc-b28e-07aa59e7a5a0","name":null,"enabledDate":"2026-11-18","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"425c9fc7-5c6a-433f-912e-4f2c3c0faef2","name":null,"enabledDate":"2026-11-18","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"d419df7b-993e-42ad-9eec-6895fe30375b","name":null,"enabledDate":"2026-11-18","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"e5ae9973-3086-41c9-959b-63f55edf5df1","name":null,"enabledDate":"2026-11-18","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"d2141d26-17de-4254-85cf-c795ec6194fa","name":null,"enabledDate":"2026-11-18","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"60f6bcbc-792b-41bb-b9d4-69e5800fac26","name":null,"enabledDate":"2026-11-18","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
