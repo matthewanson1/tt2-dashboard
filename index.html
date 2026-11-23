@@ -835,7 +835,7 @@
 //
 // SNAPSHOT_DATE — bumped by the unattended GitHub Actions job, which syncs ONLY
 // the tenant ID list from LaunchDarkly. Cheap and reliable; runs every day.
-const SNAPSHOT_DATE = '2026-11-22';
+const SNAPSHOT_DATE = '2026-11-23';
 
 // LAST_ENRICHED_DATE — bumped ONLY by the Snowflake enrichment job, which is the
 // sole source of names, industry, segment, hours and usage. It needs an
@@ -1086,6 +1086,7 @@ const NEXT_UP_TENANTS = [
   {"id":"075f29c1-dcc4-4286-8b94-539f36a9293a","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-11-18"},
   {"id":"3321f582-4355-45d5-a052-7574684b1a7b","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-11-19"},
   {"id":"6f292634-129f-4eef-8585-c251f359e241","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-11-20"},
+  {"id":"1365a0eb-e753-4350-ad32-3a629ff9cffc","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":"2026-11-22"},
   {"id":"1daecc9a-1dac-468d-95ca-857e0f6e135c","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"215aaabe-eeab-4c57-bc9e-c12c0cdd9387","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"25be1508-5e89-4be5-a37d-2a9ceec39ad4","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
@@ -1220,7 +1221,6 @@ const NEXT_UP_TENANTS = [
   {"id":"62a2dc74-f0d6-4b5e-a998-1d9744144eb6","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"64174884-5c1e-4877-ae8f-e82c96d0999f","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"646ce76f-b865-49ec-b2cd-9f132707c745","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
-  {"id":"68acfd2f-fc94-4e70-a7e4-9b8171ccb5a6","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"6935adbd-4a86-439e-8974-ce31a643d38d","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"6a02d64c-d455-45dd-8d2b-a7006f91123c","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
   {"id":"6d1481cb-5bb4-4b64-9f19-04be2eba2cb6","name":null,"industry":null,"segment":null,"coreGoLiveDate":null,"doubleWriteEnabledDate":null},
@@ -3445,6 +3445,11 @@ const SNAPSHOT_TENANTS = [
   {"id":"322fc4ed-2e54-491e-be8d-4b5acd3594ae","name":null,"enabledDate":null,"webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"4c0c0df5-5f36-4b80-a1a2-955c956e7f69","name":null,"enabledDate":"2026-11-22","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
   {"id":"0f105d81-ed15-4f54-b4ca-f6356289bbdc","name":null,"enabledDate":"2026-11-22","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"68acfd2f-fc94-4e70-a7e4-9b8171ccb5a6","name":null,"enabledDate":"2026-11-23","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"3ccd38d3-b4cb-45ee-9c6b-268633886224","name":null,"enabledDate":"2026-11-23","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"39b453c0-9fae-4a7a-800e-7df157508dee","name":null,"enabledDate":"2026-11-23","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"277989d4-e1f2-40a1-92a9-e40fc94117e7","name":null,"enabledDate":"2026-11-23","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
+  {"id":"d1fc3a82-3e48-4622-b8b3-b266c0a8bb40","name":null,"enabledDate":"2026-11-23","webViews":0,"mobileEvents":0,"hours30d":0,"employees30d":0,"hoursOn20":0,"employeesOn20":0},
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
